@@ -24,6 +24,8 @@ type ExpandableCardModalProps = {
   contentClassName?: string;
   headerClassName?: string;
   titleClassName?: string;
+  showDragHandle?: boolean;
+  showToggleButton?: boolean;
   onHeaderPointerDown?: (event: ReactPointerEvent<HTMLDivElement>) => void;
 };
 
@@ -34,6 +36,8 @@ export function ExpandableCardModal({
   contentClassName,
   headerClassName,
   titleClassName,
+  showDragHandle = true,
+  showToggleButton = true,
   onHeaderPointerDown,
 }: ExpandableCardModalProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -60,7 +64,7 @@ export function ExpandableCardModal({
       {
         transformOrigin: "top left",
         transform: `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})`,
-        opacity: 0.25,
+        opacity: 0,
       },
       {
         transformOrigin: "top left",
@@ -148,30 +152,27 @@ export function ExpandableCardModal({
 
   return (
     <>
-      <div ref={inlineCardRef}>
-        <Card className={cn("h-full", cardClassName)}>
-          <CardHeader>
-            <div
-              className={cn(
-                "flex items-center justify-between",
-                headerClassName,
-              )}
-              onPointerDown={onHeaderPointerDown}
-            >
-              <CardTitle
-                className={cn("text-muted-foreground", titleClassName)}
-              >
-                {title}
-              </CardTitle>
-              <div className="flex items-center gap-1">
+      <Card ref={inlineCardRef} className={cn("h-full", cardClassName)}>
+        <CardHeader>
+          <div
+            className={cn("flex items-center justify-between", headerClassName)}
+            onPointerDown={onHeaderPointerDown}
+          >
+            <CardTitle className={cn("text-muted-foreground", titleClassName)}>
+              {title}
+            </CardTitle>
+            <div className="flex items-center gap-1">
+              {showToggleButton && (
                 <ToggleButton expanded={false} onClick={openModal} />
+              )}
+              {showDragHandle && (
                 <GripVertical className="h-4 w-4 text-muted-foreground" />
-              </div>
+              )}
             </div>
-          </CardHeader>
-          <CardContent className={contentClassName}>{children}</CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardHeader>
+        <CardContent className={contentClassName}>{children}</CardContent>
+      </Card>
 
       {isMounted &&
         isOpen &&
@@ -202,8 +203,12 @@ export function ExpandableCardModal({
                       {title}
                     </CardTitle>
                     <div className="flex items-center gap-1">
-                      <ToggleButton expanded onClick={closeModal} />
-                      <GripVertical className="h-4 w-4 text-muted-foreground" />
+                      {showToggleButton && (
+                        <ToggleButton expanded onClick={closeModal} />
+                      )}
+                      {showDragHandle && (
+                        <GripVertical className="h-4 w-4 text-muted-foreground" />
+                      )}
                     </div>
                   </div>
                 </CardHeader>

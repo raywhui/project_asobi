@@ -18,9 +18,11 @@ import {
   Footprints,
   Heart,
   HeartPlus,
+  Move,
   Pencil,
   Save,
   Scaling,
+  Settings2,
   Shield,
   Skull,
   Swords,
@@ -31,6 +33,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input as BaseInput } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
 import { Textarea as BaseTextarea } from "@/components/ui/textarea";
 import { ExpandableCardModal } from "@/components/expandable-card-modal";
 import { EditableListField } from "@/components/editable-list-field";
@@ -369,6 +377,8 @@ function parseStoredSpans(
 export function DndCharacterSheet() {
   const [sheet, setSheet] = useState<CharacterSheetState>(initialState);
   const [isEditing, setIsEditing] = useState(false);
+  const [isDragEnabled, setIsDragEnabled] = useState(true);
+  const [isResizeEnabled, setIsResizeEnabled] = useState(true);
   const [columnCount, setColumnCount] = useState<ColumnCount>(4);
   const [order, setOrder] = useState<SectionId[] | null>(null);
   const [cardSpans, setCardSpans] =
@@ -441,6 +451,27 @@ export function DndCharacterSheet() {
   useEffect(() => {
     cardSpansRef.current = cardSpans;
   }, [cardSpans]);
+
+  useEffect(() => {
+    if (!isDragEnabled) {
+      setDraggingId(null);
+      setTouchDraggingId(null);
+      dragHandleArmedRef.current = null;
+      reorderLockRef.current = false;
+      lastDragTargetRef.current = null;
+      lastTouchTargetRef.current = null;
+      if (dragPreviewRef.current) {
+        dragPreviewRef.current.remove();
+        dragPreviewRef.current = null;
+      }
+    }
+  }, [isDragEnabled]);
+
+  useEffect(() => {
+    if (!isResizeEnabled) {
+      setResizeState(null);
+    }
+  }, [isResizeEnabled]);
 
   const editableInputClass = "";
 
@@ -571,6 +602,7 @@ export function DndCharacterSheet() {
   };
 
   const moveCard = (dragId: SectionId, targetId: SectionId) => {
+    if (!isDragEnabled) return;
     if (dragId === targetId) return;
     if (reorderLockRef.current) return;
 
@@ -637,7 +669,7 @@ export function DndCharacterSheet() {
     id: SectionId,
     event: ReactPointerEvent<HTMLElement>,
   ) => {
-    if (isEditing || resizeState) return;
+    if (!isDragEnabled || isEditing || resizeState) return;
     if (event.button !== 0) return;
     dragHandleArmedRef.current = id;
   };
@@ -645,14 +677,17 @@ export function DndCharacterSheet() {
   const getHeaderHandleClasses = () =>
     cn(
       "flex items-center justify-between select-none",
-      !isEditing && !resizeState && "cursor-grab active:cursor-grabbing",
+      !isEditing &&
+        !resizeState &&
+        isDragEnabled &&
+        "cursor-grab active:cursor-grabbing",
     );
 
   const startResize = (
     id: SectionId,
     event: ReactPointerEvent<HTMLButtonElement>,
   ) => {
-    if (isEditing) return;
+    if (!isResizeEnabled || isEditing) return;
 
     event.preventDefault();
     event.stopPropagation();
@@ -685,21 +720,29 @@ export function DndCharacterSheet() {
     });
   };
 
-  const renderResizeHandle = (id: SectionId) => (
-    <button
-      type="button"
-      aria-label="Resize card"
-      onPointerDown={(event) => startResize(id, event)}
-      className="absolute bottom-2 right-2 z-20 rounded p-1 text-muted-foreground/70 transition-colors hover:text-foreground cursor-nwse-resize touch-none"
-    >
-      <Scaling className="h-4 w-4 transform scale-x-[-1]" />
-    </button>
-  );
+  const renderResizeHandle = (id: SectionId) => {
+    if (!isResizeEnabled || isEditing) return null;
+    return (
+      <button
+        type="button"
+        aria-label="Resize card"
+        onPointerDown={(event) => startResize(id, event)}
+        className="absolute bottom-2 right-2 z-20 cursor-nwse-resize rounded p-1 text-muted-foreground/70 transition-colors hover:text-foreground touch-none"
+      >
+        <Scaling className="h-4 w-4 transform scale-x-[-1]" />
+      </button>
+    );
+  };
 
   const dragHandlers = (id: SectionId) => ({
-    draggable: !isEditing && !resizeState,
+    draggable: isDragEnabled && !isEditing && !resizeState,
     onDragStart: (event: DragEvent<HTMLDivElement>) => {
-      if (isEditing || resizeState || dragHandleArmedRef.current !== id) {
+      if (
+        !isDragEnabled ||
+        isEditing ||
+        resizeState ||
+        dragHandleArmedRef.current !== id
+      ) {
         event.preventDefault();
         return;
       }
@@ -728,7 +771,7 @@ export function DndCharacterSheet() {
       lastDragTargetRef.current = null;
     },
     onDragEnter: (event: DragEvent<HTMLDivElement>) => {
-      if (isEditing || resizeState) return;
+      if (!isDragEnabled || isEditing || resizeState) return;
       event.preventDefault();
       if (draggingId && draggingId !== id) {
         if (lastDragTargetRef.current === id) return;
@@ -737,11 +780,11 @@ export function DndCharacterSheet() {
       }
     },
     onDragOver: (event: DragEvent<HTMLDivElement>) => {
-      if (isEditing || resizeState) return;
+      if (!isDragEnabled || isEditing || resizeState) return;
       event.preventDefault();
     },
     onDrop: (event: DragEvent<HTMLDivElement>) => {
-      if (isEditing || resizeState) return;
+      if (!isDragEnabled || isEditing || resizeState) return;
       event.preventDefault();
       finishDrag();
     },
@@ -753,12 +796,19 @@ export function DndCharacterSheet() {
       clearDragPreview();
     },
     onTouchStart: () => {
-      if (isEditing || resizeState || dragHandleArmedRef.current !== id) return;
+      if (
+        !isDragEnabled ||
+        isEditing ||
+        resizeState ||
+        dragHandleArmedRef.current !== id
+      ) {
+        return;
+      }
       setTouchDraggingId(id);
       lastTouchTargetRef.current = null;
     },
     onTouchMove: (event: TouchEvent<HTMLDivElement>) => {
-      if (isEditing || resizeState) return;
+      if (!isDragEnabled || isEditing || resizeState) return;
       const touch = event.touches[0];
       const target = document
         .elementFromPoint(touch.clientX, touch.clientY)
@@ -772,7 +822,7 @@ export function DndCharacterSheet() {
       }
     },
     onTouchEnd: () => {
-      if (isEditing || resizeState) return;
+      if (!isDragEnabled || isEditing || resizeState) return;
       finishTouchDrag();
     },
   });
@@ -936,38 +986,107 @@ export function DndCharacterSheet() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {isEditing && (
-            <div className="flex items-center gap-1 rounded-md border bg-background p-1">
-              {COLUMN_OPTIONS.map((count) => (
-                <Button
-                  key={count}
-                  type="button"
-                  size="sm"
-                  variant={columnCount === count ? "default" : "ghost"}
-                  onClick={() => setColumnCount(count)}
-                  className="h-8 px-2 text-xs"
-                >
-                  {count} Col
-                </Button>
-              ))}
-            </div>
-          )}
           <Badge variant={isEditing ? "default" : "secondary"}>
             {isEditing ? "Editing Enabled" : "Read-Only"}
           </Badge>
-          <Button onClick={() => setIsEditing((current) => !current)}>
-            {isEditing ? (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                Lock Sheet
-              </>
-            ) : (
-              <>
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit Sheet
-              </>
-            )}
-          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline">
+                <Settings2 className="mr-2 h-4 w-4" />
+                Sheet Controls
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-80 space-y-4">
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Sheet Mode</p>
+                <Button
+                  className="w-full justify-start"
+                  onClick={() => setIsEditing((current) => !current)}
+                >
+                  {isEditing ? (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Save Sheet
+                    </>
+                  ) : (
+                    <>
+                      <Pencil className="mr-2 h-4 w-4" />
+                      Edit Mode
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {isEditing && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Layout Columns</p>
+                  <div className="flex items-center gap-1 rounded-md border bg-background p-1">
+                    {COLUMN_OPTIONS.map((count) => (
+                      <Button
+                        key={count}
+                        type="button"
+                        size="sm"
+                        variant={columnCount === count ? "default" : "ghost"}
+                        onClick={() => setColumnCount(count)}
+                        className="h-8 flex-1 px-2 text-xs"
+                      >
+                        {count} Col
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-3">
+                <p className="text-sm font-medium">Card Interactions</p>
+                <div className="flex items-center justify-between rounded-md border p-2">
+                  <div className="flex items-center gap-2">
+                    <Move
+                      className={cn(
+                        "h-4 w-4 transition-colors",
+                        isDragEnabled
+                          ? "text-primary"
+                          : "text-muted-foreground",
+                      )}
+                    />
+                    <div className="leading-tight">
+                      <p className="text-sm">Drag and Drop</p>
+                      <p className="text-xs text-muted-foreground">
+                        Reorder cards in the grid
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={isDragEnabled}
+                    onCheckedChange={setIsDragEnabled}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between rounded-md border p-2">
+                  <div className="flex items-center gap-2">
+                    <Scaling
+                      className={cn(
+                        "h-4 w-4 transition-colors",
+                        isResizeEnabled
+                          ? "text-primary"
+                          : "text-muted-foreground",
+                      )}
+                    />
+                    <div className="leading-tight">
+                      <p className="text-sm">Resize Cards</p>
+                      <p className="text-xs text-muted-foreground">
+                        Enable drag-to-resize handles
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={isResizeEnabled}
+                    onCheckedChange={setIsResizeEnabled}
+                  />
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
@@ -1006,11 +1125,15 @@ export function DndCharacterSheet() {
                 {...dragHandlers(sectionId)}
               >
                 <ExpandableCardModal
+                  showDragHandle={isDragEnabled}
+                  showToggleButton={isEditing}
                   title="Ability Scores"
                   cardClassName="h-full"
                   headerClassName={getHeaderHandleClasses()}
                   titleClassName="w-[33%]"
-                  onHeaderPointerDown={(event) => armDragHandle(sectionId, event)}
+                  onHeaderPointerDown={(event) =>
+                    armDragHandle(sectionId, event)
+                  }
                   contentClassName={`grid gap-3 ${cardSpans.abilities.colSpan <= 1 ? "grid-cols-1" : "grid-cols-6"}`}
                 >
                   {abilities.map((ability) => (
@@ -1058,10 +1181,14 @@ export function DndCharacterSheet() {
                 {...dragHandlers(sectionId)}
               >
                 <ExpandableCardModal
+                  showDragHandle={isDragEnabled}
+                  showToggleButton={isEditing}
                   title="Combat"
                   cardClassName="h-full"
                   headerClassName={getHeaderHandleClasses()}
-                  onHeaderPointerDown={(event) => armDragHandle(sectionId, event)}
+                  onHeaderPointerDown={(event) =>
+                    armDragHandle(sectionId, event)
+                  }
                   contentClassName={`grid gap-6 ${cardSpans.combat.colSpan <= 1 ? "grid-cols-2" : "grid-cols-3"}`}
                 >
                   <div
@@ -1202,10 +1329,14 @@ export function DndCharacterSheet() {
                 {...dragHandlers(sectionId)}
               >
                 <ExpandableCardModal
+                  showDragHandle={isDragEnabled}
+                  showToggleButton={isEditing}
                   title="Skills"
                   cardClassName="h-full"
                   headerClassName={getHeaderHandleClasses()}
-                  onHeaderPointerDown={(event) => armDragHandle(sectionId, event)}
+                  onHeaderPointerDown={(event) =>
+                    armDragHandle(sectionId, event)
+                  }
                   contentClassName={`grid grid-cols-2 ${cardSpans.skills.colSpan <= 1 ? "md:grid-cols-1" : "md:grid-cols-2"}`}
                 >
                   {skills.map((skill, i) => (
@@ -1241,10 +1372,14 @@ export function DndCharacterSheet() {
                 {...dragHandlers(sectionId)}
               >
                 <ExpandableCardModal
+                  showDragHandle={isDragEnabled}
+                  showToggleButton={isEditing}
                   title="Equipment"
                   cardClassName="h-full"
                   headerClassName={getHeaderHandleClasses()}
-                  onHeaderPointerDown={(event) => armDragHandle(sectionId, event)}
+                  onHeaderPointerDown={(event) =>
+                    armDragHandle(sectionId, event)
+                  }
                 >
                   <EditableListField
                     value={sheet.equipment}
@@ -1269,16 +1404,22 @@ export function DndCharacterSheet() {
                 {...dragHandlers(sectionId)}
               >
                 <ExpandableCardModal
+                  showDragHandle={isDragEnabled}
+                  showToggleButton={isEditing}
                   title="Features & Traits"
                   cardClassName="h-full"
                   headerClassName={getHeaderHandleClasses()}
-                  onHeaderPointerDown={(event) => armDragHandle(sectionId, event)}
+                  onHeaderPointerDown={(event) =>
+                    armDragHandle(sectionId, event)
+                  }
                 >
                   <EditableListField
                     value={sheet.featuresAndTraits}
                     isEditing={isEditing}
                     className="min-h-32"
-                    onChange={(value) => updateField("featuresAndTraits", value)}
+                    onChange={(value) =>
+                      updateField("featuresAndTraits", value)
+                    }
                     placeholder="Add feature or trait..."
                   />
                 </ExpandableCardModal>
@@ -1297,10 +1438,14 @@ export function DndCharacterSheet() {
                 {...dragHandlers(sectionId)}
               >
                 <ExpandableCardModal
+                  showDragHandle={isDragEnabled}
+                  showToggleButton={isEditing}
                   title="Spells"
                   cardClassName="h-full"
                   headerClassName={getHeaderHandleClasses()}
-                  onHeaderPointerDown={(event) => armDragHandle(sectionId, event)}
+                  onHeaderPointerDown={(event) =>
+                    armDragHandle(sectionId, event)
+                  }
                 >
                   <EditableListField
                     value={sheet.spells}
@@ -1325,10 +1470,14 @@ export function DndCharacterSheet() {
                 {...dragHandlers(sectionId)}
               >
                 <ExpandableCardModal
+                  showDragHandle={isDragEnabled}
+                  showToggleButton={isEditing}
                   title="Backstory"
                   cardClassName="h-full"
                   headerClassName={getHeaderHandleClasses()}
-                  onHeaderPointerDown={(event) => armDragHandle(sectionId, event)}
+                  onHeaderPointerDown={(event) =>
+                    armDragHandle(sectionId, event)
+                  }
                 >
                   <Textarea
                     value={sheet.backstory}

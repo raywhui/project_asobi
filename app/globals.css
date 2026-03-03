@@ -66,3 +66,11 @@
     @apply bg-background text-foreground;
   }
 }
+
+.theme-transition,
+.theme-transition * {
+  transition-property: background-color, border-color, color, fill, stroke,
+    box-shadow;
+  transition-duration: 220ms;
+  transition-timing-function: ease;
+}

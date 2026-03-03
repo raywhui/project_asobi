@@ -12,15 +12,30 @@ import {
   useRef,
   useState,
 } from "react";
-import { Dot, GripVertical, Pencil, Save, Scaling } from "lucide-react";
+import {
+  Dice3,
+  Dot,
+  Footprints,
+  Heart,
+  HeartPlus,
+  Pencil,
+  Save,
+  Scaling,
+  Shield,
+  Skull,
+  Swords,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input as BaseInput } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea as BaseTextarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { ExpandableCardModal } from "@/components/expandable-card-modal";
+import { EditableListField } from "@/components/editable-list-field";
+import { type RecursiveListItem } from "@/components/recursive-list";
+import { cn, formatSavingThrow } from "@/lib/utils";
 
 type SectionId =
   | "basics"
@@ -40,12 +55,12 @@ type CharacterSheetState = {
   race: string;
   alignment: string;
   experiencePoints: string;
-  strength: string;
-  dexterity: string;
-  constitution: string;
-  intelligence: string;
-  wisdom: string;
-  charisma: string;
+  strength: number;
+  dexterity: number;
+  constitution: number;
+  intelligence: number;
+  wisdom: number;
+  charisma: number;
   armorClass: string;
   initiative: string;
   speed: string;
@@ -71,9 +86,9 @@ type CharacterSheetState = {
   sleightOfHand: string;
   stealth: string;
   survival: string;
-  equipment: string;
-  featuresAndTraits: string;
-  spells: string;
+  equipment: RecursiveListItem[];
+  featuresAndTraits: RecursiveListItem[];
+  spells: RecursiveListItem[];
   backstory: string;
 };
 
@@ -85,12 +100,12 @@ const initialState: CharacterSheetState = {
   race: "Half-Elf",
   alignment: "Chaotic Good",
   experiencePoints: "6500",
-  strength: "10",
-  dexterity: "16",
-  constitution: "13",
-  intelligence: "12",
-  wisdom: "11",
-  charisma: "18",
+  strength: 10,
+  dexterity: 16,
+  constitution: 13,
+  intelligence: 12,
+  wisdom: 11,
+  charisma: 18,
   armorClass: "15",
   initiative: "+3",
   speed: "30 ft",
@@ -116,11 +131,134 @@ const initialState: CharacterSheetState = {
   sleightOfHand: "+6",
   stealth: "+6",
   survival: "+1",
-  equipment: "Rapier, dagger, lute, leather armor, explorer's pack, 45 gp",
-  featuresAndTraits:
-    "Bardic Inspiration (d8), Jack of All Trades, Song of Rest, Expertise (Performance, Persuasion)",
-  spells:
-    "Cantrips: Vicious Mockery, Mage Hand, Minor Illusion\n1st: Healing Word, Dissonant Whispers\n2nd: Suggestion, Invisibility\n3rd: Hypnotic Pattern",
+  equipment: [
+    {
+      title: "Weapons",
+      description: "Primary combat gear carried by the character.",
+      children: [
+        { title: "Rapier", description: "Finesse melee weapon.", children: [] },
+        {
+          title: "Dagger",
+          description: "Light thrown melee weapon.",
+          children: [],
+        },
+      ],
+    },
+    {
+      title: "Adventuring Gear",
+      description: "Utility and travel supplies.",
+      children: [
+        {
+          title: "Lute",
+          description: "Instrument focus and performance tool.",
+          children: [],
+        },
+        {
+          title: "Explorer's Pack",
+          description: "Standard travel supplies for dungeon delving.",
+          children: [],
+        },
+      ],
+    },
+    {
+      title: "Currency",
+      description: "Current carried funds.",
+      children: [{ title: "45 gp", description: "Gold pieces.", children: [] }],
+    },
+  ],
+  featuresAndTraits: [
+    {
+      title: "Bardic Inspiration",
+      description: "Grant allies a bonus die to checks, attacks, or saves.",
+      children: [
+        {
+          title: "Die Size: d8",
+          description: "Current inspiration die.",
+          children: [],
+        },
+      ],
+    },
+    {
+      title: "Jack of All Trades",
+      description: "Add half proficiency to checks without proficiency.",
+      children: [],
+    },
+    {
+      title: "Expertise",
+      description: "Double proficiency bonus in selected skills.",
+      children: [
+        { title: "Performance", description: "Expertise skill.", children: [] },
+        { title: "Persuasion", description: "Expertise skill.", children: [] },
+      ],
+    },
+  ],
+  spells: [
+    {
+      title: "Cantrips",
+      description: "Spells cast at will without consuming spell slots.",
+      children: [
+        {
+          title: "Vicious Mockery",
+          description:
+            "Deal psychic damage and give disadvantage on next attack.",
+          children: [],
+        },
+        {
+          title: "Mage Hand",
+          description: "Summon a spectral hand to manipulate small objects.",
+          children: [],
+        },
+        {
+          title: "Minor Illusion",
+          description: "Create a simple sound or image illusion.",
+          children: [],
+        },
+      ],
+    },
+    {
+      title: "1st-Level",
+      description: "Prepared 1st-level spells.",
+      children: [
+        {
+          title: "Healing Word",
+          description: "Bonus action healing at range.",
+          children: [],
+        },
+        {
+          title: "Dissonant Whispers",
+          description: "Psychic damage that can force movement.",
+          children: [],
+        },
+      ],
+    },
+    {
+      title: "2nd-Level",
+      description: "Prepared 2nd-level spells.",
+      children: [
+        {
+          title: "Suggestion",
+          description: "Compel a creature to follow a reasonable command.",
+          children: [],
+        },
+        {
+          title: "Invisibility",
+          description: "Turn a creature invisible for up to one hour.",
+          children: [],
+        },
+      ],
+    },
+    {
+      title: "3rd-Level",
+      description: "Prepared 3rd-level spells.",
+      children: [
+        {
+          title: "Hypnotic Pattern",
+          description: "Incapacitate creatures in a dazzling area.",
+          children: [],
+        },
+      ],
+    },
+  ],
   backstory:
     "A traveling musician who left the royal court to seek forgotten songs and heroic stories.",
 };
@@ -350,7 +488,10 @@ export function DndCharacterSheet() {
     );
   };
 
-  const updateField = (key: keyof CharacterSheetState, value: string) => {
+  const updateField = (
+    key: keyof CharacterSheetState,
+    value: string | string[] | number | RecursiveListItem[],
+  ) => {
     if (!isEditing) return;
     setSheet((current) => ({ ...current, [key]: value }));
   };
@@ -769,6 +910,10 @@ export function DndCharacterSheet() {
     };
   }, [resizeState]);
 
+  useEffect(() => {
+    console.log("cardSpans:", cardSpans);
+  }, [cardSpans]);
+
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-4 md:p-8">
       <div className="flex flex-col gap-4 rounded-xl border bg-card p-4 md:flex-row md:items-center md:justify-between">
@@ -860,37 +1005,33 @@ export function DndCharacterSheet() {
                 style={getGridSpanStyle(sectionId)}
                 {...dragHandlers(sectionId)}
               >
-                <Card className="h-full">
-                  <CardHeader>
+                <ExpandableCardModal
+                  title="Ability Scores"
+                  cardClassName="h-full"
+                  headerClassName={getHeaderHandleClasses()}
+                  titleClassName="w-[33%]"
+                  onHeaderPointerDown={(event) => armDragHandle(sectionId, event)}
+                  contentClassName={`grid gap-3 ${cardSpans.abilities.colSpan <= 1 ? "grid-cols-1" : "grid-cols-6"}`}
+                >
+                  {abilities.map((ability) => (
                     <div
-                      className={getHeaderHandleClasses()}
-                      onPointerDown={(event) => armDragHandle(sectionId, event)}
+                      key={ability.key}
+                      className={`flex items-center gap-2 ${cardSpans.abilities.colSpan <= 1 ? "flex-row" : "flex-col"}`}
                     >
-                      <CardTitle className="text-muted-foreground w-[33%]">
-                        Ability Scores
-                      </CardTitle>
-                      <GripVertical className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="grid grid-cols-1 gap-3">
-                    {abilities.map((ability) => (
-                      // <div key={ability.key} className="grid gap-2">
-                      <div
-                        key={ability.key}
-                        className="flex items-center gap-2"
-                      >
+                      <p className="text-3xl w-8">
+                        {formatSavingThrow(Number(sheet[ability.key]))}
+                      </p>
+                      {cardSpans.abilities.colSpan <= 1 && (
+                        <div className="flex items-center justify-center w-8">
+                          <Dot className="w-4 h-4" />
+                        </div>
+                      )}
+
+                      <div className="flex flex-col items-center justify-center">
                         <Input
                           value={sheet[ability.key]}
                           readOnly={!isEditing}
-                          className="text-3xl"
-                          onChange={(event) =>
-                            updateField(ability.key, event.target.value)
-                          }
-                        />
-                        <Input
-                          value={sheet[ability.key]}
-                          readOnly={!isEditing}
-                          className="text-muted-foreground"
+                          className="text-lg w-full p-0"
                           onChange={(event) =>
                             updateField(ability.key, event.target.value)
                           }
@@ -899,9 +1040,9 @@ export function DndCharacterSheet() {
                           {ability.label}
                         </Label>
                       </div>
-                    ))}
-                  </CardContent>
-                </Card>
+                    </div>
+                  ))}
+                </ExpandableCardModal>
                 {renderResizeHandle(sectionId)}
               </div>
             );
@@ -916,20 +1057,62 @@ export function DndCharacterSheet() {
                 style={getGridSpanStyle(sectionId)}
                 {...dragHandlers(sectionId)}
               >
-                <Card className="h-full">
-                  <CardHeader>
-                    <div
-                      className={getHeaderHandleClasses()}
-                      onPointerDown={(event) => armDragHandle(sectionId, event)}
-                    >
-                      <CardTitle className="text-muted-foreground">
-                        Combat
-                      </CardTitle>
-                      <GripVertical className="h-4 w-4 text-muted-foreground" />
+                <ExpandableCardModal
+                  title="Combat"
+                  cardClassName="h-full"
+                  headerClassName={getHeaderHandleClasses()}
+                  onHeaderPointerDown={(event) => armDragHandle(sectionId, event)}
+                  contentClassName={`grid gap-6 ${cardSpans.combat.colSpan <= 1 ? "grid-cols-2" : "grid-cols-3"}`}
+                >
+                  <div
+                    className={`grid gap-2 ${cardSpans.combat.colSpan <= 1 ? "col-span-2" : "col-span-3"}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div>
+                        <Heart className="w-8 h-8" color="pink" />
+                      </div>
+                      <div className="flex items-center">
+                        <Input
+                          value={sheet.currentHp}
+                          readOnly={!isEditing}
+                          className="text-3xl p-0 w-auto"
+                          onChange={(event) =>
+                            updateField("currentHp", event.target.value)
+                          }
+                        />
+                        <p className="text-4xl w-auto text-center">/</p>
+                        <Input
+                          value={sheet.maxHp}
+                          readOnly={!isEditing}
+                          className="text-3xl p-0 w-auto"
+                          onChange={(event) =>
+                            updateField("maxHp", event.target.value)
+                          }
+                        />
+                        <p className="px-4 text-lg">+</p>
+                        <div className="grid">
+                          <div className="flex justify-center items-center gap-2">
+                            <HeartPlus className="w-8 h-8" color="cyan" />
+                            <Input
+                              value={sheet.tempHp}
+                              readOnly={!isEditing}
+                              className="text-3xl w-full"
+                              onChange={(event) =>
+                                updateField("tempHp", event.target.value)
+                              }
+                            />
+                          </div>
+                          <Label className="text-muted-foreground text-xs">
+                            Temp HP
+                          </Label>
+                        </div>
+                      </div>
                     </div>
-                  </CardHeader>
-                  <CardContent className="grid grid-cols-3 gap-6">
-                    <div className="grid gap-2">
+                    <Label className="text-muted-foreground">Current HP</Label>
+                  </div>
+                  <div className="grid gap-2">
+                    <div className="flex justify-center items-center gap-2">
+                      <Shield className="w-8 h-8" color="green" />
                       <Input
                         value={sheet.armorClass}
                         readOnly={!isEditing}
@@ -938,11 +1121,12 @@ export function DndCharacterSheet() {
                           updateField("armorClass", event.target.value)
                         }
                       />
-                      <Label className="text-muted-foreground">
-                        Armor Class
-                      </Label>
                     </div>
-                    <div className="grid gap-2">
+                    <Label className="text-muted-foreground">Armor Class</Label>
+                  </div>
+                  <div className="grid gap-2">
+                    <div className="flex justify-center items-center gap-2">
+                      <Swords className="w-8 h-8" color="yellow" />
                       <Input
                         value={sheet.initiative}
                         readOnly={!isEditing}
@@ -951,22 +1135,26 @@ export function DndCharacterSheet() {
                           updateField("initiative", event.target.value)
                         }
                       />
-                      <Label className="text-muted-foreground">
-                        Initiative
-                      </Label>
                     </div>
-                    <div className="grid gap-2">
+                    <Label className="text-muted-foreground">Initiative</Label>
+                  </div>
+                  <div className="grid gap-2">
+                    <div className="flex justify-center items-center gap-2">
+                      <Footprints className="w-8 h-8" color="grey" />
                       <Input
                         value={sheet.speed}
                         readOnly={!isEditing}
-                        className="text-3xl w-full"
+                        className="text-3xl w-full whitespace-nowrap"
                         onChange={(event) =>
                           updateField("speed", event.target.value)
                         }
                       />
-                      <Label className="text-muted-foreground">Speed</Label>
                     </div>
-                    <div className="grid gap-2">
+                    <Label className="text-muted-foreground">Speed</Label>
+                  </div>
+                  <div className="grid gap-2">
+                    <div className="flex justify-center items-center gap-2">
+                      <Dice3 className="w-8 h-8" color="#3888F2" />
                       <Input
                         value={sheet.hitDice}
                         readOnly={!isEditing}
@@ -975,44 +1163,12 @@ export function DndCharacterSheet() {
                           updateField("hitDice", event.target.value)
                         }
                       />
-                      <Label className="text-muted-foreground">Hit Dice</Label>
                     </div>
-                    <div className="grid gap-2">
-                      <Input
-                        value={sheet.currentHp}
-                        readOnly={!isEditing}
-                        className="text-3xl w-full"
-                        onChange={(event) =>
-                          updateField("currentHp", event.target.value)
-                        }
-                      />
-                      <Label className="text-muted-foreground">
-                        Current HP
-                      </Label>
-                    </div>
-                    <div className="grid gap-2">
-                      <Input
-                        value={sheet.maxHp}
-                        readOnly={!isEditing}
-                        className="text-3xl w-full"
-                        onChange={(event) =>
-                          updateField("maxHp", event.target.value)
-                        }
-                      />
-                      <Label className="text-muted-foreground">Max HP</Label>
-                    </div>
-                    <div className="grid gap-2">
-                      <Input
-                        value={sheet.tempHp}
-                        readOnly={!isEditing}
-                        className="text-3xl w-full"
-                        onChange={(event) =>
-                          updateField("tempHp", event.target.value)
-                        }
-                      />
-                      <Label className="text-muted-foreground">Temp HP</Label>
-                    </div>
-                    <div className="grid gap-2">
+                    <Label className="text-muted-foreground">Hit Dice</Label>
+                  </div>
+                  <div className="grid gap-2">
+                    <div className="flex justify-center items-center gap-2">
+                      <Skull className="w-8 h-8" color="#ef4444" />
                       <Input
                         value={`${sheet.deathSavesSuccesses}/${sheet.deathSavesFailures}`}
                         readOnly={!isEditing}
@@ -1025,12 +1181,12 @@ export function DndCharacterSheet() {
                           updateField("deathSavesFailures", f);
                         }}
                       />
-                      <Label className="text-muted-foreground">
-                        Death Saves (S/F)
-                      </Label>
                     </div>
-                  </CardContent>
-                </Card>
+                    <Label className="text-muted-foreground">
+                      Death Saves (S/F)
+                    </Label>
+                  </div>
+                </ExpandableCardModal>
                 {renderResizeHandle(sectionId)}
               </div>
             );
@@ -1045,38 +1201,31 @@ export function DndCharacterSheet() {
                 style={getGridSpanStyle(sectionId)}
                 {...dragHandlers(sectionId)}
               >
-                <Card className="h-full">
-                  <CardHeader>
-                    <div
-                      className={getHeaderHandleClasses()}
-                      onPointerDown={(event) => armDragHandle(sectionId, event)}
-                    >
-                      <CardTitle className="text-muted-foreground">
-                        Skills
-                      </CardTitle>
-                      <GripVertical className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="grid grid-cols-2 md:grid-cols-1">
-                    {skills.map((skill, i) => (
-                      <div key={skill.key}>
-                        <div
-                          className={`flex gap-2 border-muted border-solid py-1 ${i < skills.length - 1 ? "[border-bottom-width:1px]" : ""}`}
-                        >
-                          <Input
-                            value={sheet[skill.key]}
-                            readOnly={!isEditing}
-                            className={editableInputClass}
-                            onChange={(event) =>
-                              updateField(skill.key, event.target.value)
-                            }
-                          />
-                          <Label>{skill.label}</Label>
-                        </div>
+                <ExpandableCardModal
+                  title="Skills"
+                  cardClassName="h-full"
+                  headerClassName={getHeaderHandleClasses()}
+                  onHeaderPointerDown={(event) => armDragHandle(sectionId, event)}
+                  contentClassName={`grid grid-cols-2 ${cardSpans.skills.colSpan <= 1 ? "md:grid-cols-1" : "md:grid-cols-2"}`}
+                >
+                  {skills.map((skill, i) => (
+                    <div key={skill.key}>
+                      <div
+                        className={`flex gap-2 border-muted border-solid py-1 ${i < skills.length - 1 ? "[border-bottom-width:1px]" : ""}`}
+                      >
+                        <Input
+                          value={sheet[skill.key]}
+                          readOnly={!isEditing}
+                          className={editableInputClass}
+                          onChange={(event) =>
+                            updateField(skill.key, event.target.value)
+                          }
+                        />
+                        <Label>{skill.label}</Label>
                       </div>
-                    ))}
-                  </CardContent>
-                </Card>
+                    </div>
+                  ))}
+                </ExpandableCardModal>
                 {renderResizeHandle(sectionId)}
               </div>
             );
@@ -1091,29 +1240,20 @@ export function DndCharacterSheet() {
                 style={getGridSpanStyle(sectionId)}
                 {...dragHandlers(sectionId)}
               >
-                <Card className="h-full">
-                  <CardHeader>
-                    <div
-                      className={getHeaderHandleClasses()}
-                      onPointerDown={(event) => armDragHandle(sectionId, event)}
-                    >
-                      <CardTitle className="text-muted-foreground">
-                        Equipment
-                      </CardTitle>
-                      <GripVertical className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <Textarea
-                      value={sheet.equipment}
-                      readOnly={!isEditing}
-                      className={cn("min-h-32", editableInputClass)}
-                      onChange={(event) =>
-                        updateField("equipment", event.target.value)
-                      }
-                    />
-                  </CardContent>
-                </Card>
+                <ExpandableCardModal
+                  title="Equipment"
+                  cardClassName="h-full"
+                  headerClassName={getHeaderHandleClasses()}
+                  onHeaderPointerDown={(event) => armDragHandle(sectionId, event)}
+                >
+                  <EditableListField
+                    value={sheet.equipment}
+                    isEditing={isEditing}
+                    className="min-h-32"
+                    onChange={(value) => updateField("equipment", value)}
+                    placeholder="Add equipment..."
+                  />
+                </ExpandableCardModal>
                 {renderResizeHandle(sectionId)}
               </div>
             );
@@ -1128,29 +1268,20 @@ export function DndCharacterSheet() {
                 style={getGridSpanStyle(sectionId)}
                 {...dragHandlers(sectionId)}
               >
-                <Card className="h-full">
-                  <CardHeader>
-                    <div
-                      className={getHeaderHandleClasses()}
-                      onPointerDown={(event) => armDragHandle(sectionId, event)}
-                    >
-                      <CardTitle className="text-muted-foreground">
-                        Features & Traits
-                      </CardTitle>
-                      <GripVertical className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <Textarea
-                      value={sheet.featuresAndTraits}
-                      readOnly={!isEditing}
-                      className={cn("min-h-32", editableInputClass)}
-                      onChange={(event) =>
-                        updateField("featuresAndTraits", event.target.value)
-                      }
-                    />
-                  </CardContent>
-                </Card>
+                <ExpandableCardModal
+                  title="Features & Traits"
+                  cardClassName="h-full"
+                  headerClassName={getHeaderHandleClasses()}
+                  onHeaderPointerDown={(event) => armDragHandle(sectionId, event)}
+                >
+                  <EditableListField
+                    value={sheet.featuresAndTraits}
+                    isEditing={isEditing}
+                    className="min-h-32"
+                    onChange={(value) => updateField("featuresAndTraits", value)}
+                    placeholder="Add feature or trait..."
+                  />
+                </ExpandableCardModal>
                 {renderResizeHandle(sectionId)}
               </div>
             );
@@ -1165,29 +1296,20 @@ export function DndCharacterSheet() {
                 style={getGridSpanStyle(sectionId)}
                 {...dragHandlers(sectionId)}
               >
-                <Card className="h-full">
-                  <CardHeader>
-                    <div
-                      className={getHeaderHandleClasses()}
-                      onPointerDown={(event) => armDragHandle(sectionId, event)}
-                    >
-                      <CardTitle className="text-muted-foreground">
-                        Spells
-                      </CardTitle>
-                      <GripVertical className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <Textarea
-                      value={sheet.spells}
-                      readOnly={!isEditing}
-                      className={cn("min-h-32", editableInputClass)}
-                      onChange={(event) =>
-                        updateField("spells", event.target.value)
-                      }
-                    />
-                  </CardContent>
-                </Card>
+                <ExpandableCardModal
+                  title="Spells"
+                  cardClassName="h-full"
+                  headerClassName={getHeaderHandleClasses()}
+                  onHeaderPointerDown={(event) => armDragHandle(sectionId, event)}
+                >
+                  <EditableListField
+                    value={sheet.spells}
+                    isEditing={isEditing}
+                    className="min-h-32"
+                    onChange={(value) => updateField("spells", value)}
+                    placeholder="Add spell..."
+                  />
+                </ExpandableCardModal>
                 {renderResizeHandle(sectionId)}
               </div>
             );
@@ -1202,29 +1324,21 @@ export function DndCharacterSheet() {
                 style={getGridSpanStyle(sectionId)}
                 {...dragHandlers(sectionId)}
               >
-                <Card className="h-full">
-                  <CardHeader>
-                    <div
-                      className={getHeaderHandleClasses()}
-                      onPointerDown={(event) => armDragHandle(sectionId, event)}
-                    >
-                      <CardTitle className="text-muted-foreground">
-                        Backstory
-                      </CardTitle>
-                      <GripVertical className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <Textarea
-                      value={sheet.backstory}
-                      readOnly={!isEditing}
-                      className={cn("min-h-40", editableInputClass)}
-                      onChange={(event) =>
-                        updateField("backstory", event.target.value)
-                      }
-                    />
-                  </CardContent>
-                </Card>
+                <ExpandableCardModal
+                  title="Backstory"
+                  cardClassName="h-full"
+                  headerClassName={getHeaderHandleClasses()}
+                  onHeaderPointerDown={(event) => armDragHandle(sectionId, event)}
+                >
+                  <Textarea
+                    value={sheet.backstory}
+                    readOnly={!isEditing}
+                    className={cn("min-h-40", editableInputClass)}
+                    onChange={(event) =>
+                      updateField("backstory", event.target.value)
+                    }
+                  />
+                </ExpandableCardModal>
                 {renderResizeHandle(sectionId)}
               </div>
             );

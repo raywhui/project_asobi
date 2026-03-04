@@ -42,7 +42,10 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea as BaseTextarea } from "@/components/ui/textarea";
 import { ExpandableCardModal } from "@/components/expandable-card-modal";
 import { EditableListField } from "@/components/editable-list-field";
-import { type RecursiveListItem } from "@/components/recursive-list";
+import {
+  initialCharacterSheetState,
+  type CharacterSheetState,
+} from "@/data/dnd-character-sheet";
 import { cn, formatSavingThrow } from "@/lib/utils";
 
 type SectionId =
@@ -54,222 +57,6 @@ type SectionId =
   | "features"
   | "spells"
   | "backstory";
-
-type CharacterSheetState = {
-  characterName: string;
-  classLevel: string;
-  background: string;
-  playerName: string;
-  race: string;
-  alignment: string;
-  experiencePoints: string;
-  strength: number;
-  dexterity: number;
-  constitution: number;
-  intelligence: number;
-  wisdom: number;
-  charisma: number;
-  armorClass: string;
-  initiative: string;
-  speed: string;
-  currentHp: string;
-  maxHp: string;
-  tempHp: string;
-  hitDice: string;
-  deathSavesSuccesses: string;
-  deathSavesFailures: string;
-  acrobatics: string;
-  arcana: string;
-  athletics: string;
-  history: string;
-  insight: string;
-  intimidation: string;
-  investigation: string;
-  medicine: string;
-  nature: string;
-  perception: string;
-  performance: string;
-  persuasion: string;
-  religion: string;
-  sleightOfHand: string;
-  stealth: string;
-  survival: string;
-  equipment: RecursiveListItem[];
-  featuresAndTraits: RecursiveListItem[];
-  spells: RecursiveListItem[];
-  backstory: string;
-};
-
-const initialState: CharacterSheetState = {
-  characterName: "Lia Starfall",
-  classLevel: "Bard 5",
-  background: "Entertainer",
-  playerName: "Player One",
-  race: "Half-Elf",
-  alignment: "Chaotic Good",
-  experiencePoints: "6500",
-  strength: 10,
-  dexterity: 16,
-  constitution: 13,
-  intelligence: 12,
-  wisdom: 11,
-  charisma: 18,
-  armorClass: "15",
-  initiative: "+3",
-  speed: "30 ft",
-  currentHp: "34",
-  maxHp: "34",
-  tempHp: "0",
-  hitDice: "5d8",
-  deathSavesSuccesses: "0",
-  deathSavesFailures: "0",
-  acrobatics: "+6",
-  arcana: "+4",
-  athletics: "+0",
-  history: "+4",
-  insight: "+3",
-  intimidation: "+7",
-  investigation: "+4",
-  medicine: "+1",
-  nature: "+2",
-  perception: "+3",
-  performance: "+10",
-  persuasion: "+10",
-  religion: "+2",
-  sleightOfHand: "+6",
-  stealth: "+6",
-  survival: "+1",
-  equipment: [
-    {
-      title: "Weapons",
-      description: "Primary combat gear carried by the character.",
-      children: [
-        { title: "Rapier", description: "Finesse melee weapon.", children: [] },
-        {
-          title: "Dagger",
-          description: "Light thrown melee weapon.",
-          children: [],
-        },
-      ],
-    },
-    {
-      title: "Adventuring Gear",
-      description: "Utility and travel supplies.",
-      children: [
-        {
-          title: "Lute",
-          description: "Instrument focus and performance tool.",
-          children: [],
-        },
-        {
-          title: "Explorer's Pack",
-          description: "Standard travel supplies for dungeon delving.",
-          children: [],
-        },
-      ],
-    },
-    {
-      title: "Currency",
-      description: "Current carried funds.",
-      children: [{ title: "45 gp", description: "Gold pieces.", children: [] }],
-    },
-  ],
-  featuresAndTraits: [
-    {
-      title: "Bardic Inspiration",
-      description: "Grant allies a bonus die to checks, attacks, or saves.",
-      children: [
-        {
-          title: "Die Size: d8",
-          description: "Current inspiration die.",
-          children: [],
-        },
-      ],
-    },
-    {
-      title: "Jack of All Trades",
-      description: "Add half proficiency to checks without proficiency.",
-      children: [],
-    },
-    {
-      title: "Expertise",
-      description: "Double proficiency bonus in selected skills.",
-      children: [
-        { title: "Performance", description: "Expertise skill.", children: [] },
-        { title: "Persuasion", description: "Expertise skill.", children: [] },
-      ],
-    },
-  ],
-  spells: [
-    {
-      title: "Cantrips",
-      description: "Spells cast at will without consuming spell slots.",
-      children: [
-        {
-          title: "Vicious Mockery",
-          description:
-            "Deal psychic damage and give disadvantage on next attack.",
-          children: [],
-        },
-        {
-          title: "Mage Hand",
-          description: "Summon a spectral hand to manipulate small objects.",
-          children: [],
-        },
-        {
-          title: "Minor Illusion",
-          description: "Create a simple sound or image illusion.",
-          children: [],
-        },
-      ],
-    },
-    {
-      title: "1st-Level",
-      description: "Prepared 1st-level spells.",
-      children: [
-        {
-          title: "Healing Word",
-          description: "Bonus action healing at range.",
-          children: [],
-        },
-        {
-          title: "Dissonant Whispers",
-          description: "Psychic damage that can force movement.",
-          children: [],
-        },
-      ],
-    },
-    {
-      title: "2nd-Level",
-      description: "Prepared 2nd-level spells.",
-      children: [
-        {
-          title: "Suggestion",
-          description: "Compel a creature to follow a reasonable command.",
-          children: [],
-        },
-        {
-          title: "Invisibility",
-          description: "Turn a creature invisible for up to one hour.",
-          children: [],
-        },
-      ],
-    },
-    {
-      title: "3rd-Level",
-      description: "Prepared 3rd-level spells.",
-      children: [
-        {
-          title: "Hypnotic Pattern",
-          description: "Incapacitate creatures in a dazzling area.",
-          children: [],
-        },
-      ],
-    },
-  ],
-  backstory:
-    "A traveling musician who left the royal court to seek forgotten songs and heroic stories.",
-};
 
 const initialOrder: SectionId[] = [
   "basics",
@@ -375,7 +162,9 @@ function parseStoredSpans(
 }
 
 export function DndCharacterSheet() {
-  const [sheet, setSheet] = useState<CharacterSheetState>(initialState);
+  const [sheet, setSheet] = useState<CharacterSheetState>(
+    initialCharacterSheetState,
+  );
   const [isEditing, setIsEditing] = useState(false);
   const [isDragEnabled, setIsDragEnabled] = useState(true);
   const [isResizeEnabled, setIsResizeEnabled] = useState(true);
@@ -506,35 +295,97 @@ export function DndCharacterSheet() {
       return <BaseTextarea className={className} value={value} {...props} />;
     }
 
-    const displayValue = value == null ? "" : String(value);
     return (
-      <p
-        className={cn(
-          "min-h-24 whitespace-pre-wrap rounded-md border bg-muted/40 px-3 py-2 text-lg leading-7",
-          className,
-        )}
-      >
-        {displayValue || "\u2014"}
-      </p>
+      // <p
+      //   className={cn(
+      //     "min-h-24 w-full min-w-0 whitespace-pre-wrap rounded-md border bg-muted/40 px-3 py-2 text-lg leading-7 max-h-64 overflow-auto",
+      //     className,
+      //   )}
+      // >
+      //   {displayValue || "\u2014"}
+      // </p>
+      <BaseTextarea className={className} value={value} {...props} disabled />
     );
   };
 
-  const updateField = (
-    key: keyof CharacterSheetState,
-    value: string | string[] | number | RecursiveListItem[],
+  const updateListOrBackstoryField = <
+    K extends "equipment" | "featuresAndTraits" | "spells" | "backstory",
+  >(
+    key: K,
+    value: CharacterSheetState[K],
   ) => {
     if (!isEditing) return;
     setSheet((current) => ({ ...current, [key]: value }));
   };
 
+  const updateAbilityBase = (
+    key: keyof CharacterSheetState["ap"],
+    nextValue: string,
+  ) => {
+    if (!isEditing) return;
+    const parsed = Number(nextValue);
+    setSheet((current) => ({
+      ...current,
+      ap: {
+        ...current.ap,
+        [key]: {
+          ...current.ap[key],
+          base: Number.isFinite(parsed) ? parsed : 0,
+        },
+      },
+    }));
+  };
+
+  const updateCombatField = <
+    K extends keyof Omit<CharacterSheetState["combat"], "hitDice">,
+  >(
+    key: K,
+    nextValue: string,
+  ) => {
+    if (!isEditing) return;
+    const currentValue = sheet.combat[key];
+    const parsed =
+      typeof currentValue === "number"
+        ? Number.isFinite(Number(nextValue))
+          ? Number(nextValue)
+          : 0
+        : nextValue;
+
+    setSheet((current) => ({
+      ...current,
+      combat: {
+        ...current.combat,
+        [key]: parsed,
+      },
+    }));
+  };
+
+  const updateSkillModifier = (
+    key: keyof CharacterSheetState["skills"],
+    nextValue: string,
+  ) => {
+    if (!isEditing) return;
+    const parsed = Number(nextValue);
+    setSheet((current) => ({
+      ...current,
+      skills: {
+        ...current.skills,
+        [key]: {
+          ...current.skills[key],
+          modifier: Number.isFinite(parsed) ? parsed : 0,
+        },
+      },
+    }));
+  };
+
   const abilities = useMemo(
     () => [
-      { label: "STR", key: "strength" as const },
-      { label: "DEX", key: "dexterity" as const },
-      { label: "CON", key: "constitution" as const },
-      { label: "INT", key: "intelligence" as const },
-      { label: "WIS", key: "wisdom" as const },
-      { label: "CHA", key: "charisma" as const },
+      { label: "STR", key: "str" as const },
+      { label: "DEX", key: "dex" as const },
+      { label: "CON", key: "con" as const },
+      { label: "INT", key: "int" as const },
+      { label: "WIS", key: "wis" as const },
+      { label: "CHA", key: "cha" as const },
     ],
     [],
   );
@@ -542,10 +393,8 @@ export function DndCharacterSheet() {
   const skills = useMemo(
     () => [
       { label: "Acrobatics", key: "acrobatics" as const },
-      { label: "Animal Handling", key: "animalHandling" as const },
       { label: "Arcana", key: "arcana" as const },
       { label: "Athletics", key: "athletics" as const },
-      { label: "Deception", key: "deception" as const },
       { label: "History", key: "history" as const },
       { label: "Insight", key: "insight" as const },
       { label: "Intimidation", key: "intimidation" as const },
@@ -965,7 +814,7 @@ export function DndCharacterSheet() {
   }, [cardSpans]);
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-6 p-4 md:p-8">
+    <div className="mx-auto w-full space-y-6 p-4 md:p-8 lg:min-w-[80vw] lg:max-w-[80vw]">
       <div className="flex flex-col gap-4 rounded-xl border bg-card p-4 md:flex-row md:items-center md:justify-between">
         {/* <div>
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
@@ -978,11 +827,13 @@ export function DndCharacterSheet() {
         </div> */}
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center md:text-3xl">
-            Nameof Character <Dot className="h-8 w-8" /> Bard{" "}
-            <Dot className="h-8 w-8" /> Level 5
+            {sheet.character.name} <Dot className="h-8 w-8" />{" "}
+            {sheet.character.class} <Dot className="h-8 w-8" /> Level{" "}
+            {sheet.character.level}
           </h1>
           <p className="text-md text-muted-foreground">
-            Half-Orc | Entertainer | Chaotic Good
+            {sheet.character.race} | {sheet.character.background} |{" "}
+            {sheet.character.alignment}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -1089,7 +940,6 @@ export function DndCharacterSheet() {
           </Popover>
         </div>
       </div>
-
       <div
         ref={gridRef}
         className={cn(
@@ -1142,21 +992,20 @@ export function DndCharacterSheet() {
                       className={`flex items-center gap-2 ${cardSpans.abilities.colSpan <= 1 ? "flex-row" : "flex-col"}`}
                     >
                       <p className="text-3xl w-8">
-                        {formatSavingThrow(Number(sheet[ability.key]))}
+                        {`(${formatSavingThrow(sheet.ap[ability.key].base)})`}
                       </p>
                       {cardSpans.abilities.colSpan <= 1 && (
-                        <div className="flex items-center justify-center w-8">
+                        <div className="flex items-center justify-center pl-6 pr-2">
                           <Dot className="w-4 h-4" />
                         </div>
                       )}
-
                       <div className="flex flex-col items-center justify-center">
                         <Input
-                          value={sheet[ability.key]}
+                          value={sheet.ap[ability.key].base}
                           readOnly={!isEditing}
                           className="text-lg w-full p-0"
                           onChange={(event) =>
-                            updateField(ability.key, event.target.value)
+                            updateAbilityBase(ability.key, event.target.value)
                           }
                         />
                         <Label className="text-muted-foreground">
@@ -1200,20 +1049,20 @@ export function DndCharacterSheet() {
                       </div>
                       <div className="flex items-center">
                         <Input
-                          value={sheet.currentHp}
+                          value={sheet.combat.currentHp}
                           readOnly={!isEditing}
                           className="text-3xl p-0 w-auto"
                           onChange={(event) =>
-                            updateField("currentHp", event.target.value)
+                            updateCombatField("currentHp", event.target.value)
                           }
                         />
                         <p className="text-4xl w-auto text-center">/</p>
                         <Input
-                          value={sheet.maxHp}
+                          value={sheet.combat.maxHp}
                           readOnly={!isEditing}
                           className="text-3xl p-0 w-auto"
                           onChange={(event) =>
-                            updateField("maxHp", event.target.value)
+                            updateCombatField("maxHp", event.target.value)
                           }
                         />
                         <p className="px-4 text-lg">+</p>
@@ -1221,11 +1070,11 @@ export function DndCharacterSheet() {
                           <div className="flex justify-center items-center gap-2">
                             <HeartPlus className="w-8 h-8" color="cyan" />
                             <Input
-                              value={sheet.tempHp}
+                              value={sheet.combat.tempHp}
                               readOnly={!isEditing}
                               className="text-3xl w-full"
                               onChange={(event) =>
-                                updateField("tempHp", event.target.value)
+                                updateCombatField("tempHp", event.target.value)
                               }
                             />
                           </div>
@@ -1241,11 +1090,11 @@ export function DndCharacterSheet() {
                     <div className="flex justify-center items-center gap-2">
                       <Shield className="w-8 h-8" color="green" />
                       <Input
-                        value={sheet.armorClass}
+                        value={sheet.combat.armorClass}
                         readOnly={!isEditing}
                         className="text-3xl w-full"
                         onChange={(event) =>
-                          updateField("armorClass", event.target.value)
+                          updateCombatField("armorClass", event.target.value)
                         }
                       />
                     </div>
@@ -1255,11 +1104,11 @@ export function DndCharacterSheet() {
                     <div className="flex justify-center items-center gap-2">
                       <Swords className="w-8 h-8" color="yellow" />
                       <Input
-                        value={sheet.initiative}
+                        value={sheet.combat.initiative}
                         readOnly={!isEditing}
                         className="text-3xl w-full"
                         onChange={(event) =>
-                          updateField("initiative", event.target.value)
+                          updateCombatField("initiative", event.target.value)
                         }
                       />
                     </div>
@@ -1269,11 +1118,11 @@ export function DndCharacterSheet() {
                     <div className="flex justify-center items-center gap-2">
                       <Footprints className="w-8 h-8" color="grey" />
                       <Input
-                        value={sheet.speed}
+                        value={sheet.combat.speed}
                         readOnly={!isEditing}
                         className="text-3xl w-full whitespace-nowrap"
                         onChange={(event) =>
-                          updateField("speed", event.target.value)
+                          updateCombatField("speed", event.target.value)
                         }
                       />
                     </div>
@@ -1283,12 +1132,25 @@ export function DndCharacterSheet() {
                     <div className="flex justify-center items-center gap-2">
                       <Dice3 className="w-8 h-8" color="#3888F2" />
                       <Input
-                        value={sheet.hitDice}
+                        value={`${sheet.combat.hitDice.amount}${sheet.combat.hitDice.diceType}`}
                         readOnly={!isEditing}
                         className="text-3xl w-full"
-                        onChange={(event) =>
-                          updateField("hitDice", event.target.value)
-                        }
+                        onChange={(event) => {
+                          if (!isEditing) return;
+                          const next = event.target.value.trim().toLowerCase();
+                          const matched = next.match(/^(\d+)\s*(d\d+)$/);
+                          if (!matched) return;
+                          setSheet((current) => ({
+                            ...current,
+                            combat: {
+                              ...current.combat,
+                              hitDice: {
+                                amount: Number(matched[1]),
+                                diceType: matched[2],
+                              },
+                            },
+                          }));
+                        }}
                       />
                     </div>
                     <Label className="text-muted-foreground">Hit Dice</Label>
@@ -1297,15 +1159,15 @@ export function DndCharacterSheet() {
                     <div className="flex justify-center items-center gap-2">
                       <Skull className="w-8 h-8" color="#ef4444" />
                       <Input
-                        value={`${sheet.deathSavesSuccesses}/${sheet.deathSavesFailures}`}
+                        value={`${sheet.combat.deathSavesSuccesses}/${sheet.combat.deathSavesFailures}`}
                         readOnly={!isEditing}
                         className="text-3xl w-full"
                         onChange={(event) => {
                           const [s = "", f = ""] = event.target.value
                             .split("/")
                             .map((part) => part.trim());
-                          updateField("deathSavesSuccesses", s);
-                          updateField("deathSavesFailures", f);
+                          updateCombatField("deathSavesSuccesses", s);
+                          updateCombatField("deathSavesFailures", f);
                         }}
                       />
                     </div>
@@ -1345,13 +1207,16 @@ export function DndCharacterSheet() {
                         className={`flex gap-2 border-muted border-solid py-1 ${i < skills.length - 1 ? "[border-bottom-width:1px]" : ""}`}
                       >
                         <Input
-                          value={sheet[skill.key]}
+                          value={sheet.skills[skill.key].modifier}
                           readOnly={!isEditing}
                           className={editableInputClass}
                           onChange={(event) =>
-                            updateField(skill.key, event.target.value)
+                            updateSkillModifier(skill.key, event.target.value)
                           }
                         />
+                        <p className="pr-3 text-md leading-7 w-[15%]">
+                          {`${formatSavingThrow(sheet.ap[sheet.skills[skill.key].baseApType].base)}`}
+                        </p>
                         <Label>{skill.label}</Label>
                       </div>
                     </div>
@@ -1385,7 +1250,9 @@ export function DndCharacterSheet() {
                     value={sheet.equipment}
                     isEditing={isEditing}
                     className="min-h-32"
-                    onChange={(value) => updateField("equipment", value)}
+                    onChange={(value) =>
+                      updateListOrBackstoryField("equipment", value)
+                    }
                     placeholder="Add equipment..."
                   />
                 </ExpandableCardModal>
@@ -1418,7 +1285,7 @@ export function DndCharacterSheet() {
                     isEditing={isEditing}
                     className="min-h-32"
                     onChange={(value) =>
-                      updateField("featuresAndTraits", value)
+                      updateListOrBackstoryField("featuresAndTraits", value)
                     }
                     placeholder="Add feature or trait..."
                   />
@@ -1451,7 +1318,9 @@ export function DndCharacterSheet() {
                     value={sheet.spells}
                     isEditing={isEditing}
                     className="min-h-32"
-                    onChange={(value) => updateField("spells", value)}
+                    onChange={(value) =>
+                      updateListOrBackstoryField("spells", value)
+                    }
                     placeholder="Add spell..."
                   />
                 </ExpandableCardModal>
@@ -1484,7 +1353,10 @@ export function DndCharacterSheet() {
                     readOnly={!isEditing}
                     className={cn("min-h-40", editableInputClass)}
                     onChange={(event) =>
-                      updateField("backstory", event.target.value)
+                      updateListOrBackstoryField(
+                        "backstory",
+                        event.target.value,
+                      )
                     }
                   />
                 </ExpandableCardModal>

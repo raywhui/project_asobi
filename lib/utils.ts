@@ -9,9 +9,9 @@ export function getSavingThrowModifier(stat: number) {
   return Math.floor((stat - 10) / 2);
 }
 
-export function formatSavingThrow(stat: number) {
-  const modifier = getSavingThrowModifier(stat);
-  return modifier >= 0 ? `+${modifier}` : `${modifier}`;
+export function formatSavingThrow(stat: number, modifier: number = 0) {
+  const savingThrow = getSavingThrowModifier(stat) + modifier;
+  return savingThrow >= 0 ? `+${savingThrow}` : `${savingThrow}`;
 }
 
 // This check can be removed, it is just for tutorial purposes

@@ -20,13 +20,15 @@ export type CharacterSheetState = {
     wis: { base: number; modifier: number };
     cha: { base: number; modifier: number };
   };
-  combat: {
-    armorClass: number;
-    initiative: number;
-    speed: number;
-    proficiencyBonus: number;
+  savingThrow: {
+    str: { modifier: number; isProficient: boolean };
+    dex: { modifier: number; isProficient: boolean };
+    con: { modifier: number; isProficient: boolean };
+    int: { modifier: number; isProficient: boolean };
+    wis: { modifier: number; isProficient: boolean };
+    cha: { modifier: number; isProficient: boolean };
   };
-  health: {
+  combat: {
     currentHp: number;
     maxHp: number;
     tempHp: number;
@@ -36,6 +38,10 @@ export type CharacterSheetState = {
     };
     deathSavesSuccesses: number;
     deathSavesFailures: number;
+    armorClass: number;
+    initiative: number;
+    speed: number;
+    proficiencyBonus: number;
   };
   skills: {
     acrobatics: {
@@ -164,13 +170,7 @@ export const initialCharacterSheetState: CharacterSheetState = {
     },
   },
   combat: {
-    armorClass: 15,
-    initiative: +3,
-    speed: 30,
-    proficiencyBonus: 2,
-  },
-  health: {
-    currentHp: 34,
+    currentHp: 32,
     maxHp: 34,
     tempHp: 0,
     hitDice: {
@@ -179,6 +179,18 @@ export const initialCharacterSheetState: CharacterSheetState = {
     },
     deathSavesSuccesses: 0,
     deathSavesFailures: 0,
+    armorClass: 15,
+    initiative: +3,
+    speed: 30,
+    proficiencyBonus: 2,
+  },
+  savingThrow: {
+    str: { modifier: 0, isProficient: false },
+    dex: { modifier: 0, isProficient: true },
+    con: { modifier: 0, isProficient: false },
+    int: { modifier: 0, isProficient: true },
+    wis: { modifier: 0, isProficient: false },
+    cha: { modifier: 0, isProficient: false },
   },
   skills: {
     acrobatics: { baseApType: "dex", modifier: 0, isProficient: true },

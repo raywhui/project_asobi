@@ -53,8 +53,8 @@ import { Checkbox } from "./ui/checkbox";
 type SectionId =
   | "basics"
   | "abilities"
+  | "savingThrows"
   | "combat"
-  | "health"
   | "skills"
   | "equipment"
   | "features"
@@ -64,8 +64,8 @@ type SectionId =
 const initialOrder: SectionId[] = [
   "basics",
   "abilities",
+  "savingThrows",
   "combat",
-  "health",
   "skills",
   "equipment",
   "features",
@@ -103,8 +103,8 @@ type ResizeState = {
 const defaultSectionGridSpan: Record<SectionId, CardSpan> = {
   basics: { colSpan: 2, rowSpan: 1 },
   abilities: { colSpan: 1, rowSpan: 1 },
+  savingThrows: { colSpan: 1, rowSpan: 1 },
   combat: { colSpan: 1, rowSpan: 1 },
-  health: { colSpan: 1, rowSpan: 1 },
   skills: { colSpan: 1, rowSpan: 1 },
   equipment: { colSpan: 1, rowSpan: 1 },
   features: { colSpan: 1, rowSpan: 1 },
@@ -130,8 +130,8 @@ function createInitialSpans(): Record<SectionId, CardSpan> {
   return {
     basics: { ...defaultSectionGridSpan.basics },
     abilities: { ...defaultSectionGridSpan.abilities },
+    savingThrows: { ...defaultSectionGridSpan.savingThrows },
     combat: { ...defaultSectionGridSpan.combat },
-    health: { ...defaultSectionGridSpan.health },
     skills: { ...defaultSectionGridSpan.skills },
     equipment: { ...defaultSectionGridSpan.equipment },
     features: { ...defaultSectionGridSpan.features },
@@ -179,7 +179,13 @@ function SheetInput({
   ...props
 }: SheetInputProps) {
   if (isEditing) {
-    return <BaseInput className={className} value={value} {...props} />;
+    return (
+      <BaseInput
+        className={cn(className, props.type === "number" ? "w-16" : "w-auto")}
+        value={value}
+        {...props}
+      />
+    );
   }
 
   const displayValue = value == null ? "" : String(value);
@@ -367,34 +373,16 @@ export function DndCharacterSheet() {
     }));
   };
 
-  const updateCombatField = (
-    key: keyof CharacterSheetState["combat"],
-    nextValue: string,
-  ) => {
-    if (!isEditing) return;
-
-    setSheet((current) => ({
-      ...current,
-      combat: {
-        ...current.combat,
-        [key]: (() => {
-          const parsed = Number(nextValue);
-          return Number.isFinite(parsed) ? parsed : current.combat[key];
-        })(),
-      },
-    }));
-  };
-
-  function updateHealthField(
+  function updateCombatField(
     key: "hitDice",
-    hitDiceKey: keyof CharacterSheetState["health"]["hitDice"],
+    hitDiceKey: keyof CharacterSheetState["combat"]["hitDice"],
     nextValue: string,
   ): void;
-  function updateHealthField<
-    K extends keyof Omit<CharacterSheetState["health"], "hitDice">,
+  function updateCombatField<
+    K extends keyof Omit<CharacterSheetState["combat"], "hitDice">,
   >(key: K, nextValue: string): void;
-  function updateHealthField(
-    key: keyof CharacterSheetState["health"],
+  function updateCombatField(
+    key: keyof CharacterSheetState["combat"],
     arg2: string,
     arg3?: string,
   ) {
@@ -402,37 +390,37 @@ export function DndCharacterSheet() {
 
     setSheet((current) => ({
       ...current,
-      health: {
-        ...current.health,
+      combat: {
+        ...current.combat,
         ...(key === "hitDice"
           ? {
               hitDice: {
-                ...current.health.hitDice,
+                ...current.combat.hitDice,
                 [arg2]:
-                  typeof current.health.hitDice[
-                    arg2 as keyof CharacterSheetState["health"]["hitDice"]
+                  typeof current.combat.hitDice[
+                    arg2 as keyof CharacterSheetState["combat"]["hitDice"]
                   ] === "number"
                     ? (() => {
                         const parsed = Number(arg3 ?? "");
                         return Number.isFinite(parsed)
                           ? parsed
-                          : current.health.hitDice.amount;
+                          : current.combat.hitDice.amount;
                       })()
                     : (arg3 ?? ""),
               },
             }
           : {
               [key]:
-                typeof current.health[
-                  key as keyof Omit<CharacterSheetState["health"], "hitDice">
+                typeof current.combat[
+                  key as keyof Omit<CharacterSheetState["combat"], "hitDice">
                 ] === "number"
                   ? (() => {
                       const parsed = Number(arg2);
                       return Number.isFinite(parsed)
                         ? parsed
-                        : current.health[
+                        : current.combat[
                             key as keyof Omit<
-                              CharacterSheetState["health"],
+                              CharacterSheetState["combat"],
                               "hitDice"
                             >
                           ];
@@ -476,6 +464,45 @@ export function DndCharacterSheet() {
         ...current.skills,
         [key]: {
           ...current.skills[key],
+          isProficient: checked,
+        },
+      },
+    }));
+  };
+
+  const updateSavingThrowModifier = (
+    key: keyof CharacterSheetState["savingThrow"],
+    nextValue: string,
+  ) => {
+    if (!isEditing) return;
+    setSheet((current) => ({
+      ...current,
+      savingThrow: {
+        ...current.savingThrow,
+        [key]: {
+          ...current.savingThrow[key],
+          modifier: (() => {
+            const parsed = Number(nextValue);
+            return Number.isFinite(parsed)
+              ? parsed
+              : current.savingThrow[key].modifier;
+          })(),
+        },
+      },
+    }));
+  };
+
+  const updateSavingThrowProficiency = (
+    key: keyof CharacterSheetState["savingThrow"],
+    checked: boolean,
+  ) => {
+    if (!isEditing) return;
+    setSheet((current) => ({
+      ...current,
+      savingThrow: {
+        ...current.savingThrow,
+        [key]: {
+          ...current.savingThrow[key],
           isProficient: checked,
         },
       },
@@ -1172,8 +1199,119 @@ export function DndCharacterSheet() {
                   onHeaderPointerDown={(event) =>
                     armDragHandle(sectionId, event)
                   }
-                  contentClassName={`grid gap-6 ${cardSpans.combat.colSpan <= 1 ? "grid-cols-2" : "grid-cols-4"}`}
+                  contentClassName={`grid gap-6 ${cardSpans.combat.colSpan <= 1 ? "grid-cols-2" : "grid-cols-3"}`}
                 >
+                  <div
+                    className={`grid gap-6 ${cardSpans.combat.colSpan <= 1 ? "grid-cols-1 col-span-2" : "grid-cols-2 col-span-3"}`}
+                  >
+                    <div
+                      className={`grid gap-2 ${cardSpans.combat.colSpan <= 1 ? "col-span-1" : "col-span-1"}`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Heart className="w-8 h-8" color="pink" />
+                        <div className="flex items-center">
+                          <SheetInput
+                            isEditing={isEditing}
+                            type="number"
+                            value={sheet.combat.currentHp}
+                            readOnly={!isEditing}
+                            className="text-3xl p-0 w-auto"
+                            onChange={(event) =>
+                              updateCombatField("currentHp", event.target.value)
+                            }
+                          />
+                          <p className="text-4xl w-auto text-center">/</p>
+                          <SheetInput
+                            isEditing={isEditing}
+                            type="number"
+                            value={sheet.combat.maxHp}
+                            readOnly={!isEditing}
+                            className="text-3xl p-0 w-auto"
+                            onChange={(event) =>
+                              updateCombatField("maxHp", event.target.value)
+                            }
+                          />
+                          {(sheet.combat.tempHp > 0 || isEditing) && (
+                            <div className="grid">
+                              <div className="flex justify-center items-center gap-1">
+                                <p className="ml-1">{`(`}</p>
+                                <p className="text-[#00A3A3] dark:text-[#00FFFF]">
+                                  +
+                                </p>
+                                <SheetInput
+                                  isEditing={isEditing}
+                                  type="number"
+                                  value={sheet.combat.tempHp}
+                                  readOnly={!isEditing}
+                                  className="text-3xl w-auto pr-0 text-[#00A3A3] dark:text-[#00FFFF]"
+                                  onChange={(event) =>
+                                    updateCombatField(
+                                      "tempHp",
+                                      event.target.value,
+                                    )
+                                  }
+                                />
+                                <HeartPlus className="w-6 h-6 text-[#00A3A3] dark:text-[#00FFFF]" />
+                                <p>{`)`}</p>
+                              </div>
+                              {isEditing && (
+                                <Label className="text-muted-foreground text-xs">
+                                  Temp HP
+                                </Label>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <Label className="text-muted-foreground">
+                        Current HP
+                      </Label>
+                    </div>
+                    <div
+                      className={`grid gap-2 ${cardSpans.combat.colSpan <= 1 ? "col-span-1" : "col-span-1"}`}
+                    >
+                      <div className="flex justify-start items-center gap-2">
+                        <Dice3 className="w-8 h-8 dark:text-[#b383fe]" />
+                        <div className="flex justify-start items-center">
+                          <p className="text-3xl p-0 w-auto">{`(`}</p>
+                          <SheetInput
+                            isEditing={isEditing}
+                            type="number"
+                            value={sheet.combat.hitDice.amount}
+                            readOnly={!isEditing}
+                            className="text-3xl p-0 w-auto"
+                            onChange={(event) =>
+                              updateCombatField(
+                                "hitDice",
+                                "amount",
+                                event.target.value,
+                              )
+                            }
+                          />
+                          <SheetInput
+                            isEditing={isEditing}
+                            value={sheet.combat.hitDice.diceType}
+                            readOnly={!isEditing}
+                            className="text-3xl p-0 w-auto"
+                            onChange={(event) =>
+                              updateCombatField(
+                                "hitDice",
+                                "diceType",
+                                event.target.value,
+                              )
+                            }
+                          />
+                          <p className="text-3xl p-0 w-auto">{`)`}</p>
+                          <p className="text-3xl p-0 w-auto">
+                            {formatSavingThrow(
+                              sheet.ap.con.base + sheet.ap.con.modifier,
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      <Label className="text-muted-foreground">Hit Dice</Label>
+                    </div>
+                  </div>
                   <div className="grid gap-2">
                     <div className="flex justify-center items-center gap-2">
                       <Shield className="w-8 h-8 dark:text-[#00FF80]" />
@@ -1239,7 +1377,28 @@ export function DndCharacterSheet() {
                       </div>
                     </div>
                     <Label className="text-muted-foreground">
-                      Profiency Bonus
+                      Proficiency Bonus
+                    </Label>
+                  </div>
+                  <div className="grid gap-2">
+                    <div className="flex justify-center items-center gap-2">
+                      <Skull className="w-8 h-8" color="#ef4444" />
+                      <SheetInput
+                        isEditing={isEditing}
+                        value={`${sheet.combat.deathSavesSuccesses}/${sheet.combat.deathSavesFailures}`}
+                        readOnly={!isEditing}
+                        className="text-3xl w-full"
+                        onChange={(event) => {
+                          const [s = "", f = ""] = event.target.value
+                            .split("/")
+                            .map((part) => part.trim());
+                          updateCombatField("deathSavesSuccesses", s);
+                          updateCombatField("deathSavesFailures", f);
+                        }}
+                      />
+                    </div>
+                    <Label className="text-muted-foreground">
+                      Death Saves (S/F)
                     </Label>
                   </div>
                 </ExpandableCardModal>
@@ -1248,7 +1407,7 @@ export function DndCharacterSheet() {
             );
           }
 
-          if (sectionId === "health") {
+          if (sectionId === "savingThrows") {
             return (
               <div
                 key={sectionId}
@@ -1260,134 +1419,78 @@ export function DndCharacterSheet() {
                 <ExpandableCardModal
                   showDragHandle={isDragEnabled}
                   showToggleButton={isEditing}
-                  title="Health"
+                  title="Saving Throws"
                   cardClassName="h-full"
                   headerClassName={getHeaderHandleClasses()}
                   onHeaderPointerDown={(event) =>
                     armDragHandle(sectionId, event)
                   }
-                  contentClassName={`grid gap-6 ${cardSpans.health.colSpan <= 1 ? "grid-cols-1" : "grid-cols-3"}`}
+                  contentClassName={`grid grid-cols-2 ${cardSpans.savingThrows.colSpan <= 1 ? "md:grid-cols-1" : "md:grid-cols-2"}`}
                 >
-                  <div className={`grid gap-2 col-span-1`}>
-                    <div className="flex items-center gap-2">
-                      <Heart className="w-8 h-8" color="pink" />
-                      <div className="flex items-center">
-                        <SheetInput
-                          isEditing={isEditing}
-                          value={sheet.health.currentHp}
-                          readOnly={!isEditing}
-                          className="text-3xl p-0 w-auto"
-                          onChange={(event) =>
-                            updateHealthField("currentHp", event.target.value)
-                          }
-                        />
-                        <p className="text-4xl w-auto text-center">/</p>
-                        <SheetInput
-                          isEditing={isEditing}
-                          value={sheet.health.maxHp}
-                          readOnly={!isEditing}
-                          className="text-3xl p-0 w-auto"
-                          onChange={(event) =>
-                            updateHealthField("maxHp", event.target.value)
-                          }
-                        />
-                        {(sheet.health.tempHp > 0 || isEditing) && (
-                          <div className="grid">
+                  {abilities.map((ability, i) => (
+                    <div key={ability.key}>
+                      <div
+                        className={`flex gap-2 justify-start items-center border-muted border-solid py-1 ${i < abilities.length - 1 ? "[border-bottom-width:1px]" : ""}`}
+                      >
+                        {isEditing && (
+                          <>
                             <div className="flex justify-center items-center gap-1">
-                              <p className="ml-1">{`(`}</p>
-                              <p className="text-[#00A3A3] dark:text-[#00FFFF]">
-                                +
-                              </p>
-                              <SheetInput
-                                isEditing={isEditing}
-                                type="number"
-                                value={sheet.health.tempHp}
-                                readOnly={!isEditing}
-                                className="text-3xl w-auto pr-0 text-[#00A3A3] dark:text-[#00FFFF]"
-                                onChange={(event) =>
-                                  updateHealthField(
-                                    "tempHp",
-                                    event.target.value,
-                                  )
-                                }
-                              />
-                              <HeartPlus className="w-6 h-6 text-[#00A3A3] dark:text-[#00FFFF]" />
+                              <p>{`(`}</p>
+                              <div className="flex justify-center items-center gap-2">
+                                <Checkbox
+                                  id={`saving-throw-${ability.key}-proficiency`}
+                                  name={`saving-throw-${ability.key}-proficiency`}
+                                  checked={
+                                    sheet.savingThrow[ability.key].isProficient
+                                  }
+                                  onCheckedChange={(value) =>
+                                    updateSavingThrowProficiency(
+                                      ability.key,
+                                      value === true,
+                                    )
+                                  }
+                                />
+                                <p className="text-sm">Add Proficiency</p>
+                              </div>
                               <p>{`)`}</p>
                             </div>
-                            {isEditing && (
-                              <Label className="text-muted-foreground text-xs">
-                                Temp HP
-                              </Label>
-                            )}
-                          </div>
+                            <Label className="text-sm">
+                              Additional Modifiers
+                            </Label>
+                            <SheetInput
+                              isEditing={isEditing}
+                              value={sheet.savingThrow[ability.key].modifier}
+                              type="number"
+                              readOnly={!isEditing}
+                              className="w-auto"
+                              onChange={(event) =>
+                                updateSavingThrowModifier(
+                                  ability.key,
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </>
                         )}
-                      </div>
-                    </div>
-                    <Label className="text-muted-foreground">Current HP</Label>
-                  </div>
-                  <div className="grid gap-2">
-                    <div className="flex justify-start items-center gap-2">
-                      <Dice3 className="w-8 h-8 dark:text-[#b383fe]" />
-                      <div className="flex justify-start items-center">
-                        <p className="text-3xl p-0 w-auto">{`(`}</p>
-                        <SheetInput
-                          isEditing={isEditing}
-                          type="number"
-                          value={sheet.health.hitDice.amount}
-                          readOnly={!isEditing}
-                          className="text-3xl p-0 w-auto"
-                          onChange={(event) =>
-                            updateHealthField(
-                              "hitDice",
-                              "amount",
-                              event.target.value,
-                            )
-                          }
-                        />
-                        <SheetInput
-                          isEditing={isEditing}
-                          value={sheet.health.hitDice.diceType}
-                          readOnly={!isEditing}
-                          className="text-3xl p-0 w-auto"
-                          onChange={(event) =>
-                            updateHealthField(
-                              "hitDice",
-                              "diceType",
-                              event.target.value,
-                            )
-                          }
-                        />
-                        <p className="text-3xl p-0 w-auto">{`)`}</p>
-                        <p className="text-3xl p-0 w-auto">
-                          {formatSavingThrow(
-                            sheet.ap.con.base + sheet.ap.con.modifier,
-                          )}
+                        <p className="pr-3 text-md leading-7 w-[15%]">
+                          {`${formatSavingThrow(
+                            sheet.ap[ability.key].base +
+                              sheet.ap[ability.key].modifier,
+                            [
+                              sheet.savingThrow[ability.key].modifier,
+                              sheet.savingThrow[ability.key].isProficient
+                                ? sheet.combat.proficiencyBonus
+                                : 0,
+                            ],
+                          )}`}
                         </p>
+                        {sheet.savingThrow[ability.key].isProficient && (
+                          <Triangle className="w-3 h-3 text-[#3888F2] dark:text-[#3888F2]" />
+                        )}
+                        <Label>{ability.label}</Label>
                       </div>
                     </div>
-                    <Label className="text-muted-foreground">Hit Dice</Label>
-                  </div>
-                  <div className="grid gap-2">
-                    <div className="flex justify-center items-center gap-2">
-                      <Skull className="w-8 h-8" color="#ef4444" />
-                      <SheetInput
-                        isEditing={isEditing}
-                        value={`${sheet.health.deathSavesSuccesses}/${sheet.health.deathSavesFailures}`}
-                        readOnly={!isEditing}
-                        className="text-3xl w-full"
-                        onChange={(event) => {
-                          const [s = "", f = ""] = event.target.value
-                            .split("/")
-                            .map((part) => part.trim());
-                          updateHealthField("deathSavesSuccesses", s);
-                          updateHealthField("deathSavesFailures", f);
-                        }}
-                      />
-                    </div>
-                    <Label className="text-muted-foreground">
-                      Death Saves (S/F)
-                    </Label>
-                  </div>
+                  ))}
                 </ExpandableCardModal>
                 {renderResizeHandle(sectionId)}
               </div>

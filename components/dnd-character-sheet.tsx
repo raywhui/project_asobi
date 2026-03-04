@@ -26,6 +26,7 @@ import {
   Shield,
   Skull,
   Swords,
+  Triangle,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -47,11 +48,13 @@ import {
   type CharacterSheetState,
 } from "@/data/dnd-character-sheet";
 import { cn, formatSavingThrow } from "@/lib/utils";
+import { Checkbox } from "./ui/checkbox";
 
 type SectionId =
   | "basics"
   | "abilities"
   | "combat"
+  | "health"
   | "skills"
   | "equipment"
   | "features"
@@ -62,6 +65,7 @@ const initialOrder: SectionId[] = [
   "basics",
   "abilities",
   "combat",
+  "health",
   "skills",
   "equipment",
   "features",
@@ -81,6 +85,7 @@ const skeletonCards = [
   { id: "s6", className: "" },
   { id: "s7", className: "" },
   { id: "s8", className: "" },
+  { id: "s9", className: "" },
 ];
 type CardSpan = { colSpan: number; rowSpan: number };
 type ResizeState = {
@@ -99,6 +104,7 @@ const defaultSectionGridSpan: Record<SectionId, CardSpan> = {
   basics: { colSpan: 2, rowSpan: 1 },
   abilities: { colSpan: 1, rowSpan: 1 },
   combat: { colSpan: 1, rowSpan: 1 },
+  health: { colSpan: 1, rowSpan: 1 },
   skills: { colSpan: 1, rowSpan: 1 },
   equipment: { colSpan: 1, rowSpan: 1 },
   features: { colSpan: 1, rowSpan: 1 },
@@ -125,6 +131,7 @@ function createInitialSpans(): Record<SectionId, CardSpan> {
     basics: { ...defaultSectionGridSpan.basics },
     abilities: { ...defaultSectionGridSpan.abilities },
     combat: { ...defaultSectionGridSpan.combat },
+    health: { ...defaultSectionGridSpan.health },
     skills: { ...defaultSectionGridSpan.skills },
     equipment: { ...defaultSectionGridSpan.equipment },
     features: { ...defaultSectionGridSpan.features },
@@ -159,6 +166,52 @@ function parseStoredSpans(
   } catch {
     return null;
   }
+}
+
+type SheetInputProps = ComponentProps<typeof BaseInput> & {
+  isEditing: boolean;
+};
+
+function SheetInput({
+  isEditing,
+  className,
+  value,
+  ...props
+}: SheetInputProps) {
+  if (isEditing) {
+    return <BaseInput className={className} value={value} {...props} />;
+  }
+
+  const displayValue = value == null ? "" : String(value);
+  return (
+    <p
+      className={cn(
+        `pr-3 text-md leading-7 ${displayValue.length > 5 ? "w-[50%]" : "w-[15%]"}`,
+        className,
+      )}
+    >
+      {displayValue || "\u2014"}
+    </p>
+  );
+}
+
+type SheetTextareaProps = ComponentProps<typeof BaseTextarea> & {
+  isEditing: boolean;
+};
+
+function SheetTextarea({
+  isEditing,
+  className,
+  value,
+  ...props
+}: SheetTextareaProps) {
+  if (isEditing) {
+    return <BaseTextarea className={className} value={value} {...props} />;
+  }
+
+  return (
+    <BaseTextarea className={className} value={value} {...props} disabled />
+  );
 }
 
 export function DndCharacterSheet() {
@@ -264,50 +317,6 @@ export function DndCharacterSheet() {
 
   const editableInputClass = "";
 
-  const Input = ({
-    className,
-    value,
-    ...props
-  }: ComponentProps<typeof BaseInput>) => {
-    if (isEditing) {
-      return <BaseInput className={className} value={value} {...props} />;
-    }
-
-    const displayValue = value == null ? "" : String(value);
-    return (
-      <p
-        className={cn(
-          `pr-3 text-md leading-7 ${displayValue.length > 5 ? "w-[50%]" : "w-[15%]"}`,
-          className,
-        )}
-      >
-        {displayValue || "\u2014"}
-      </p>
-    );
-  };
-
-  const Textarea = ({
-    className,
-    value,
-    ...props
-  }: ComponentProps<typeof BaseTextarea>) => {
-    if (isEditing) {
-      return <BaseTextarea className={className} value={value} {...props} />;
-    }
-
-    return (
-      // <p
-      //   className={cn(
-      //     "min-h-24 w-full min-w-0 whitespace-pre-wrap rounded-md border bg-muted/40 px-3 py-2 text-lg leading-7 max-h-64 overflow-auto",
-      //     className,
-      //   )}
-      // >
-      //   {displayValue || "\u2014"}
-      // </p>
-      <BaseTextarea className={className} value={value} {...props} disabled />
-    );
-  };
-
   const updateListOrBackstoryField = <
     K extends "equipment" | "featuresAndTraits" | "spells" | "backstory",
   >(
@@ -323,56 +332,151 @@ export function DndCharacterSheet() {
     nextValue: string,
   ) => {
     if (!isEditing) return;
-    const parsed = Number(nextValue);
     setSheet((current) => ({
       ...current,
       ap: {
         ...current.ap,
         [key]: {
           ...current.ap[key],
-          base: Number.isFinite(parsed) ? parsed : 0,
+          base: (() => {
+            const parsed = Number(nextValue);
+            return Number.isFinite(parsed) ? parsed : current.ap[key].base;
+          })(),
         },
       },
     }));
   };
 
-  const updateCombatField = <
-    K extends keyof Omit<CharacterSheetState["combat"], "hitDice">,
-  >(
-    key: K,
+  const updateAbilityModifier = (
+    key: keyof CharacterSheetState["ap"],
     nextValue: string,
   ) => {
     if (!isEditing) return;
-    const currentValue = sheet.combat[key];
-    const parsed =
-      typeof currentValue === "number"
-        ? Number.isFinite(Number(nextValue))
-          ? Number(nextValue)
-          : 0
-        : nextValue;
+    setSheet((current) => ({
+      ...current,
+      ap: {
+        ...current.ap,
+        [key]: {
+          ...current.ap[key],
+          modifier: (() => {
+            const parsed = Number(nextValue);
+            return Number.isFinite(parsed) ? parsed : current.ap[key].modifier;
+          })(),
+        },
+      },
+    }));
+  };
+
+  const updateCombatField = (
+    key: keyof CharacterSheetState["combat"],
+    nextValue: string,
+  ) => {
+    if (!isEditing) return;
 
     setSheet((current) => ({
       ...current,
       combat: {
         ...current.combat,
-        [key]: parsed,
+        [key]: (() => {
+          const parsed = Number(nextValue);
+          return Number.isFinite(parsed) ? parsed : current.combat[key];
+        })(),
       },
     }));
   };
+
+  function updateHealthField(
+    key: "hitDice",
+    hitDiceKey: keyof CharacterSheetState["health"]["hitDice"],
+    nextValue: string,
+  ): void;
+  function updateHealthField<
+    K extends keyof Omit<CharacterSheetState["health"], "hitDice">,
+  >(key: K, nextValue: string): void;
+  function updateHealthField(
+    key: keyof CharacterSheetState["health"],
+    arg2: string,
+    arg3?: string,
+  ) {
+    if (!isEditing) return;
+
+    setSheet((current) => ({
+      ...current,
+      health: {
+        ...current.health,
+        ...(key === "hitDice"
+          ? {
+              hitDice: {
+                ...current.health.hitDice,
+                [arg2]:
+                  typeof current.health.hitDice[
+                    arg2 as keyof CharacterSheetState["health"]["hitDice"]
+                  ] === "number"
+                    ? (() => {
+                        const parsed = Number(arg3 ?? "");
+                        return Number.isFinite(parsed)
+                          ? parsed
+                          : current.health.hitDice.amount;
+                      })()
+                    : (arg3 ?? ""),
+              },
+            }
+          : {
+              [key]:
+                typeof current.health[
+                  key as keyof Omit<CharacterSheetState["health"], "hitDice">
+                ] === "number"
+                  ? (() => {
+                      const parsed = Number(arg2);
+                      return Number.isFinite(parsed)
+                        ? parsed
+                        : current.health[
+                            key as keyof Omit<
+                              CharacterSheetState["health"],
+                              "hitDice"
+                            >
+                          ];
+                    })()
+                  : arg2,
+            }),
+      },
+    }));
+  }
 
   const updateSkillModifier = (
     key: keyof CharacterSheetState["skills"],
     nextValue: string,
   ) => {
     if (!isEditing) return;
-    const parsed = Number(nextValue);
     setSheet((current) => ({
       ...current,
       skills: {
         ...current.skills,
         [key]: {
           ...current.skills[key],
-          modifier: Number.isFinite(parsed) ? parsed : 0,
+          modifier: (() => {
+            const parsed = Number(nextValue);
+            return Number.isFinite(parsed)
+              ? parsed
+              : current.skills[key].modifier;
+          })(),
+        },
+      },
+    }));
+  };
+
+  const updateSkillProficiency = (
+    key: keyof CharacterSheetState["skills"],
+    checked: boolean,
+  ) => {
+    if (!isEditing) return;
+    setSheet((current) => ({
+      ...current,
+      skills: {
+        ...current.skills,
+        [key]: {
+          ...current.skills[key],
+          isProficient: checked,
         },
       },
     }));
@@ -393,8 +497,10 @@ export function DndCharacterSheet() {
   const skills = useMemo(
     () => [
       { label: "Acrobatics", key: "acrobatics" as const },
+      { label: "Animal Handling", key: "animalHandling" as const },
       { label: "Arcana", key: "arcana" as const },
       { label: "Athletics", key: "athletics" as const },
+      { label: "Deception", key: "deception" as const },
       { label: "History", key: "history" as const },
       { label: "Insight", key: "insight" as const },
       { label: "Intimidation", key: "intimidation" as const },
@@ -816,15 +922,6 @@ export function DndCharacterSheet() {
   return (
     <div className="mx-auto w-full space-y-6 p-4 md:p-8 lg:min-w-[80vw] lg:max-w-[80vw]">
       <div className="flex flex-col gap-4 rounded-xl border bg-card p-4 md:flex-row md:items-center md:justify-between">
-        {/* <div>
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-            Dungeons & Dragons Character Sheet
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Drag cards to reorder a dense 3-column grid. Larger cards can span
-            multiple columns.
-          </p>
-        </div> */}
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center md:text-3xl">
             {sheet.character.name} <Dot className="h-8 w-8" />{" "}
@@ -980,7 +1077,7 @@ export function DndCharacterSheet() {
                   title="Ability Scores"
                   cardClassName="h-full"
                   headerClassName={getHeaderHandleClasses()}
-                  titleClassName="w-[33%]"
+                  titleClassName="w-full"
                   onHeaderPointerDown={(event) =>
                     armDragHandle(sectionId, event)
                   }
@@ -992,7 +1089,7 @@ export function DndCharacterSheet() {
                       className={`flex items-center gap-2 ${cardSpans.abilities.colSpan <= 1 ? "flex-row" : "flex-col"}`}
                     >
                       <p className="text-3xl w-8">
-                        {`(${formatSavingThrow(sheet.ap[ability.key].base)})`}
+                        {`(${formatSavingThrow(sheet.ap[ability.key].base + sheet.ap[ability.key].modifier)})`}
                       </p>
                       {cardSpans.abilities.colSpan <= 1 && (
                         <div className="flex items-center justify-center pl-6 pr-2">
@@ -1000,14 +1097,51 @@ export function DndCharacterSheet() {
                         </div>
                       )}
                       <div className="flex flex-col items-center justify-center">
-                        <Input
-                          value={sheet.ap[ability.key].base}
-                          readOnly={!isEditing}
-                          className="text-lg w-full p-0"
-                          onChange={(event) =>
-                            updateAbilityBase(ability.key, event.target.value)
-                          }
-                        />
+                        <p className="text-lg w-full p-0">
+                          {sheet.ap[ability.key].base +
+                            sheet.ap[ability.key].modifier}
+                        </p>
+                        {isEditing && (
+                          <div className="flex items-center justify-center gap-2">
+                            <div className="flex flex-col items-center justify-center gap-2">
+                              <SheetInput
+                                isEditing={isEditing}
+                                value={sheet.ap[ability.key].base}
+                                type="number"
+                                readOnly={!isEditing}
+                                className="text-lg w-full p-0"
+                                onChange={(event) =>
+                                  updateAbilityBase(
+                                    ability.key,
+                                    event.target.value,
+                                  )
+                                }
+                              />
+                              <Label className="text-muted-foreground">
+                                Base
+                              </Label>
+                            </div>
+                            <p>+</p>
+                            <div className="flex flex-col items-center justify-center gap-2">
+                              <SheetInput
+                                isEditing={isEditing}
+                                value={sheet.ap[ability.key].modifier}
+                                type="number"
+                                readOnly={!isEditing}
+                                className="text-lg w-full p-0"
+                                onChange={(event) =>
+                                  updateAbilityModifier(
+                                    ability.key,
+                                    event.target.value,
+                                  )
+                                }
+                              />
+                              <Label className="text-muted-foreground">
+                                Modifier
+                              </Label>
+                            </div>
+                          </div>
+                        )}
                         <Label className="text-muted-foreground">
                           {ability.label}
                         </Label>
@@ -1038,58 +1172,13 @@ export function DndCharacterSheet() {
                   onHeaderPointerDown={(event) =>
                     armDragHandle(sectionId, event)
                   }
-                  contentClassName={`grid gap-6 ${cardSpans.combat.colSpan <= 1 ? "grid-cols-2" : "grid-cols-3"}`}
+                  contentClassName={`grid gap-6 ${cardSpans.combat.colSpan <= 1 ? "grid-cols-2" : "grid-cols-4"}`}
                 >
-                  <div
-                    className={`grid gap-2 ${cardSpans.combat.colSpan <= 1 ? "col-span-2" : "col-span-3"}`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <div>
-                        <Heart className="w-8 h-8" color="pink" />
-                      </div>
-                      <div className="flex items-center">
-                        <Input
-                          value={sheet.combat.currentHp}
-                          readOnly={!isEditing}
-                          className="text-3xl p-0 w-auto"
-                          onChange={(event) =>
-                            updateCombatField("currentHp", event.target.value)
-                          }
-                        />
-                        <p className="text-4xl w-auto text-center">/</p>
-                        <Input
-                          value={sheet.combat.maxHp}
-                          readOnly={!isEditing}
-                          className="text-3xl p-0 w-auto"
-                          onChange={(event) =>
-                            updateCombatField("maxHp", event.target.value)
-                          }
-                        />
-                        <p className="px-4 text-lg">+</p>
-                        <div className="grid">
-                          <div className="flex justify-center items-center gap-2">
-                            <HeartPlus className="w-8 h-8" color="cyan" />
-                            <Input
-                              value={sheet.combat.tempHp}
-                              readOnly={!isEditing}
-                              className="text-3xl w-full"
-                              onChange={(event) =>
-                                updateCombatField("tempHp", event.target.value)
-                              }
-                            />
-                          </div>
-                          <Label className="text-muted-foreground text-xs">
-                            Temp HP
-                          </Label>
-                        </div>
-                      </div>
-                    </div>
-                    <Label className="text-muted-foreground">Current HP</Label>
-                  </div>
                   <div className="grid gap-2">
                     <div className="flex justify-center items-center gap-2">
-                      <Shield className="w-8 h-8" color="green" />
-                      <Input
+                      <Shield className="w-8 h-8 dark:text-[#00FF80]" />
+                      <SheetInput
+                        isEditing={isEditing}
                         value={sheet.combat.armorClass}
                         readOnly={!isEditing}
                         className="text-3xl w-full"
@@ -1102,8 +1191,9 @@ export function DndCharacterSheet() {
                   </div>
                   <div className="grid gap-2">
                     <div className="flex justify-center items-center gap-2">
-                      <Swords className="w-8 h-8" color="yellow" />
-                      <Input
+                      <Swords className="w-8 h-8 dark:text-[yellow]" />
+                      <SheetInput
+                        isEditing={isEditing}
                         value={sheet.combat.initiative}
                         readOnly={!isEditing}
                         className="text-3xl w-full"
@@ -1117,7 +1207,8 @@ export function DndCharacterSheet() {
                   <div className="grid gap-2">
                     <div className="flex justify-center items-center gap-2">
                       <Footprints className="w-8 h-8" color="grey" />
-                      <Input
+                      <SheetInput
+                        isEditing={isEditing}
                         value={sheet.combat.speed}
                         readOnly={!isEditing}
                         className="text-3xl w-full whitespace-nowrap"
@@ -1126,48 +1217,170 @@ export function DndCharacterSheet() {
                         }
                       />
                     </div>
-                    <Label className="text-muted-foreground">Speed</Label>
+                    <Label className="text-muted-foreground">Speed (ft)</Label>
                   </div>
                   <div className="grid gap-2">
-                    <div className="flex justify-center items-center gap-2">
-                      <Dice3 className="w-8 h-8" color="#3888F2" />
-                      <Input
-                        value={`${sheet.combat.hitDice.amount}${sheet.combat.hitDice.diceType}`}
-                        readOnly={!isEditing}
-                        className="text-3xl w-full"
-                        onChange={(event) => {
-                          if (!isEditing) return;
-                          const next = event.target.value.trim().toLowerCase();
-                          const matched = next.match(/^(\d+)\s*(d\d+)$/);
-                          if (!matched) return;
-                          setSheet((current) => ({
-                            ...current,
-                            combat: {
-                              ...current.combat,
-                              hitDice: {
-                                amount: Number(matched[1]),
-                                diceType: matched[2],
-                              },
-                            },
-                          }));
-                        }}
-                      />
+                    <div className="flex justify-start items-center gap-2">
+                      <Triangle className="w-8 h-8 text-[#3888F2]" />
+                      <div className="flex justify-center items-center">
+                        <p className="text-3xl">+</p>
+                        <SheetInput
+                          isEditing={isEditing}
+                          value={sheet.combat.proficiencyBonus}
+                          readOnly={!isEditing}
+                          className="text-3xl w-full"
+                          onChange={(event) =>
+                            updateCombatField(
+                              "proficiencyBonus",
+                              event.target.value,
+                            )
+                          }
+                        />
+                      </div>
+                    </div>
+                    <Label className="text-muted-foreground">
+                      Profiency Bonus
+                    </Label>
+                  </div>
+                </ExpandableCardModal>
+                {renderResizeHandle(sectionId)}
+              </div>
+            );
+          }
+
+          if (sectionId === "health") {
+            return (
+              <div
+                key={sectionId}
+                data-section-id={sectionId}
+                className={cn(getCardWrapperClasses(sectionId))}
+                style={getGridSpanStyle(sectionId)}
+                {...dragHandlers(sectionId)}
+              >
+                <ExpandableCardModal
+                  showDragHandle={isDragEnabled}
+                  showToggleButton={isEditing}
+                  title="Health"
+                  cardClassName="h-full"
+                  headerClassName={getHeaderHandleClasses()}
+                  onHeaderPointerDown={(event) =>
+                    armDragHandle(sectionId, event)
+                  }
+                  contentClassName={`grid gap-6 ${cardSpans.health.colSpan <= 1 ? "grid-cols-1" : "grid-cols-3"}`}
+                >
+                  <div className={`grid gap-2 col-span-1`}>
+                    <div className="flex items-center gap-2">
+                      <Heart className="w-8 h-8" color="pink" />
+                      <div className="flex items-center">
+                        <SheetInput
+                          isEditing={isEditing}
+                          value={sheet.health.currentHp}
+                          readOnly={!isEditing}
+                          className="text-3xl p-0 w-auto"
+                          onChange={(event) =>
+                            updateHealthField("currentHp", event.target.value)
+                          }
+                        />
+                        <p className="text-4xl w-auto text-center">/</p>
+                        <SheetInput
+                          isEditing={isEditing}
+                          value={sheet.health.maxHp}
+                          readOnly={!isEditing}
+                          className="text-3xl p-0 w-auto"
+                          onChange={(event) =>
+                            updateHealthField("maxHp", event.target.value)
+                          }
+                        />
+                        {(sheet.health.tempHp > 0 || isEditing) && (
+                          <div className="grid">
+                            <div className="flex justify-center items-center gap-1">
+                              <p className="ml-1">{`(`}</p>
+                              <p className="text-[#00A3A3] dark:text-[#00FFFF]">
+                                +
+                              </p>
+                              <SheetInput
+                                isEditing={isEditing}
+                                type="number"
+                                value={sheet.health.tempHp}
+                                readOnly={!isEditing}
+                                className="text-3xl w-auto pr-0 text-[#00A3A3] dark:text-[#00FFFF]"
+                                onChange={(event) =>
+                                  updateHealthField(
+                                    "tempHp",
+                                    event.target.value,
+                                  )
+                                }
+                              />
+                              <HeartPlus className="w-6 h-6 text-[#00A3A3] dark:text-[#00FFFF]" />
+                              <p>{`)`}</p>
+                            </div>
+                            {isEditing && (
+                              <Label className="text-muted-foreground text-xs">
+                                Temp HP
+                              </Label>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <Label className="text-muted-foreground">Current HP</Label>
+                  </div>
+                  <div className="grid gap-2">
+                    <div className="flex justify-start items-center gap-2">
+                      <Dice3 className="w-8 h-8 dark:text-[#b383fe]" />
+                      <div className="flex justify-start items-center">
+                        <p className="text-3xl p-0 w-auto">{`(`}</p>
+                        <SheetInput
+                          isEditing={isEditing}
+                          type="number"
+                          value={sheet.health.hitDice.amount}
+                          readOnly={!isEditing}
+                          className="text-3xl p-0 w-auto"
+                          onChange={(event) =>
+                            updateHealthField(
+                              "hitDice",
+                              "amount",
+                              event.target.value,
+                            )
+                          }
+                        />
+                        <SheetInput
+                          isEditing={isEditing}
+                          value={sheet.health.hitDice.diceType}
+                          readOnly={!isEditing}
+                          className="text-3xl p-0 w-auto"
+                          onChange={(event) =>
+                            updateHealthField(
+                              "hitDice",
+                              "diceType",
+                              event.target.value,
+                            )
+                          }
+                        />
+                        <p className="text-3xl p-0 w-auto">{`)`}</p>
+                        <p className="text-3xl p-0 w-auto">
+                          {formatSavingThrow(
+                            sheet.ap.con.base + sheet.ap.con.modifier,
+                          )}
+                        </p>
+                      </div>
                     </div>
                     <Label className="text-muted-foreground">Hit Dice</Label>
                   </div>
                   <div className="grid gap-2">
                     <div className="flex justify-center items-center gap-2">
                       <Skull className="w-8 h-8" color="#ef4444" />
-                      <Input
-                        value={`${sheet.combat.deathSavesSuccesses}/${sheet.combat.deathSavesFailures}`}
+                      <SheetInput
+                        isEditing={isEditing}
+                        value={`${sheet.health.deathSavesSuccesses}/${sheet.health.deathSavesFailures}`}
                         readOnly={!isEditing}
                         className="text-3xl w-full"
                         onChange={(event) => {
                           const [s = "", f = ""] = event.target.value
                             .split("/")
                             .map((part) => part.trim());
-                          updateCombatField("deathSavesSuccesses", s);
-                          updateCombatField("deathSavesFailures", f);
+                          updateHealthField("deathSavesSuccesses", s);
+                          updateHealthField("deathSavesFailures", f);
                         }}
                       />
                     </div>
@@ -1204,19 +1417,53 @@ export function DndCharacterSheet() {
                   {skills.map((skill, i) => (
                     <div key={skill.key}>
                       <div
-                        className={`flex gap-2 border-muted border-solid py-1 ${i < skills.length - 1 ? "[border-bottom-width:1px]" : ""}`}
+                        className={`flex gap-2 justify-start items-center border-muted border-solid py-1 ${i < skills.length - 1 ? "[border-bottom-width:1px]" : ""}`}
                       >
-                        <Input
-                          value={sheet.skills[skill.key].modifier}
-                          readOnly={!isEditing}
-                          className={editableInputClass}
-                          onChange={(event) =>
-                            updateSkillModifier(skill.key, event.target.value)
-                          }
-                        />
+                        {isEditing && (
+                          <>
+                            <div className="flex justify-center items-center gap-1">
+                              <p>{`(`}</p>
+                              <div className="flex justify-center items-center gap-2">
+                                <Checkbox
+                                  id={`skill-${skill.key}-proficiency`}
+                                  name={`skill-${skill.key}-proficiency`}
+                                  checked={sheet.skills[skill.key].isProficient}
+                                  onCheckedChange={(value) =>
+                                    updateSkillProficiency(
+                                      skill.key,
+                                      value === true,
+                                    )
+                                  }
+                                />
+                                <p className="text-sm">Add Proficiency</p>
+                              </div>
+                              <p>{`)`}</p>
+                            </div>
+                            <Label className="text-sm">
+                              Additional Modifiers
+                            </Label>
+                            <SheetInput
+                              isEditing={isEditing}
+                              value={sheet.skills[skill.key].modifier}
+                              type="number"
+                              readOnly={!isEditing}
+                              className="w-auto"
+                              onChange={(event) =>
+                                updateSkillModifier(
+                                  skill.key,
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </>
+                        )}
+
                         <p className="pr-3 text-md leading-7 w-[15%]">
-                          {`${formatSavingThrow(sheet.ap[sheet.skills[skill.key].baseApType].base)}`}
+                          {`${formatSavingThrow(sheet.ap[sheet.skills[skill.key].baseApType].base + sheet.ap[sheet.skills[skill.key].baseApType].modifier, [sheet.skills[skill.key].modifier, sheet.skills[skill.key].isProficient ? sheet.combat.proficiencyBonus : 0])}`}
                         </p>
+                        {sheet.skills[skill.key].isProficient && (
+                          <Triangle className="w-3 h-3 text-[#3888F2] dark:text-[#3888F2]" />
+                        )}
                         <Label>{skill.label}</Label>
                       </div>
                     </div>
@@ -1348,7 +1595,8 @@ export function DndCharacterSheet() {
                     armDragHandle(sectionId, event)
                   }
                 >
-                  <Textarea
+                  <SheetTextarea
+                    isEditing={isEditing}
                     value={sheet.backstory}
                     readOnly={!isEditing}
                     className={cn("min-h-40", editableInputClass)}

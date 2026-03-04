@@ -5,12 +5,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function getSavingThrowModifier(stat: number) {
+function getSavingThrowModifier(stat: number) {
   return Math.floor((stat - 10) / 2);
 }
 
-export function formatSavingThrow(stat: number, modifier: number = 0) {
-  const savingThrow = getSavingThrowModifier(stat) + modifier;
+export function formatSavingThrow(stat: number, modifier: number[] = [0]) {
+  const savingThrow =
+    getSavingThrowModifier(stat) + modifier.reduce((acc, cur) => acc + cur);
   return savingThrow >= 0 ? `+${savingThrow}` : `${savingThrow}`;
 }
 

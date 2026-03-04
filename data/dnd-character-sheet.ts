@@ -23,7 +23,10 @@ export type CharacterSheetState = {
   combat: {
     armorClass: number;
     initiative: number;
-    speed: string;
+    speed: number;
+    proficiencyBonus: number;
+  };
+  health: {
     currentHp: number;
     maxHp: number;
     tempHp: number;
@@ -35,24 +38,88 @@ export type CharacterSheetState = {
     deathSavesFailures: number;
   };
   skills: {
-    acrobatics: { baseApType: AbilityKey; modifier: number };
-    animalHandling: { baseApType: AbilityKey; modifier: number };
-    arcana: { baseApType: AbilityKey; modifier: number };
-    athletics: { baseApType: AbilityKey; modifier: number };
-    deception: { baseApType: AbilityKey; modifier: number };
-    history: { baseApType: AbilityKey; modifier: number };
-    insight: { baseApType: AbilityKey; modifier: number };
-    intimidation: { baseApType: AbilityKey; modifier: number };
-    investigation: { baseApType: AbilityKey; modifier: number };
-    medicine: { baseApType: AbilityKey; modifier: number };
-    nature: { baseApType: AbilityKey; modifier: number };
-    perception: { baseApType: AbilityKey; modifier: number };
-    performance: { baseApType: AbilityKey; modifier: number };
-    persuasion: { baseApType: AbilityKey; modifier: number };
-    religion: { baseApType: AbilityKey; modifier: number };
-    sleightOfHand: { baseApType: AbilityKey; modifier: number };
-    stealth: { baseApType: AbilityKey; modifier: number };
-    survival: { baseApType: AbilityKey; modifier: number };
+    acrobatics: {
+      baseApType: AbilityKey;
+      modifier: number;
+      isProficient: boolean;
+    };
+    animalHandling: {
+      baseApType: AbilityKey;
+      modifier: number;
+      isProficient: boolean;
+    };
+    arcana: { baseApType: AbilityKey; modifier: number; isProficient: boolean };
+    athletics: {
+      baseApType: AbilityKey;
+      modifier: number;
+      isProficient: boolean;
+    };
+    deception: {
+      baseApType: AbilityKey;
+      modifier: number;
+      isProficient: boolean;
+    };
+    history: {
+      baseApType: AbilityKey;
+      modifier: number;
+      isProficient: boolean;
+    };
+    insight: {
+      baseApType: AbilityKey;
+      modifier: number;
+      isProficient: boolean;
+    };
+    intimidation: {
+      baseApType: AbilityKey;
+      modifier: number;
+      isProficient: boolean;
+    };
+    investigation: {
+      baseApType: AbilityKey;
+      modifier: number;
+      isProficient: boolean;
+    };
+    medicine: {
+      baseApType: AbilityKey;
+      modifier: number;
+      isProficient: boolean;
+    };
+    nature: { baseApType: AbilityKey; modifier: number; isProficient: boolean };
+    perception: {
+      baseApType: AbilityKey;
+      modifier: number;
+      isProficient: boolean;
+    };
+    performance: {
+      baseApType: AbilityKey;
+      modifier: number;
+      isProficient: boolean;
+    };
+    persuasion: {
+      baseApType: AbilityKey;
+      modifier: number;
+      isProficient: boolean;
+    };
+    religion: {
+      baseApType: AbilityKey;
+      modifier: number;
+      isProficient: boolean;
+    };
+    sleightOfHand: {
+      baseApType: AbilityKey;
+      modifier: number;
+      isProficient: boolean;
+    };
+    stealth: {
+      baseApType: AbilityKey;
+      modifier: number;
+      isProficient: boolean;
+    };
+    survival: {
+      baseApType: AbilityKey;
+      modifier: number;
+      isProficient: boolean;
+    };
   };
   equipment: RecursiveListItem[];
   featuresAndTraits: RecursiveListItem[];
@@ -99,36 +166,39 @@ export const initialCharacterSheetState: CharacterSheetState = {
   combat: {
     armorClass: 15,
     initiative: +3,
-    speed: "30 ft",
+    speed: 30,
+    proficiencyBonus: 2,
+  },
+  health: {
     currentHp: 34,
     maxHp: 34,
     tempHp: 0,
     hitDice: {
-      diceType: "d8",
-      amount: 5,
+      diceType: "d10",
+      amount: 3,
     },
     deathSavesSuccesses: 0,
     deathSavesFailures: 0,
   },
   skills: {
-    acrobatics: { baseApType: "dex", modifier: 0 },
-    animalHandling: { baseApType: "wis", modifier: 0 },
-    arcana: { baseApType: "int", modifier: 0 },
-    athletics: { baseApType: "str", modifier: 0 },
-    deception: { baseApType: "cha", modifier: 0 },
-    history: { baseApType: "int", modifier: 0 },
-    insight: { baseApType: "wis", modifier: 0 },
-    intimidation: { baseApType: "cha", modifier: 0 },
-    investigation: { baseApType: "int", modifier: 0 },
-    medicine: { baseApType: "wis", modifier: 0 },
-    nature: { baseApType: "int", modifier: 0 },
-    perception: { baseApType: "wis", modifier: 0 },
-    performance: { baseApType: "cha", modifier: 0 },
-    persuasion: { baseApType: "cha", modifier: 0 },
-    religion: { baseApType: "int", modifier: 0 },
-    sleightOfHand: { baseApType: "dex", modifier: 0 },
-    stealth: { baseApType: "dex", modifier: 0 },
-    survival: { baseApType: "wis", modifier: 0 },
+    acrobatics: { baseApType: "dex", modifier: 0, isProficient: true },
+    animalHandling: { baseApType: "wis", modifier: 0, isProficient: false },
+    arcana: { baseApType: "int", modifier: 0, isProficient: false },
+    athletics: { baseApType: "str", modifier: 0, isProficient: false },
+    deception: { baseApType: "cha", modifier: 0, isProficient: false },
+    history: { baseApType: "int", modifier: 0, isProficient: true },
+    insight: { baseApType: "wis", modifier: 0, isProficient: false },
+    intimidation: { baseApType: "cha", modifier: 0, isProficient: false },
+    investigation: { baseApType: "int", modifier: 0, isProficient: true },
+    medicine: { baseApType: "wis", modifier: 0, isProficient: false },
+    nature: { baseApType: "int", modifier: 0, isProficient: false },
+    perception: { baseApType: "wis", modifier: 0, isProficient: true },
+    performance: { baseApType: "cha", modifier: 0, isProficient: false },
+    persuasion: { baseApType: "cha", modifier: 0, isProficient: false },
+    religion: { baseApType: "int", modifier: 0, isProficient: false },
+    sleightOfHand: { baseApType: "dex", modifier: 0, isProficient: false },
+    stealth: { baseApType: "dex", modifier: 0, isProficient: false },
+    survival: { baseApType: "wis", modifier: 0, isProficient: true },
   },
   equipment: [
     {

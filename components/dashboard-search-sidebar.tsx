@@ -1,19 +1,18 @@
 "use client";
 
-import { PanelRightOpen, Search, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import { searchSrd2014Indexes, type Srd2014SearchResult } from "@/lib/utils";
 
 export function DashboardSearchSidebar() {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<Srd2014SearchResult[]>([]);
@@ -65,9 +64,7 @@ export function DashboardSearchSidebar() {
       className="sticky top-4 h-[calc(100vh-2rem)] shrink-0 rounded-lg"
     >
       <SidebarHeader>
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-sm font-semibold">5e Lookup</p>
-          <span className="h-6 w-6" aria-hidden />
+        <div className="grid grid-cols-[24px_1fr_24px] items-center gap-2">
           <button
             type="button"
             onClick={() => setIsOpen(false)}
@@ -76,6 +73,8 @@ export function DashboardSearchSidebar() {
           >
             <X className="h-4 w-4" />
           </button>
+          <p className="text-center text-sm font-semibold">5e Lookup</p>
+          <span className="h-6 w-6" aria-hidden />
         </div>
       </SidebarHeader>
       <SidebarContent className="space-y-3">
@@ -118,7 +117,6 @@ export function DashboardSearchSidebar() {
           })}
         </div>
       </SidebarContent>
-      {/* <SidebarFooter></SidebarFooter> */}
     </Sidebar>
   );
 }

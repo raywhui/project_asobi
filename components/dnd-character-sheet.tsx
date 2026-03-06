@@ -22,6 +22,7 @@ import {
   Heart,
   HeartPlus,
   Move,
+  Plus,
   Pencil,
   Save,
   Scaling,
@@ -372,6 +373,96 @@ export function DndCharacterSheet() {
         },
       };
     });
+  };
+
+  const updateSpellSlotTitle = (slotIndex: number, title: string) => {
+    if (!isEditing) return;
+    setSheet((current) => {
+      const slot = current.spells.slots[slotIndex];
+      if (!slot) return current;
+
+      return {
+        ...current,
+        spells: {
+          ...current.spells,
+          slots: current.spells.slots.map((item, index) =>
+            index === slotIndex ? { ...item, title } : item,
+          ),
+        },
+      };
+    });
+  };
+
+  const updateSpellSlotMax = (slotIndex: number, nextValue: string) => {
+    if (!isEditing) return;
+    setSheet((current) => {
+      const slot = current.spells.slots[slotIndex];
+      if (!slot) return current;
+
+      const parsed = Number(nextValue);
+      const nextMax = Number.isFinite(parsed)
+        ? Math.max(0, Math.round(parsed))
+        : slot.max;
+      const nextAmount = Math.min(slot.amount, nextMax);
+
+      if (nextMax === slot.max && nextAmount === slot.amount) return current;
+
+      return {
+        ...current,
+        spells: {
+          ...current.spells,
+          slots: current.spells.slots.map((item, index) =>
+            index === slotIndex
+              ? { ...item, max: nextMax, amount: nextAmount }
+              : item,
+          ),
+        },
+      };
+    });
+  };
+
+  const updateSpellSlotAmountInput = (slotIndex: number, nextValue: string) => {
+    if (!isEditing) return;
+    setSheet((current) => {
+      const slot = current.spells.slots[slotIndex];
+      if (!slot) return current;
+
+      const parsed = Number(nextValue);
+      const nextAmount = Number.isFinite(parsed)
+        ? Math.min(slot.max, Math.max(0, Math.round(parsed)))
+        : slot.amount;
+
+      if (nextAmount === slot.amount) return current;
+
+      return {
+        ...current,
+        spells: {
+          ...current.spells,
+          slots: current.spells.slots.map((item, index) =>
+            index === slotIndex ? { ...item, amount: nextAmount } : item,
+          ),
+        },
+      };
+    });
+  };
+
+  const addSpellSlot = () => {
+    if (!isEditing) return;
+    setSheet((current) => ({
+      ...current,
+      spells: {
+        ...current.spells,
+        slots: [
+          ...current.spells.slots,
+          {
+            title: `Slot ${current.spells.slots.length + 1}`,
+            description: "",
+            amount: 0,
+            max: 1,
+          },
+        ],
+      },
+    }));
   };
 
   const updateAbilityBase = (
@@ -1750,19 +1841,41 @@ export function DndCharacterSheet() {
                   }
                 >
                   <div className="space-y-2 pb-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium">Spell Slots</p>
+                      {isEditing && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={addSpellSlot}
+                        >
+                          <Plus className="mr-1 h-4 w-4" />
+                          Add Spell Slot
+                        </Button>
+                      )}
+                    </div>
                     {sheet.spells.slots.map((slot, index) => (
                       <div
-                        key={`${slot.title}-${index}`}
+                        key={`slot-${index}`}
                         className="flex items-center justify-between rounded-md border p-2"
                       >
-                        <div className="leading-tight">
-                          <p className="text-sm font-medium">{slot.title}</p>
+                        <div className="leading-tight flex-1 pr-2">
+                          <SheetInput
+                            isEditing={isEditing}
+                            value={slot.title}
+                            readOnly={!isEditing}
+                            className="text-sm font-medium h-8 w-auto"
+                            onChange={(event) =>
+                              updateSpellSlotTitle(index, event.target.value)
+                            }
+                          />
                         </div>
                         <div className="flex items-center gap-2">
                           <div className="flex items-center gap-1">
                             {Array.from({ length: slot.max }).map((_, i) => (
                               <Diamond
-                                key={`${slot.title}-diamond-${i}`}
+                                key={`slot-${index}-diamond-${i}`}
                                 className={cn(
                                   "h-5 w-5 transition-colors",
                                   i < slot.amount
@@ -1772,30 +1885,61 @@ export function DndCharacterSheet() {
                               />
                             ))}
                           </div>
-                          <div className="flex flex-col">
-                            <Button
-                              type="button"
-                              size="icon"
-                              variant="ghost"
-                              className="h-5 w-5"
-                              onClick={() => updateSpellSlotAmount(index, 1)}
-                              disabled={slot.amount >= slot.max}
-                              aria-label={`Increase ${slot.title} slots`}
-                            >
-                              <ChevronUp className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              type="button"
-                              size="icon"
-                              variant="ghost"
-                              className="h-5 w-5"
-                              onClick={() => updateSpellSlotAmount(index, -1)}
-                              disabled={slot.amount <= 0}
-                              aria-label={`Decrease ${slot.title} slots`}
-                            >
-                              <ChevronDown className="h-3 w-3" />
-                            </Button>
-                          </div>
+                          <p className="text-xs tabular-nums text-muted-foreground">
+                            {slot.amount}/{slot.max}
+                          </p>
+                          {isEditing && (
+                            <div className="flex items-center gap-1">
+                              <BaseInput
+                                type="number"
+                                value={slot.amount}
+                                onChange={(event) =>
+                                  updateSpellSlotAmountInput(
+                                    index,
+                                    event.target.value,
+                                  )
+                                }
+                                className="h-8 w-14"
+                              />
+                              <span className="text-xs text-muted-foreground">
+                                /
+                              </span>
+                              <BaseInput
+                                type="number"
+                                value={slot.max}
+                                onChange={(event) =>
+                                  updateSpellSlotMax(index, event.target.value)
+                                }
+                                className="h-8 w-14"
+                              />
+                            </div>
+                          )}
+                          {!isEditing && (
+                            <div className="flex flex-col">
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                className="h-5 w-5"
+                                onClick={() => updateSpellSlotAmount(index, 1)}
+                                disabled={slot.amount >= slot.max}
+                                aria-label={`Increase ${slot.title} slots`}
+                              >
+                                <ChevronUp className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                className="h-5 w-5"
+                                onClick={() => updateSpellSlotAmount(index, -1)}
+                                disabled={slot.amount <= 0}
+                                aria-label={`Decrease ${slot.title} slots`}
+                              >
+                                <ChevronDown className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}

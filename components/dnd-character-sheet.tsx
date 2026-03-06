@@ -677,6 +677,26 @@ export function DndCharacterSheet() {
     [],
   );
 
+  const handleSkillLookup = (skillKey: keyof CharacterSheetState["skills"]) => {
+    if (typeof window === "undefined") return;
+
+    const index = String(skillKey).replace(/[A-Z]/g, (char) => {
+      return `-${char.toLowerCase()}`;
+    });
+
+    window.dispatchEvent(
+      new CustomEvent<{
+        index: string;
+        collection: "skills";
+      }>("dnd:sidebar-lookup", {
+        detail: {
+          index,
+          collection: "skills",
+        },
+      }),
+    );
+  };
+
   const clearDragPreview = () => {
     if (dragPreviewRef.current) {
       dragPreviewRef.current.remove();
@@ -770,7 +790,7 @@ export function DndCharacterSheet() {
 
   const getCardWrapperClasses = (id: SectionId) =>
     cn(
-      "transition-[transform,opacity,box-shadow] duration-300 ease-out will-change-transform",
+      "transition-[transform,opacity,box-shadow] border-border duration-300 ease-out will-change-transform",
       "relative",
       (draggingId === id || touchDraggingId === id) &&
         "scale-[0.98] opacity-35",
@@ -1080,7 +1100,12 @@ export function DndCharacterSheet() {
 
   return (
     <div className="mx-auto w-full space-y-6 p-4 md:p-8 lg:w-[80vw]">
-      <div className="flex flex-col gap-4 rounded-xl border bg-card p-4 md:flex-row md:items-center md:justify-between">
+      <div
+        className={cn(
+          "flex flex-col gap-4 rounded-xl border bg-card p-4 md:flex-row md:items-center md:justify-between",
+          "bg-gradient-to-t from-[#e5e5e5]/5 to-card shadow-xs dark:bg-card",
+        )}
+      >
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center md:text-3xl">
             {sheet.character.name} <Dot className="h-8 w-8" />{" "}
@@ -1737,7 +1762,23 @@ export function DndCharacterSheet() {
               ]);} */}
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Label>{skill.label}</Label>
+                              <Label
+                                role="button"
+                                tabIndex={0}
+                                className="cursor-pointer rounded-sm px-1 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                onClick={() => handleSkillLookup(skill.key)}
+                                onKeyDown={(event) => {
+                                  if (
+                                    event.key === "Enter" ||
+                                    event.key === " "
+                                  ) {
+                                    event.preventDefault();
+                                    handleSkillLookup(skill.key);
+                                  }
+                                }}
+                              >
+                                {skill.label}
+                              </Label>
                             </TooltipTrigger>
                             <TooltipContent>
                               <p>sup</p>
@@ -1855,94 +1896,107 @@ export function DndCharacterSheet() {
                         </Button>
                       )}
                     </div>
-                    {sheet.spells.slots.map((slot, index) => (
-                      <div
-                        key={`slot-${index}`}
-                        className="flex items-center justify-between rounded-md border p-2"
-                      >
-                        <div className="leading-tight flex-1 pr-2">
-                          <SheetInput
-                            isEditing={isEditing}
-                            value={slot.title}
-                            readOnly={!isEditing}
-                            className="text-sm font-medium h-8 w-auto"
-                            onChange={(event) =>
-                              updateSpellSlotTitle(index, event.target.value)
-                            }
-                          />
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-1">
-                            {Array.from({ length: slot.max }).map((_, i) => (
-                              <Diamond
-                                key={`slot-${index}-diamond-${i}`}
-                                className={cn(
-                                  "h-5 w-5 transition-colors",
-                                  i < slot.amount
-                                    ? "text-cyan-400"
-                                    : "text-muted-foreground",
-                                )}
-                              />
-                            ))}
+                    <div
+                      className={`grid justify-center items-center gap-2 ${cardSpans.spells.colSpan <= 1 ? "grid-cols-1" : "grid-cols-3"}`}
+                    >
+                      {sheet.spells.slots.map((slot, index) => (
+                        <div
+                          key={`slot-${index}`}
+                          className="p-2 rounded-md border col-span-1"
+                        >
+                          <div className="leading-tight flex-1 pr-2">
+                            <SheetInput
+                              isEditing={isEditing}
+                              value={slot.title}
+                              readOnly={!isEditing}
+                              className="text-sm font-medium h-auto w-auto"
+                              onChange={(event) =>
+                                updateSpellSlotTitle(index, event.target.value)
+                              }
+                            />
                           </div>
-                          <p className="text-xs tabular-nums text-muted-foreground">
-                            {slot.amount}/{slot.max}
-                          </p>
-                          {isEditing && (
-                            <div className="flex items-center gap-1">
-                              <BaseInput
-                                type="number"
-                                value={slot.amount}
-                                onChange={(event) =>
-                                  updateSpellSlotAmountInput(
-                                    index,
-                                    event.target.value,
-                                  )
-                                }
-                                className="h-8 w-14"
-                              />
-                              <span className="text-xs text-muted-foreground">
-                                /
-                              </span>
-                              <BaseInput
-                                type="number"
-                                value={slot.max}
-                                onChange={(event) =>
-                                  updateSpellSlotMax(index, event.target.value)
-                                }
-                                className="h-8 w-14"
-                              />
+                          <div className="flex items-center gap-2 justify-between">
+                            <div className="grid items-center grid-cols-4 gap-1">
+                              {Array.from({ length: slot.max }).map((_, i) => (
+                                <Diamond
+                                  key={`slot-${index}-diamond-${i}`}
+                                  className={cn(
+                                    "h-5 w-5 transition-colors",
+                                    i < slot.amount
+                                      ? "text-cyan-400"
+                                      : "text-muted-foreground",
+                                  )}
+                                />
+                              ))}
                             </div>
-                          )}
-                          {!isEditing && (
-                            <div className="flex flex-col">
-                              <Button
-                                type="button"
-                                size="icon"
-                                variant="ghost"
-                                className="h-5 w-5"
-                                onClick={() => updateSpellSlotAmount(index, 1)}
-                                disabled={slot.amount >= slot.max}
-                                aria-label={`Increase ${slot.title} slots`}
-                              >
-                                <ChevronUp className="h-3 w-3" />
-                              </Button>
-                              <Button
-                                type="button"
-                                size="icon"
-                                variant="ghost"
-                                className="h-5 w-5"
-                                onClick={() => updateSpellSlotAmount(index, -1)}
-                                disabled={slot.amount <= 0}
-                                aria-label={`Decrease ${slot.title} slots`}
-                              >
-                                <ChevronDown className="h-3 w-3" />
-                              </Button>
+                            <div className="flex items-center gap-2">
+                              <p className="text-xs tabular-nums text-muted-foreground">
+                                {slot.amount}/{slot.max}
+                              </p>
+                              {isEditing && (
+                                <div className="flex items-center gap-1">
+                                  <BaseInput
+                                    type="number"
+                                    value={slot.amount}
+                                    onChange={(event) =>
+                                      updateSpellSlotAmountInput(
+                                        index,
+                                        event.target.value,
+                                      )
+                                    }
+                                    className="h-8 w-14"
+                                  />
+                                  <span className="text-xs text-muted-foreground">
+                                    /
+                                  </span>
+                                  <BaseInput
+                                    type="number"
+                                    value={slot.max}
+                                    onChange={(event) =>
+                                      updateSpellSlotMax(
+                                        index,
+                                        event.target.value,
+                                      )
+                                    }
+                                    className="h-8 w-14"
+                                  />
+                                </div>
+                              )}
+                              {!isEditing && (
+                                <div className="flex flex-col">
+                                  <Button
+                                    type="button"
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-5 w-5"
+                                    onClick={() =>
+                                      updateSpellSlotAmount(index, 1)
+                                    }
+                                    disabled={slot.amount >= slot.max}
+                                    aria-label={`Increase ${slot.title} slots`}
+                                  >
+                                    <ChevronUp className="h-3 w-3" />
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-5 w-5"
+                                    onClick={() =>
+                                      updateSpellSlotAmount(index, -1)
+                                    }
+                                    disabled={slot.amount <= 0}
+                                    aria-label={`Decrease ${slot.title} slots`}
+                                  >
+                                    <ChevronDown className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              )}
                             </div>
-                          )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                   <EditableListField
                     value={sheet.spells.list}

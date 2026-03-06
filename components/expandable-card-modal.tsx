@@ -152,7 +152,15 @@ export function ExpandableCardModal({
 
   return (
     <>
-      <Card ref={inlineCardRef} className={cn("h-full", cardClassName)}>
+      <Card
+        ref={inlineCardRef}
+        className={cn(
+          "h-full bg-card",
+          "bg-gradient-to-t from-[#e5e5e5]/5 to-card shadow-xs dark:bg-card",
+          // "bg-gradient-to-t from-[#000664] to-[#211fa7] shadow-xs dark:bg-card border-white/10", //ff colors
+          cardClassName,
+        )}
+      >
         <CardHeader>
           <div
             className={cn("flex items-center justify-between", headerClassName)}

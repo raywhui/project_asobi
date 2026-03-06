@@ -1,7 +1,7 @@
 "use client";
 
-import { Search, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { PanelRightClose, Search, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import {
@@ -9,13 +9,185 @@ import {
   SidebarContent,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import { searchSrd2014Indexes, type Srd2014SearchResult } from "@/lib/utils";
+import {
+  lookupSrd2014Index,
+  type Srd2014CollectionKey,
+  searchSrd2014Indexes,
+  type Srd2014SearchResult,
+} from "@/lib/utils";
+
+type SrdRecord = Record<string, unknown>;
+const SIDEBAR_ANIMATION_MS = 100;
+
+function toTitleCase(value: string) {
+  return value
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function stringifyValue(value: unknown): string | null {
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+  if (Array.isArray(value)) {
+    const lines = value
+      .map((item) => {
+        if (typeof item === "string") return `${item}\n`;
+        if (typeof item === "number" || typeof item === "boolean") {
+          return String(item);
+        }
+        if (item && typeof item === "object") {
+          const maybeName = (item as SrdRecord).name;
+          if (typeof maybeName === "string") return maybeName;
+          return JSON.stringify(item);
+        }
+        return null;
+      })
+      .filter((line): line is string => Boolean(line?.trim()));
+
+    return lines.length > 0 ? lines.join("\n") : null;
+  }
+  if (value && typeof value === "object") {
+    const maybeName = (value as SrdRecord).name;
+    if (typeof maybeName === "string") return maybeName;
+    return JSON.stringify(value);
+  }
+  return null;
+}
+
+function extractBodyText(data: SrdRecord) {
+  const preferredKeys = [
+    "desc",
+    "description",
+    "text",
+    "flavor_text",
+    "spellcasting",
+    "special_abilities",
+    "actions",
+  ];
+
+  for (const key of preferredKeys) {
+    const text = stringifyValue(data[key]);
+    if (text) return text;
+  }
+
+  const firstText = Object.values(data)
+    .map((value) => stringifyValue(value))
+    .find((value): value is string => Boolean(value));
+  return firstText ?? "No detailed text available for this entry.";
+}
+
+function extractBadges(result: Srd2014SearchResult) {
+  const badges = [toTitleCase(result.collection), result.index];
+  const data = result.data;
+  const usefulBadgeKeys = ["level", "type", "size", "school", "alignment"];
+
+  usefulBadgeKeys.forEach((key) => {
+    const value = stringifyValue(data[key]);
+
+    if (value === "0" && key === "level") {
+      badges.push(`Cantrip`);
+    } else if (value) {
+      badges.push(`${toTitleCase(key)}: ${value}`);
+    }
+  });
+
+  return badges.slice(0, 5);
+}
 
 export function DashboardSearchSidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<Srd2014SearchResult[]>([]);
+  const [selectedResult, setSelectedResult] =
+    useState<Srd2014SearchResult | null>(null);
+  const [selectedData, setSelectedData] = useState<SrdRecord | null>(null);
+  const [isDetailLoading, setIsDetailLoading] = useState(false);
+  const closeTimeoutRef = useRef<number | null>(null);
+
+  const clearCloseTimeout = useCallback(() => {
+    if (closeTimeoutRef.current === null) return;
+    window.clearTimeout(closeTimeoutRef.current);
+    closeTimeoutRef.current = null;
+  }, []);
+
+  const openSidebar = useCallback(() => {
+    clearCloseTimeout();
+    if (isSidebarVisible) {
+      setIsOpen(true);
+      return;
+    }
+
+    setIsOpen(false);
+    setIsSidebarVisible(true);
+    window.requestAnimationFrame(() => {
+      setIsOpen(true);
+    });
+  }, [clearCloseTimeout, isSidebarVisible]);
+
+  const closeSidebar = useCallback(() => {
+    clearCloseTimeout();
+    setIsOpen(false);
+    closeTimeoutRef.current = window.setTimeout(() => {
+      setIsSidebarVisible(false);
+    }, SIDEBAR_ANIMATION_MS);
+  }, [clearCloseTimeout]);
+
+  useEffect(() => {
+    return () => {
+      clearCloseTimeout();
+    };
+  }, [clearCloseTimeout]);
+
+  useEffect(() => {
+    const handleExternalLookup = (event: Event) => {
+      const customEvent = event as CustomEvent<{
+        index?: string;
+        collection?: Srd2014CollectionKey;
+      }>;
+      const index = customEvent.detail?.index?.trim();
+      const collection = customEvent.detail?.collection;
+      if (!index || !collection) return;
+
+      openSidebar();
+      setQuery(index);
+      setIsLoading(false);
+      setIsDetailLoading(true);
+
+      void (async () => {
+        try {
+          const lookedUp = await lookupSrd2014Index(index, { collection });
+          if (!lookedUp) {
+            setSelectedResult(null);
+            setSelectedData(null);
+            setResults([]);
+            return;
+          }
+
+          const nextResult: Srd2014SearchResult = {
+            collection,
+            index,
+            data: lookedUp,
+          };
+          setSelectedResult(nextResult);
+          setSelectedData(lookedUp);
+          setResults([nextResult]);
+        } finally {
+          setIsDetailLoading(false);
+        }
+      })();
+    };
+
+    window.addEventListener("dnd:sidebar-lookup", handleExternalLookup);
+    return () => {
+      window.removeEventListener("dnd:sidebar-lookup", handleExternalLookup);
+    };
+  }, [openSidebar]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -45,12 +217,25 @@ export function DashboardSearchSidebar() {
     };
   }, [query, isOpen]);
 
-  if (!isOpen) {
+  const handleResultClick = async (result: Srd2014SearchResult) => {
+    setIsDetailLoading(true);
+    setSelectedResult(result);
+    try {
+      const lookedUp = await lookupSrd2014Index(result.index, {
+        collection: result.collection,
+      });
+      setSelectedData((lookedUp ?? result.data) as SrdRecord);
+    } finally {
+      setIsDetailLoading(false);
+    }
+  };
+
+  if (!isSidebarVisible) {
     return (
       <button
         type="button"
-        onClick={() => setIsOpen(true)}
-        className="bg-background text-foreground sticky top-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-md border"
+        onClick={openSidebar}
+        className="bg-background text-foreground fixed top-20 right-20 flex h-10 w-10 shrink-0 items-center justify-center rounded-md border opacity-70 transition-opacity hover:opacity-100"
         aria-label="Open sidebar"
       >
         <Search className="h-4 w-4" />
@@ -61,17 +246,17 @@ export function DashboardSearchSidebar() {
   return (
     <Sidebar
       side="right"
-      className="sticky top-4 h-[calc(100vh-2rem)] shrink-0 rounded-lg"
+      className={`sticky top-16 h-[calc(100vh-6rem)] shrink-0 rounded-lg transition-transform duration-[250ms] ease-out will-change-transform bg-card border-0 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
     >
-      <SidebarHeader>
+      <SidebarHeader className="mx-4 px-0 py-4">
         <div className="grid grid-cols-[24px_1fr_24px] items-center gap-2">
           <button
             type="button"
-            onClick={() => setIsOpen(false)}
+            onClick={closeSidebar}
             className="text-muted-foreground hover:text-foreground inline-flex h-6 w-6 items-center justify-center rounded-sm transition-colors"
             aria-label="Close sidebar"
           >
-            <X className="h-4 w-4" />
+            <PanelRightClose className="h-4 w-4" />
           </button>
           <p className="text-center text-sm font-semibold">5e Lookup</p>
           <span className="h-6 w-6" aria-hidden />
@@ -82,7 +267,11 @@ export function DashboardSearchSidebar() {
           <Search className="text-muted-foreground absolute left-3 top-2.5 h-4 w-4" />
           <Input
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setSelectedResult(null);
+              setSelectedData(null);
+            }}
             placeholder="Search index or name..."
             className="pl-9"
           />
@@ -97,24 +286,75 @@ export function DashboardSearchSidebar() {
         )}
 
         <div className="space-y-2">
-          {results.map((result) => {
-            const displayName =
-              typeof result.data.name === "string"
-                ? result.data.name
-                : result.index;
-
-            return (
-              <div
-                key={`${result.collection}-${result.index}`}
-                className="rounded-md border p-2"
+          {selectedResult ? (
+            <div className="space-y-3 rounded-md ">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedResult(null);
+                  setSelectedData(null);
+                }}
+                className="text-muted-foreground hover:text-foreground text-xs underline"
               >
-                <p className="text-sm font-medium">{displayName}</p>
+                Back to results
+              </button>
+
+              {isDetailLoading && (
                 <p className="text-muted-foreground text-xs">
-                  {result.collection} / {result.index}
+                  Loading entry...
                 </p>
-              </div>
-            );
-          })}
+              )}
+
+              {!isDetailLoading && (
+                <>
+                  <h3 className="text-base font-semibold">
+                    {typeof (selectedData ?? selectedResult.data).name ===
+                    "string"
+                      ? String((selectedData ?? selectedResult.data).name)
+                      : toTitleCase(selectedResult.index)}
+                  </h3>
+                  <div className="flex flex-wrap gap-1">
+                    {extractBadges(selectedResult).map((badge) => (
+                      <span
+                        key={badge}
+                        className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-[11px]"
+                      >
+                        {badge}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-sm whitespace-pre-wrap">
+                    {extractBodyText(
+                      (selectedData ?? selectedResult.data) as SrdRecord,
+                    )}
+                  </p>
+                </>
+              )}
+            </div>
+          ) : (
+            results.map((result) => {
+              const displayName =
+                typeof result.data.name === "string"
+                  ? result.data.name
+                  : result.index;
+
+              return (
+                <button
+                  type="button"
+                  key={`${result.collection}-${result.index}`}
+                  onClick={() => {
+                    void handleResultClick(result);
+                  }}
+                  className="hover:bg-muted/60 w-full rounded-md border p-2 text-left transition-colors"
+                >
+                  <p className="text-sm font-medium">{displayName}</p>
+                  <p className="text-muted-foreground text-xs">
+                    {result.collection} / {result.index}
+                  </p>
+                </button>
+              );
+            })
+          )}
         </div>
       </SidebarContent>
     </Sidebar>

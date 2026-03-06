@@ -148,7 +148,7 @@ export const initialCharacterSheetState: CharacterSheetState = {
     name: "Stiriacus Exspiravit",
     class: "Blood Hunter",
     level: 3,
-    background: "Entertainer",
+    background: "Rune Carver",
     race: "Dragonborn",
     alignment: "Neutral",
     experiencePoints: "6500",

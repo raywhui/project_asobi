@@ -11,5 +11,9 @@ export default async function ProtectedPage() {
     redirect("/auth/login");
   }
 
-  return <DndCharacterSheet />;
+  return (
+    <div>
+      <DndCharacterSheet />
+    </div>
+  );
 }

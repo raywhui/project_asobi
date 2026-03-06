@@ -1,0 +1,1306 @@
+{
+  "light-armor": {
+    "type": "Armor",
+    "name": "Light Armor",
+    "classes": [
+      "barbarian",
+      "bard",
+      "cleric",
+      "druid",
+      "ranger",
+      "rogue",
+      "warlock"
+    ],
+    "races": [],
+    "reference": {
+      "index": "light-armor",
+      "name": "Light Armor"
+    }
+  },
+  "medium-armor": {
+    "type": "Armor",
+    "name": "Medium Armor",
+    "classes": [
+      "barbarian",
+      "cleric",
+      "druid",
+      "ranger"
+    ],
+    "races": [],
+    "reference": {
+      "index": "medium-armor",
+      "name": "Medium Armor"
+    }
+  },
+  "heavy-armor": {
+    "type": "Armor",
+    "name": "Heavy Armor",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "heavy-armor",
+      "name": "Heavy Armor"
+    }
+  },
+  "all-armor": {
+    "type": "Armor",
+    "name": "All armor",
+    "classes": [
+      "fighter",
+      "paladin"
+    ],
+    "races": [],
+    "reference": {
+      "index": "armor",
+      "name": "Armor"
+    }
+  },
+  "padded-armor": {
+    "type": "Armor",
+    "name": "Padded Armor",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "padded-armor",
+      "name": "Padded Armor"
+    }
+  },
+  "leather-armor": {
+    "type": "Armor",
+    "name": "Leather Armor",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "leather-armor",
+      "name": "Leather Armor"
+    }
+  },
+  "studded-leather-armor": {
+    "type": "Armor",
+    "name": "Studded Leather Armor",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "studded-leather-armor",
+      "name": "Studded Leather Armor"
+    }
+  },
+  "hide-armor": {
+    "type": "Armor",
+    "name": "Hide Armor",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "hide-armor",
+      "name": "Hide Armor"
+    }
+  },
+  "chain-shirt": {
+    "type": "Armor",
+    "name": "Chain Shirt",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "chain-shirt",
+      "name": "Chain Shirt"
+    }
+  },
+  "scale-mail": {
+    "type": "Armor",
+    "name": "Scale Mail",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "scale-mail",
+      "name": "Scale Mail"
+    }
+  },
+  "breastplate": {
+    "type": "Armor",
+    "name": "Breastplate",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "breastplate",
+      "name": "Breastplate"
+    }
+  },
+  "half-plate-armor": {
+    "type": "Armor",
+    "name": "Half Plate Armor",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "half-plate-armor",
+      "name": "Half Plate Armor"
+    }
+  },
+  "ring-mail": {
+    "type": "Armor",
+    "name": "Ring Mail",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "ring-mail",
+      "name": "Ring Mail"
+    }
+  },
+  "chain-mail": {
+    "type": "Armor",
+    "name": "Chain Mail",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "chain-mail",
+      "name": "Chain Mail"
+    }
+  },
+  "splint-armor": {
+    "type": "Armor",
+    "name": "Splint Armor",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "splint-armor",
+      "name": "Splint Armor"
+    }
+  },
+  "plate-armor": {
+    "type": "Armor",
+    "name": "Plate Armor",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "plate-armor",
+      "name": "Plate Armor"
+    }
+  },
+  "shields": {
+    "type": "Armor",
+    "name": "Shields",
+    "classes": [
+      "barbarian",
+      "cleric",
+      "druid",
+      "fighter",
+      "paladin",
+      "ranger"
+    ],
+    "races": [],
+    "reference": {
+      "index": "shield",
+      "name": "Shield"
+    }
+  },
+  "simple-weapons": {
+    "type": "Weapons",
+    "name": "Simple Weapons",
+    "classes": [
+      "barbarian",
+      "bard",
+      "cleric",
+      "fighter",
+      "monk",
+      "paladin",
+      "ranger",
+      "rogue",
+      "warlock"
+    ],
+    "races": [],
+    "reference": {
+      "index": "simple-weapons",
+      "name": "Simple Weapons"
+    }
+  },
+  "martial-weapons": {
+    "type": "Weapons",
+    "name": "Martial Weapons",
+    "classes": [
+      "barbarian",
+      "fighter",
+      "paladin",
+      "ranger"
+    ],
+    "races": [],
+    "reference": {
+      "index": "martial-weapons",
+      "name": "Martial Weapons"
+    }
+  },
+  "clubs": {
+    "type": "Weapons",
+    "name": "Clubs",
+    "classes": [
+      "druid"
+    ],
+    "races": [],
+    "reference": {
+      "index": "club",
+      "name": "Club"
+    }
+  },
+  "daggers": {
+    "type": "Weapons",
+    "name": "Daggers",
+    "classes": [
+      "druid",
+      "sorcerer",
+      "wizard"
+    ],
+    "races": [],
+    "reference": {
+      "index": "dagger",
+      "name": "Dagger"
+    }
+  },
+  "greatclubs": {
+    "type": "Weapons",
+    "name": "Greatclubs",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "greatclub",
+      "name": "Greatclub"
+    }
+  },
+  "handaxes": {
+    "type": "Weapons",
+    "name": "Handaxes",
+    "classes": [],
+    "races": [
+      "dwarf"
+    ],
+    "reference": {
+      "index": "handaxe",
+      "name": "Handaxe"
+    }
+  },
+  "javelins": {
+    "type": "Weapons",
+    "name": "Javelins",
+    "classes": [
+      "druid"
+    ],
+    "races": [],
+    "reference": {
+      "index": "javelin",
+      "name": "Javelin"
+    }
+  },
+  "light-hammers": {
+    "type": "Weapons",
+    "name": "Light hammers",
+    "classes": [],
+    "races": [
+      "dwarf"
+    ],
+    "reference": {
+      "index": "light-hammer",
+      "name": "Light hammer"
+    }
+  },
+  "maces": {
+    "type": "Weapons",
+    "name": "Maces",
+    "classes": [
+      "druid"
+    ],
+    "races": [],
+    "reference": {
+      "index": "mace",
+      "name": "Mace"
+    }
+  },
+  "quarterstaffs": {
+    "type": "Weapons",
+    "name": "Quarterstaffs",
+    "classes": [
+      "druid",
+      "sorcerer",
+      "wizard"
+    ],
+    "races": [],
+    "reference": {
+      "index": "quarterstaff",
+      "name": "Quarterstaff"
+    }
+  },
+  "sickles": {
+    "type": "Weapons",
+    "name": "Sickles",
+    "classes": [
+      "druid"
+    ],
+    "races": [],
+    "reference": {
+      "index": "sickle",
+      "name": "Sickle"
+    }
+  },
+  "spears": {
+    "type": "Weapons",
+    "name": "Spears",
+    "classes": [
+      "druid"
+    ],
+    "races": [],
+    "reference": {
+      "index": "spear",
+      "name": "Spear"
+    }
+  },
+  "crossbows-light": {
+    "type": "Weapons",
+    "name": "Crossbows, light",
+    "classes": [
+      "sorcerer",
+      "wizard"
+    ],
+    "races": [],
+    "reference": {
+      "index": "crossbow-light",
+      "name": "Crossbow, light"
+    }
+  },
+  "darts": {
+    "type": "Weapons",
+    "name": "Darts",
+    "classes": [
+      "druid",
+      "sorcerer",
+      "wizard"
+    ],
+    "races": [],
+    "reference": {
+      "index": "dart",
+      "name": "Dart"
+    }
+  },
+  "shortbows": {
+    "type": "Weapons",
+    "name": "Shortbows",
+    "classes": [],
+    "races": [
+      "high-elf"
+    ],
+    "reference": {
+      "index": "shortbow",
+      "name": "Shortbow"
+    }
+  },
+  "slings": {
+    "type": "Weapons",
+    "name": "Slings",
+    "classes": [
+      "druid",
+      "sorcerer",
+      "wizard"
+    ],
+    "races": [],
+    "reference": {
+      "index": "sling",
+      "name": "Sling"
+    }
+  },
+  "battleaxes": {
+    "type": "Weapons",
+    "name": "Battleaxes",
+    "classes": [],
+    "races": [
+      "dwarf"
+    ],
+    "reference": {
+      "index": "battleaxe",
+      "name": "Battleaxe"
+    }
+  },
+  "flails": {
+    "type": "Weapons",
+    "name": "Flails",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "flail",
+      "name": "Flail"
+    }
+  },
+  "glaives": {
+    "type": "Weapons",
+    "name": "Glaives",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "glaive",
+      "name": "Glaive"
+    }
+  },
+  "greataxes": {
+    "type": "Weapons",
+    "name": "Greataxes",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "greataxe",
+      "name": "Greataxe"
+    }
+  },
+  "greatswords": {
+    "type": "Weapons",
+    "name": "Greatswords",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "greatsword",
+      "name": "Greatsword"
+    }
+  },
+  "halberds": {
+    "type": "Weapons",
+    "name": "Halberds",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "halberd",
+      "name": "Halberd"
+    }
+  },
+  "lances": {
+    "type": "Weapons",
+    "name": "Lances",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "lance",
+      "name": "Lance"
+    }
+  },
+  "longswords": {
+    "type": "Weapons",
+    "name": "Longswords",
+    "classes": [
+      "bard",
+      "rogue"
+    ],
+    "races": [
+      "high-elf"
+    ],
+    "reference": {
+      "index": "longsword",
+      "name": "Longsword"
+    }
+  },
+  "mauls": {
+    "type": "Weapons",
+    "name": "Mauls",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "maul",
+      "name": "Maul"
+    }
+  },
+  "morningstars": {
+    "type": "Weapons",
+    "name": "Morningstars",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "morningstar",
+      "name": "Morningstar"
+    }
+  },
+  "pikes": {
+    "type": "Weapons",
+    "name": "Pikes",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "pike",
+      "name": "Pike"
+    }
+  },
+  "rapiers": {
+    "type": "Weapons",
+    "name": "Rapiers",
+    "classes": [
+      "bard",
+      "rogue"
+    ],
+    "races": [],
+    "reference": {
+      "index": "rapier",
+      "name": "Rapier"
+    }
+  },
+  "scimitars": {
+    "type": "Weapons",
+    "name": "Scimitars",
+    "classes": [
+      "druid"
+    ],
+    "races": [],
+    "reference": {
+      "index": "scimitar",
+      "name": "Scimitar"
+    }
+  },
+  "shortswords": {
+    "type": "Weapons",
+    "name": "Shortswords",
+    "classes": [
+      "bard",
+      "monk",
+      "rogue"
+    ],
+    "races": [
+      "high-elf"
+    ],
+    "reference": {
+      "index": "shortsword",
+      "name": "Shortsword"
+    }
+  },
+  "tridents": {
+    "type": "Weapons",
+    "name": "Tridents",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "trident",
+      "name": "Trident"
+    }
+  },
+  "war-picks": {
+    "type": "Weapons",
+    "name": "War picks",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "war-pick",
+      "name": "War pick"
+    }
+  },
+  "warhammers": {
+    "type": "Weapons",
+    "name": "Warhammers",
+    "classes": [],
+    "races": [
+      "dwarf"
+    ],
+    "reference": {
+      "index": "warhammer",
+      "name": "Warhammer"
+    }
+  },
+  "whips": {
+    "type": "Weapons",
+    "name": "Whips",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "whip",
+      "name": "Whip"
+    }
+  },
+  "blowguns": {
+    "type": "Weapons",
+    "name": "Blowguns",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "blowgun",
+      "name": "Blowgun"
+    }
+  },
+  "hand-crossbows": {
+    "type": "Weapons",
+    "name": "Hand crossbows",
+    "classes": [
+      "bard",
+      "rogue"
+    ],
+    "races": [],
+    "reference": {
+      "index": "crossbow-hand",
+      "name": "Crossbow, hand"
+    }
+  },
+  "crossbows-heavy": {
+    "type": "Weapons",
+    "name": "Crossbows, heavy",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "crossbow-heavy",
+      "name": "Crossbow, heavy"
+    }
+  },
+  "longbows": {
+    "type": "Weapons",
+    "name": "Longbows",
+    "classes": [],
+    "races": [
+      "high-elf"
+    ],
+    "reference": {
+      "index": "longbow",
+      "name": "Longbow"
+    }
+  },
+  "nets": {
+    "type": "Weapons",
+    "name": "Nets",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "net",
+      "name": "Net"
+    }
+  },
+  "alchemists-supplies": {
+    "type": "Artisan's Tools",
+    "name": "Alchemist's Supplies",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "alchemists-supplies",
+      "name": "Alchemist's Supplies"
+    }
+  },
+  "brewers-supplies": {
+    "type": "Artisan's Tools",
+    "name": "Brewer's Supplies",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "brewers-supplies",
+      "name": "Brewer's Supplies"
+    }
+  },
+  "calligraphers-supplies": {
+    "type": "Artisan's Tools",
+    "name": "Calligrapher's Supplies",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "calligraphers-supplies",
+      "name": "Calligrapher's Supplies"
+    }
+  },
+  "carpenters-tools": {
+    "type": "Artisan's Tools",
+    "name": "Carpenter's Tools",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "carpenters-tools",
+      "name": "Carpenter's Tools"
+    }
+  },
+  "cartographers-tools": {
+    "type": "Artisan's Tools",
+    "name": "Cartographer's Tools",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "cartographers-tools",
+      "name": "Cartographer's Tools"
+    }
+  },
+  "cobblers-tools": {
+    "type": "Artisan's Tools",
+    "name": "Cobbler's Tools",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "cobblers-tools",
+      "name": "Cobbler's Tools"
+    }
+  },
+  "cooks-utensils": {
+    "type": "Artisan's Tools",
+    "name": "Cook's utensils",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "cooks-utensils",
+      "name": "Cook's utensils"
+    }
+  },
+  "glassblowers-tools": {
+    "type": "Artisan's Tools",
+    "name": "Glassblower's Tools",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "glassblowers-tools",
+      "name": "Glassblower's Tools"
+    }
+  },
+  "jewelers-tools": {
+    "type": "Artisan's Tools",
+    "name": "Jeweler's Tools",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "jewelers-tools",
+      "name": "Jeweler's Tools"
+    }
+  },
+  "leatherworkers-tools": {
+    "type": "Artisan's Tools",
+    "name": "Leatherworker's Tools",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "leatherworkers-tools",
+      "name": "Leatherworker's Tools"
+    }
+  },
+  "masons-tools": {
+    "type": "Artisan's Tools",
+    "name": "Mason's Tools",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "masons-tools",
+      "name": "Mason's Tools"
+    }
+  },
+  "painters-supplies": {
+    "type": "Artisan's Tools",
+    "name": "Painter's Supplies",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "painters-supplies",
+      "name": "Painter's Supplies"
+    }
+  },
+  "potters-tools": {
+    "type": "Artisan's Tools",
+    "name": "Potter's Tools",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "potters-tools",
+      "name": "Potter's Tools"
+    }
+  },
+  "smiths-tools": {
+    "type": "Artisan's Tools",
+    "name": "Smith's Tools",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "smiths-tools",
+      "name": "Smith's Tools"
+    }
+  },
+  "tinkers-tools": {
+    "type": "Artisan's Tools",
+    "name": "Tinker's Tools",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "tinkers-tools",
+      "name": "Tinker's Tools"
+    }
+  },
+  "weavers-tools": {
+    "type": "Artisan's Tools",
+    "name": "Weaver's Tools",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "weavers-tools",
+      "name": "Weaver's Tools"
+    }
+  },
+  "woodcarvers-tools": {
+    "type": "Artisan's Tools",
+    "name": "Woodcarver's Tools",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "woodcarvers-tools",
+      "name": "Woodcarver's Tools"
+    }
+  },
+  "disguise-kit": {
+    "type": "Artisan's Tools",
+    "name": "Disguise Kit",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "disguise-kit",
+      "name": "Disguise Kit"
+    }
+  },
+  "forgery-kit": {
+    "type": "Artisan's Tools",
+    "name": "Forgery Kit",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "forgery-kit",
+      "name": "Forgery Kit"
+    }
+  },
+  "dice-set": {
+    "type": "Gaming Sets",
+    "name": "Dice Set",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "dice-set",
+      "name": "Dice Set"
+    }
+  },
+  "playing-card-set": {
+    "type": "Gaming Sets",
+    "name": "Playing Card Set",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "playing-card-set",
+      "name": "Playing Card Set"
+    }
+  },
+  "bagpipes": {
+    "type": "Musical Instruments",
+    "name": "Bagpipes",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "bagpipes",
+      "name": "Bagpipes"
+    }
+  },
+  "drum": {
+    "type": "Musical Instruments",
+    "name": "Drum",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "drum",
+      "name": "Drum"
+    }
+  },
+  "dulcimer": {
+    "type": "Musical Instruments",
+    "name": "Dulcimer",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "dulcimer",
+      "name": "Dulcimer"
+    }
+  },
+  "flute": {
+    "type": "Musical Instruments",
+    "name": "Flute",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "flute",
+      "name": "Flute"
+    }
+  },
+  "lute": {
+    "type": "Musical Instruments",
+    "name": "Lute",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "lute",
+      "name": "Lute"
+    }
+  },
+  "lyre": {
+    "type": "Musical Instruments",
+    "name": "Lyre",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "lyre",
+      "name": "Lyre"
+    }
+  },
+  "horn": {
+    "type": "Musical Instruments",
+    "name": "Horn",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "horn",
+      "name": "Horn"
+    }
+  },
+  "pan-flute": {
+    "type": "Musical Instruments",
+    "name": "Pan flute",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "pan-flute",
+      "name": "Pan flute"
+    }
+  },
+  "shawm": {
+    "type": "Musical Instruments",
+    "name": "Shawm",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "shawm",
+      "name": "Shawm"
+    }
+  },
+  "viol": {
+    "type": "Musical Instruments",
+    "name": "Viol",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "viol",
+      "name": "Viol"
+    }
+  },
+  "herbalism-kit": {
+    "type": "Other",
+    "name": "Herbalism Kit",
+    "classes": [
+      "druid"
+    ],
+    "races": [],
+    "reference": {
+      "index": "herbalism-kit",
+      "name": "Herbalism Kit"
+    }
+  },
+  "navigators-tools": {
+    "type": "Other",
+    "name": "Navigator's Tools",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "navigators-tools",
+      "name": "Navigator's Tools"
+    }
+  },
+  "poisoners-kit": {
+    "type": "Other",
+    "name": "Poisoner's Kit",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "poisoners-kit",
+      "name": "Poisoner's Kit"
+    }
+  },
+  "thieves-tools": {
+    "type": "Other",
+    "name": "Thieves' Tools",
+    "classes": [
+      "rogue"
+    ],
+    "races": [],
+    "reference": {
+      "index": "thieves-tools",
+      "name": "Thieves' Tools"
+    }
+  },
+  "land-vehicles": {
+    "type": "Vehicles",
+    "name": "Land Vehicles",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "land-vehicles",
+      "name": "Land Vehicles"
+    }
+  },
+  "water-vehicles": {
+    "type": "Vehicles",
+    "name": "Water Vehicles",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "waterborne-vehicles",
+      "name": "Waterborne Vehicles"
+    }
+  },
+  "saving-throw-str": {
+    "type": "Saving Throws",
+    "name": "Saving Throw: STR",
+    "classes": [
+      "barbarian",
+      "fighter",
+      "monk",
+      "ranger"
+    ],
+    "races": [],
+    "reference": {
+      "index": "str",
+      "name": "STR"
+    }
+  },
+  "saving-throw-dex": {
+    "type": "Saving Throws",
+    "name": "Saving Throw: DEX",
+    "classes": [
+      "bard",
+      "monk",
+      "ranger",
+      "rogue"
+    ],
+    "races": [],
+    "reference": {
+      "index": "dex",
+      "name": "DEX"
+    }
+  },
+  "saving-throw-con": {
+    "type": "Saving Throws",
+    "name": "Saving Throw: CON",
+    "classes": [
+      "barbarian",
+      "fighter",
+      "sorcerer"
+    ],
+    "races": [],
+    "reference": {
+      "index": "con",
+      "name": "CON"
+    }
+  },
+  "saving-throw-int": {
+    "type": "Saving Throws",
+    "name": "Saving Throw: INT",
+    "classes": [
+      "druid",
+      "rogue",
+      "wizard"
+    ],
+    "races": [],
+    "reference": {
+      "index": "int",
+      "name": "INT"
+    }
+  },
+  "saving-throw-wis": {
+    "type": "Saving Throws",
+    "name": "Saving Throw: WIS",
+    "classes": [
+      "cleric",
+      "druid",
+      "paladin",
+      "warlock",
+      "wizard"
+    ],
+    "races": [],
+    "reference": {
+      "index": "wis",
+      "name": "WIS"
+    }
+  },
+  "saving-throw-cha": {
+    "type": "Saving Throws",
+    "name": "Saving Throw: CHA",
+    "classes": [
+      "bard",
+      "cleric",
+      "paladin",
+      "sorcerer",
+      "warlock"
+    ],
+    "races": [],
+    "reference": {
+      "index": "cha",
+      "name": "CHA"
+    }
+  },
+  "skill-acrobatics": {
+    "type": "Skills",
+    "name": "Skill: Acrobatics",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "acrobatics",
+      "name": "Acrobatics"
+    }
+  },
+  "skill-animal-handling": {
+    "type": "Skills",
+    "name": "Skill: Animal Handling",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "animal-handling",
+      "name": "Animal Handling"
+    }
+  },
+  "skill-arcana": {
+    "type": "Skills",
+    "name": "Skill: Arcana",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "arcana",
+      "name": "Arcana"
+    }
+  },
+  "skill-athletics": {
+    "type": "Skills",
+    "name": "Skill: Athletics",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "athletics",
+      "name": "Athletics"
+    }
+  },
+  "skill-deception": {
+    "type": "Skills",
+    "name": "Skill: Deception",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "deception",
+      "name": "Deception"
+    }
+  },
+  "skill-history": {
+    "type": "Skills",
+    "name": "Skill: History",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "history",
+      "name": "History"
+    }
+  },
+  "skill-insight": {
+    "type": "Skills",
+    "name": "Skill: Insight",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "insight",
+      "name": "Insight"
+    }
+  },
+  "skill-intimidation": {
+    "type": "Skills",
+    "name": "Skill: Intimidation",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "intimidation",
+      "name": "Intimidation"
+    }
+  },
+  "skill-investigation": {
+    "type": "Skills",
+    "name": "Skill: Investigation",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "investigation",
+      "name": "Investigation"
+    }
+  },
+  "skill-medicine": {
+    "type": "Skills",
+    "name": "Skill: Medicine",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "medicine",
+      "name": "Medicine"
+    }
+  },
+  "skill-nature": {
+    "type": "Skills",
+    "name": "Skill: Nature",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "nature",
+      "name": "Nature"
+    }
+  },
+  "skill-perception": {
+    "type": "Skills",
+    "name": "Skill: Perception",
+    "classes": [],
+    "races": [
+      "elf"
+    ],
+    "reference": {
+      "index": "perception",
+      "name": "Perception"
+    }
+  },
+  "skill-performance": {
+    "type": "Skills",
+    "name": "Skill: Performance",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "performance",
+      "name": "Performance"
+    }
+  },
+  "skill-persuasion": {
+    "type": "Skills",
+    "name": "Skill: Persuasion",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "persuasion",
+      "name": "Persuasion"
+    }
+  },
+  "skill-religion": {
+    "type": "Skills",
+    "name": "Skill: Religion",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "religion",
+      "name": "Religion"
+    }
+  },
+  "skill-sleight-of-hand": {
+    "type": "Skills",
+    "name": "Skill: Sleight of Hand",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "sleight-of-hand",
+      "name": "Sleight of Hand"
+    }
+  },
+  "skill-stealth": {
+    "type": "Skills",
+    "name": "Skill: Stealth",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "stealth",
+      "name": "Stealth"
+    }
+  },
+  "skill-survival": {
+    "type": "Skills",
+    "name": "Skill: Survival",
+    "classes": [],
+    "races": [],
+    "reference": {
+      "index": "survival",
+      "name": "Survival"
+    }
+  }
+}

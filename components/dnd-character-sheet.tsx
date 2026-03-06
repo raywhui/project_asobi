@@ -13,6 +13,9 @@ import {
   useState,
 } from "react";
 import {
+  ChevronDown,
+  ChevronUp,
+  Diamond,
   Dice3,
   Dot,
   Footprints,
@@ -47,8 +50,14 @@ import {
   initialCharacterSheetState,
   type CharacterSheetState,
 } from "@/data/dnd-character-sheet";
-import { cn, formatSavingThrow } from "@/lib/utils";
+import { cn, formatSavingThrow, lookupSrd2014Indexes } from "@/lib/utils";
 import { Checkbox } from "./ui/checkbox";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 
 type SectionId =
   | "basics"
@@ -105,7 +114,7 @@ const defaultSectionGridSpan: Record<SectionId, CardSpan> = {
   abilities: { colSpan: 1, rowSpan: 1 },
   savingThrows: { colSpan: 1, rowSpan: 1 },
   combat: { colSpan: 1, rowSpan: 1 },
-  skills: { colSpan: 1, rowSpan: 1 },
+  skills: { colSpan: 2, rowSpan: 1 },
   equipment: { colSpan: 1, rowSpan: 1 },
   features: { colSpan: 1, rowSpan: 1 },
   spells: { colSpan: 1, rowSpan: 1 },
@@ -227,6 +236,7 @@ export function DndCharacterSheet() {
   const [isEditing, setIsEditing] = useState(false);
   const [isDragEnabled, setIsDragEnabled] = useState(true);
   const [isResizeEnabled, setIsResizeEnabled] = useState(true);
+  const [isSpellCardVisible, setIsSpellCardVisible] = useState(true);
   const [columnCount, setColumnCount] = useState<ColumnCount>(4);
   const [order, setOrder] = useState<SectionId[] | null>(null);
   const [cardSpans, setCardSpans] =
@@ -324,13 +334,44 @@ export function DndCharacterSheet() {
   const editableInputClass = "";
 
   const updateListOrBackstoryField = <
-    K extends "equipment" | "featuresAndTraits" | "spells" | "backstory",
+    K extends "equipment" | "featuresAndTraits" | "backstory",
   >(
     key: K,
     value: CharacterSheetState[K],
   ) => {
     if (!isEditing) return;
     setSheet((current) => ({ ...current, [key]: value }));
+  };
+
+  const updateSpellList = (value: CharacterSheetState["spells"]["list"]) => {
+    if (!isEditing) return;
+    setSheet((current) => ({
+      ...current,
+      spells: {
+        ...current.spells,
+        list: value,
+      },
+    }));
+  };
+
+  const updateSpellSlotAmount = (slotIndex: number, delta: number) => {
+    setSheet((current) => {
+      const slot = current.spells.slots[slotIndex];
+      if (!slot) return current;
+
+      const nextAmount = Math.min(slot.max, Math.max(0, slot.amount + delta));
+      if (nextAmount === slot.amount) return current;
+
+      return {
+        ...current,
+        spells: {
+          ...current.spells,
+          slots: current.spells.slots.map((item, index) =>
+            index === slotIndex ? { ...item, amount: nextAmount } : item,
+          ),
+        },
+      };
+    });
   };
 
   const updateAbilityBase = (
@@ -947,7 +988,7 @@ export function DndCharacterSheet() {
   }, [cardSpans]);
 
   return (
-    <div className="mx-auto w-full space-y-6 p-4 md:p-8 lg:min-w-[80vw] lg:max-w-[80vw]">
+    <div className="mx-auto w-full space-y-6 p-4 md:p-8 lg:w-[80vw]">
       <div className="flex flex-col gap-4 rounded-xl border bg-card p-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center md:text-3xl">
@@ -964,6 +1005,16 @@ export function DndCharacterSheet() {
           <Badge variant={isEditing ? "default" : "secondary"}>
             {isEditing ? "Editing Enabled" : "Read-Only"}
           </Badge>
+          <Button
+            onClick={async () => {
+              const skills = await lookupSrd2014Indexes("skills", [
+                "athletics",
+              ]);
+              console.log("skills:", skills);
+            }}
+          >
+            Test
+          </Button>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline">
@@ -1060,6 +1111,22 @@ export function DndCharacterSheet() {
                   />
                 </div>
               </div>
+
+              <div className="space-y-3">
+                <p className="text-sm font-medium">Card Visibility</p>
+                <div className="flex items-center justify-between rounded-md border p-2">
+                  <div className="leading-tight">
+                    <p className="text-sm">Spell Card</p>
+                    <p className="text-xs text-muted-foreground">
+                      Show or hide the spells section
+                    </p>
+                  </div>
+                  <Switch
+                    checked={isSpellCardVisible}
+                    onCheckedChange={setIsSpellCardVisible}
+                  />
+                </div>
+              </div>
             </PopoverContent>
           </Popover>
         </div>
@@ -1089,6 +1156,10 @@ export function DndCharacterSheet() {
             </Card>
           ))}
         {order?.map((sectionId) => {
+          if (sectionId === "spells" && !isSpellCardVisible) {
+            return null;
+          }
+
           if (sectionId === "abilities") {
             return (
               <div
@@ -1517,60 +1588,74 @@ export function DndCharacterSheet() {
                   }
                   contentClassName={`grid grid-cols-2 ${cardSpans.skills.colSpan <= 1 ? "md:grid-cols-1" : "md:grid-cols-2"}`}
                 >
-                  {skills.map((skill, i) => (
-                    <div key={skill.key}>
-                      <div
-                        className={`flex gap-2 justify-start items-center border-muted border-solid py-1 ${i < skills.length - 1 ? "[border-bottom-width:1px]" : ""}`}
-                      >
-                        {isEditing && (
-                          <>
-                            <div className="flex justify-center items-center gap-1">
-                              <p>{`(`}</p>
-                              <div className="flex justify-center items-center gap-2">
-                                <Checkbox
-                                  id={`skill-${skill.key}-proficiency`}
-                                  name={`skill-${skill.key}-proficiency`}
-                                  checked={sheet.skills[skill.key].isProficient}
-                                  onCheckedChange={(value) =>
-                                    updateSkillProficiency(
-                                      skill.key,
-                                      value === true,
-                                    )
-                                  }
-                                />
-                                <p className="text-sm">Add Proficiency</p>
+                  <TooltipProvider>
+                    {skills.map((skill, i) => (
+                      <div key={skill.key}>
+                        <div
+                          className={`flex gap-2 justify-start items-center border-muted border-solid py-1 ${i < skills.length - 1 ? "[border-bottom-width:1px]" : ""}`}
+                        >
+                          {isEditing && (
+                            <>
+                              <div className="flex justify-center items-center gap-1">
+                                <p>{`(`}</p>
+                                <div className="flex justify-center items-center gap-2">
+                                  <Checkbox
+                                    id={`skill-${skill.key}-proficiency`}
+                                    name={`skill-${skill.key}-proficiency`}
+                                    checked={
+                                      sheet.skills[skill.key].isProficient
+                                    }
+                                    onCheckedChange={(value) =>
+                                      updateSkillProficiency(
+                                        skill.key,
+                                        value === true,
+                                      )
+                                    }
+                                  />
+                                  <p className="text-sm">Add Proficiency</p>
+                                </div>
+                                <p>{`)`}</p>
                               </div>
-                              <p>{`)`}</p>
-                            </div>
-                            <Label className="text-sm">
-                              Additional Modifiers
-                            </Label>
-                            <SheetInput
-                              isEditing={isEditing}
-                              value={sheet.skills[skill.key].modifier}
-                              type="number"
-                              readOnly={!isEditing}
-                              className="w-auto"
-                              onChange={(event) =>
-                                updateSkillModifier(
-                                  skill.key,
-                                  event.target.value,
-                                )
-                              }
-                            />
-                          </>
-                        )}
+                              <Label className="text-sm">
+                                Additional Modifiers
+                              </Label>
+                              <SheetInput
+                                isEditing={isEditing}
+                                value={sheet.skills[skill.key].modifier}
+                                type="number"
+                                readOnly={!isEditing}
+                                className="w-auto"
+                                onChange={(event) =>
+                                  updateSkillModifier(
+                                    skill.key,
+                                    event.target.value,
+                                  )
+                                }
+                              />
+                            </>
+                          )}
 
-                        <p className="pr-3 text-md leading-7 w-[15%]">
-                          {`${formatSavingThrow(sheet.ap[sheet.skills[skill.key].baseApType].base + sheet.ap[sheet.skills[skill.key].baseApType].modifier, [sheet.skills[skill.key].modifier, sheet.skills[skill.key].isProficient ? sheet.combat.proficiencyBonus : 0])}`}
-                        </p>
-                        {sheet.skills[skill.key].isProficient && (
-                          <Triangle className="w-3 h-3 text-[#3888F2] dark:text-[#3888F2]" />
-                        )}
-                        <Label>{skill.label}</Label>
+                          <p className="pr-3 text-md leading-7 w-[15%]">
+                            {`${formatSavingThrow(sheet.ap[sheet.skills[skill.key].baseApType].base + sheet.ap[sheet.skills[skill.key].baseApType].modifier, [sheet.skills[skill.key].modifier, sheet.skills[skill.key].isProficient ? sheet.combat.proficiencyBonus : 0])}`}
+                          </p>
+                          {sheet.skills[skill.key].isProficient && (
+                            <Triangle className="w-3 h-3 text-[#3888F2] dark:text-[#3888F2]" />
+                          )}
+                          {/* {const skills = await lookupSrd2014Indexes("skills", [
+                "athletics",
+              ]);} */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Label>{skill.label}</Label>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>sup</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </TooltipProvider>
                 </ExpandableCardModal>
                 {renderResizeHandle(sectionId)}
               </div>
@@ -1664,13 +1749,62 @@ export function DndCharacterSheet() {
                     armDragHandle(sectionId, event)
                   }
                 >
+                  <div className="space-y-2 pb-4">
+                    {sheet.spells.slots.map((slot, index) => (
+                      <div
+                        key={`${slot.title}-${index}`}
+                        className="flex items-center justify-between rounded-md border p-2"
+                      >
+                        <div className="leading-tight">
+                          <p className="text-sm font-medium">{slot.title}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1">
+                            {Array.from({ length: slot.max }).map((_, i) => (
+                              <Diamond
+                                key={`${slot.title}-diamond-${i}`}
+                                className={cn(
+                                  "h-5 w-5 transition-colors",
+                                  i < slot.amount
+                                    ? "text-cyan-400"
+                                    : "text-muted-foreground",
+                                )}
+                              />
+                            ))}
+                          </div>
+                          <div className="flex flex-col">
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              className="h-5 w-5"
+                              onClick={() => updateSpellSlotAmount(index, 1)}
+                              disabled={slot.amount >= slot.max}
+                              aria-label={`Increase ${slot.title} slots`}
+                            >
+                              <ChevronUp className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              className="h-5 w-5"
+                              onClick={() => updateSpellSlotAmount(index, -1)}
+                              disabled={slot.amount <= 0}
+                              aria-label={`Decrease ${slot.title} slots`}
+                            >
+                              <ChevronDown className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                   <EditableListField
-                    value={sheet.spells}
+                    value={sheet.spells.list}
                     isEditing={isEditing}
                     className="min-h-32"
-                    onChange={(value) =>
-                      updateListOrBackstoryField("spells", value)
-                    }
+                    onChange={updateSpellList}
                     placeholder="Add spell..."
                   />
                 </ExpandableCardModal>

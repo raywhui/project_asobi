@@ -2,6 +2,13 @@ import { type RecursiveListItem } from "@/components/recursive-list";
 
 type AbilityKey = "str" | "dex" | "con" | "int" | "wis" | "cha";
 
+type SpellSlot = {
+  title: string;
+  description: string;
+  amount: number;
+  max: number;
+};
+
 export type CharacterSheetState = {
   character: {
     name: string;
@@ -129,7 +136,10 @@ export type CharacterSheetState = {
   };
   equipment: RecursiveListItem[];
   featuresAndTraits: RecursiveListItem[];
-  spells: RecursiveListItem[];
+  spells: {
+    slots: SpellSlot[];
+    list: RecursiveListItem[];
+  };
   backstory: string;
 };
 
@@ -273,73 +283,89 @@ export const initialCharacterSheetState: CharacterSheetState = {
       ],
     },
   ],
-  spells: [
-    {
-      title: "Cantrips",
-      description: "Spells cast at will without consuming spell slots.",
-      children: [
-        {
-          title: "Vicious Mockery",
-          description:
-            "Deal psychic damage and give disadvantage on next attack.",
-          children: [],
-        },
-        {
-          title: "Mage Hand",
-          description: "Summon a spectral hand to manipulate small objects.",
-          children: [],
-        },
-        {
-          title: "Minor Illusion",
-          description: "Create a simple sound or image illusion.",
-          children: [],
-        },
-      ],
-    },
-    {
-      title: "1st-Level",
-      description: "Prepared 1st-level spells.",
-      children: [
-        {
-          title: "Healing Word",
-          description: "Bonus action healing at range.",
-          children: [],
-        },
-        {
-          title: "Dissonant Whispers",
-          description: "Psychic damage that can force movement.",
-          children: [],
-        },
-      ],
-    },
-    {
-      title: "2nd-Level",
-      description: "Prepared 2nd-level spells.",
-      children: [
-        {
-          title: "Suggestion",
-          description: "Compel a creature to follow a reasonable command.",
-          children: [],
-        },
-        {
-          title: "Invisibility",
-          description: "Turn a creature invisible for up to one hour.",
-          children: [],
-        },
-      ],
-    },
-    {
-      title: "3rd-Level",
-      description: "Prepared 3rd-level spells.",
-      children: [
-        {
-          title: "Hypnotic Pattern",
-          description: "Incapacitate creatures in a dazzling area.",
-          children: [],
-        },
-      ],
-    },
-  ],
+  spells: {
+    slots: [
+      {
+        title: "1st-Level",
+        description: "Spells cast at will without consuming spell slots.",
+        amount: 2,
+        max: 2,
+      },
+      {
+        title: "2nd-Level",
+        description: "Spells cast at will without consuming spell slots.",
+        amount: 2,
+        max: 2,
+      },
+    ],
+    list: [
+      {
+        title: "Cantrips",
+        description: "Spells cast at will without consuming spell slots.",
+        children: [
+          {
+            title: "Vicious Mockery",
+            description:
+              "Deal psychic damage and give disadvantage on next attack.",
+            children: [],
+          },
+          {
+            title: "Mage Hand",
+            description: "Summon a spectral hand to manipulate small objects.",
+            children: [],
+          },
+          {
+            title: "Minor Illusion",
+            description: "Create a simple sound or image illusion.",
+            children: [],
+          },
+        ],
+      },
+      {
+        title: "1st-Level",
+        description: "Prepared 1st-level spells.",
+        children: [
+          {
+            title: "Healing Word",
+            description: "Bonus action healing at range.",
+            children: [],
+          },
+          {
+            title: "Dissonant Whispers",
+            description: "Psychic damage that can force movement.",
+            children: [],
+          },
+        ],
+      },
+      {
+        title: "2nd-Level",
+        description: "Prepared 2nd-level spells.",
+        children: [
+          {
+            title: "Suggestion",
+            description: "Compel a creature to follow a reasonable command.",
+            children: [],
+          },
+          {
+            title: "Invisibility",
+            description: "Turn a creature invisible for up to one hour.",
+            children: [],
+          },
+        ],
+      },
+      {
+        title: "3rd-Level",
+        description: "Prepared 3rd-level spells.",
+        children: [
+          {
+            title: "Hypnotic Pattern",
+            description: "Incapacitate creatures in a dazzling area.",
+            children: [],
+          },
+        ],
+      },
+    ],
+  },
   backstory:
     "I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face",
 };

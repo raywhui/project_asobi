@@ -31,6 +31,7 @@ import {
   Skull,
   Swords,
   Triangle,
+  LoaderPinwheel,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -47,11 +48,8 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea as BaseTextarea } from "@/components/ui/textarea";
 import { ExpandableCardModal } from "@/components/expandable-card-modal";
 import { EditableListField } from "@/components/editable-list-field";
-import {
-  initialCharacterSheetState,
-  type CharacterSheetState,
-} from "@/data/dnd-character-sheet";
-import { cn, formatSavingThrow, lookupSrd2014Indexes } from "@/lib/utils";
+import { type CharacterSheetState } from "@/data/dnd-character-sheet";
+import { cn, formatSavingThrow } from "@/lib/utils";
 import { Checkbox } from "./ui/checkbox";
 import {
   Tooltip,
@@ -86,17 +84,6 @@ const ORDER_STORAGE_KEY = "dnd-sheet-card-order-v1";
 const SPANS_STORAGE_KEY = "dnd-sheet-card-spans-v1";
 const COLUMN_OPTIONS = [3, 4, 5] as const;
 type ColumnCount = (typeof COLUMN_OPTIONS)[number];
-const skeletonCards = [
-  { id: "s1", className: "md:col-span-2 xl:col-span-2" },
-  { id: "s2", className: "" },
-  { id: "s3", className: "" },
-  { id: "s4", className: "" },
-  { id: "s5", className: "" },
-  { id: "s6", className: "" },
-  { id: "s7", className: "" },
-  { id: "s8", className: "" },
-  { id: "s9", className: "" },
-];
 type CardSpan = { colSpan: number; rowSpan: number };
 type ResizeState = {
   id: SectionId;
@@ -230,11 +217,18 @@ function SheetTextarea({
   );
 }
 
-export function DndCharacterSheet() {
-  const [sheet, setSheet] = useState<CharacterSheetState>(
-    initialCharacterSheetState,
-  );
+export function DndCharacterSheet({
+  userCharacterData,
+  charId,
+  onSave,
+}: {
+  userCharacterData: CharacterSheetState;
+  charId?: string;
+  onSave?: (charId: string, sheet: CharacterSheetState) => Promise<unknown>;
+}) {
+  const [sheet, setSheet] = useState<CharacterSheetState>(userCharacterData);
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [isDragEnabled, setIsDragEnabled] = useState(true);
   const [isResizeEnabled, setIsResizeEnabled] = useState(true);
   const [isSpellCardVisible, setIsSpellCardVisible] = useState(true);
@@ -333,6 +327,13 @@ export function DndCharacterSheet() {
   }, [isResizeEnabled]);
 
   const editableInputClass = "";
+  const characterOptionalFields = [
+    { key: "race", label: "Race" },
+    { key: "background", label: "Background" },
+    { key: "alignment", label: "Alignment" },
+    { key: "experiencePoints", label: "XP" },
+    { key: "gender", label: "Gender" },
+  ] as const;
 
   const updateListOrBackstoryField = <
     K extends "equipment" | "featuresAndTraits" | "backstory",
@@ -562,6 +563,32 @@ export function DndCharacterSheet() {
       },
     }));
   }
+
+  const updateCharacterField = (
+    key: keyof CharacterSheetState["character"],
+    nextValue: string,
+  ) => {
+    if (!isEditing) return;
+    setSheet((current) => {
+      const nextCharacter = {
+        ...current.character,
+        [key]:
+          key === "level"
+            ? (() => {
+                const parsed = Number(nextValue);
+                return Number.isFinite(parsed)
+                  ? parsed
+                  : current.character.level;
+              })()
+            : nextValue,
+      };
+
+      return {
+        ...current,
+        character: nextCharacter,
+      };
+    });
+  };
 
   const updateSkillModifier = (
     key: keyof CharacterSheetState["skills"],
@@ -1106,31 +1133,71 @@ export function DndCharacterSheet() {
           "bg-gradient-to-t from-[#e5e5e5]/5 to-card shadow-xs dark:bg-card",
         )}
       >
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center md:text-3xl">
-            {sheet.character.name} <Dot className="h-8 w-8" />{" "}
-            {sheet.character.class} <Dot className="h-8 w-8" /> Level{" "}
-            {sheet.character.level}
-          </h1>
-          <p className="text-md text-muted-foreground">
-            {sheet.character.race} | {sheet.character.background} |{" "}
-            {sheet.character.alignment}
-          </p>
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-2 text-2xl font-bold tracking-tight md:text-3xl">
+            <SheetInput
+              isEditing={isEditing}
+              value={sheet.character.name}
+              readOnly={!isEditing}
+              placeholder="Name"
+              className="h-auto w-auto  bg-transparent p-0 pr-0 text-2xl font-bold leading-tight shadow-none focus-visible:ring-0 md:text-3xl"
+              onChange={(event) =>
+                updateCharacterField("name", event.target.value)
+              }
+            />
+            <Dot className="h-8 w-8" />
+            <SheetInput
+              isEditing={isEditing}
+              value={sheet.character.class}
+              readOnly={!isEditing}
+              placeholder="Class"
+              className="h-auto w-auto bg-transparent p-0 pr-0 text-2xl font-bold leading-tight shadow-none focus-visible:ring-0 md:text-3xl"
+              onChange={(event) =>
+                updateCharacterField("class", event.target.value)
+              }
+            />
+            <Dot className="h-8 w-8" />
+            <span>Level</span>
+            <SheetInput
+              isEditing={isEditing}
+              value={sheet.character.level}
+              type="number"
+              placeholder="Level"
+              readOnly={!isEditing}
+              className="h-auto w-20 bg-transparent p-0 pr-0 text-2xl font-bold leading-tight shadow-none focus-visible:ring-0 md:text-3xl"
+              onChange={(event) =>
+                updateCharacterField("level", event.target.value)
+              }
+            />
+          </div>
+          {characterOptionalFields.length > 0 && (
+            <div className="text-md text-muted-foreground flex flex-wrap items-center gap-1">
+              {characterOptionalFields.map(({ key, label }, index) => (
+                <div key={key} className="flex items-center gap-1">
+                  {(sheet.character[key] || isEditing) && (
+                    <>
+                      {index > 0 && <span>|</span>}
+                      {isEditing && <span>{label}:</span>}
+                      <SheetInput
+                        isEditing={isEditing}
+                        value={sheet.character[key]}
+                        readOnly={!isEditing}
+                        className="h-auto w-auto bg-transparent p-0 pr-0 text-md leading-7 shadow-none focus-visible:ring-0"
+                        onChange={(event) =>
+                          updateCharacterField(key, event.target.value)
+                        }
+                      />
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <Badge variant={isEditing ? "default" : "secondary"}>
             {isEditing ? "Editing Enabled" : "Read-Only"}
           </Badge>
-          <Button
-            onClick={async () => {
-              const skills = await lookupSrd2014Indexes("skills", [
-                "athletics",
-              ]);
-              console.log("skills:", skills);
-            }}
-          >
-            Test
-          </Button>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline">
@@ -1143,11 +1210,27 @@ export function DndCharacterSheet() {
                 <p className="text-sm font-medium">Sheet Mode</p>
                 <Button
                   className="w-full justify-start"
-                  onClick={() => setIsEditing((current) => !current)}
+                  disabled={isSaving}
+                  onClick={async () => {
+                    if (isEditing) {
+                      if (charId && onSave) {
+                        setIsSaving(true);
+                        await onSave(charId, sheet);
+                      }
+                      setIsSaving(false);
+                      setIsEditing(false);
+                    } else {
+                      setIsEditing(true);
+                    }
+                  }}
                 >
                   {isEditing ? (
                     <>
-                      <Save className="mr-2 h-4 w-4" />
+                      {isSaving ? (
+                        <LoaderPinwheel className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Save className="mr-2 h-4 w-4" />
+                      )}
                       Save Sheet
                     </>
                   ) : (
@@ -1254,23 +1337,6 @@ export function DndCharacterSheet() {
           gridColumnClass,
         )}
       >
-        {!order &&
-          skeletonCards.map((card) => (
-            <Card
-              key={card.id}
-              className={cn("h-64 overflow-hidden", card.className)}
-            >
-              <CardHeader>
-                <div className="h-5 w-2/3 animate-pulse rounded bg-muted" />
-                <div className="h-4 w-1/2 animate-pulse rounded bg-muted" />
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="h-9 w-full animate-pulse rounded bg-muted" />
-                <div className="h-9 w-full animate-pulse rounded bg-muted" />
-                <div className="h-20 w-full animate-pulse rounded bg-muted" />
-              </CardContent>
-            </Card>
-          ))}
         {order?.map((sectionId) => {
           if (sectionId === "spells" && !isSpellCardVisible) {
             return null;
@@ -1765,7 +1831,7 @@ export function DndCharacterSheet() {
                               <Label
                                 role="button"
                                 tabIndex={0}
-                                className="cursor-pointer rounded-sm px-1 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                className="cursor-pointer rounded-sm px-1 hover:bg-stone-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                 onClick={() => handleSkillLookup(skill.key)}
                                 onKeyDown={(event) => {
                                   if (
@@ -1780,9 +1846,9 @@ export function DndCharacterSheet() {
                                 {skill.label}
                               </Label>
                             </TooltipTrigger>
-                            <TooltipContent>
+                            {/* <TooltipContent>
                               <p>sup</p>
-                            </TooltipContent>
+                            </TooltipContent> */}
                           </Tooltip>
                         </div>
                       </div>

@@ -17,7 +17,7 @@ export default async function Home() {
     const userId = data?.claims?.sub;
 
     if (typeof userId === "string" && userId.length > 0) {
-      redirect(`/${userId}`);
+      redirect(`/home`);
     }
   }
 

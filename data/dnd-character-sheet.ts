@@ -17,6 +17,7 @@ export type CharacterSheetState = {
     background: string;
     race: string;
     alignment: string;
+    gender: string;
     experiencePoints: string;
   };
   ap: {
@@ -143,7 +144,96 @@ export type CharacterSheetState = {
   backstory: string;
 };
 
-export const initialCharacterSheetState: CharacterSheetState = {
+export const blankInitialCharacterSheet: CharacterSheetState = {
+  character: {
+    name: "New Character",
+    class: "",
+    level: 1,
+    background: "",
+    race: "",
+    alignment: "",
+    gender: "",
+    experiencePoints: "",
+  },
+  ap: {
+    str: {
+      base: 10,
+      modifier: 0,
+    },
+    dex: {
+      base: 10,
+      modifier: 0,
+    },
+    con: {
+      base: 10,
+      modifier: 0,
+    },
+    int: {
+      base: 10,
+      modifier: 0,
+    },
+    wis: {
+      base: 10,
+      modifier: 0,
+    },
+    cha: {
+      base: 10,
+      modifier: 0,
+    },
+  },
+  combat: {
+    currentHp: 1,
+    maxHp: 1,
+    tempHp: 0,
+    hitDice: {
+      diceType: "d6",
+      amount: 3,
+    },
+    deathSavesSuccesses: 0,
+    deathSavesFailures: 0,
+    armorClass: 10,
+    initiative: +0,
+    speed: 30,
+    proficiencyBonus: 0,
+  },
+  savingThrow: {
+    str: { modifier: 0, isProficient: false },
+    dex: { modifier: 0, isProficient: false },
+    con: { modifier: 0, isProficient: false },
+    int: { modifier: 0, isProficient: false },
+    wis: { modifier: 0, isProficient: false },
+    cha: { modifier: 0, isProficient: false },
+  },
+  skills: {
+    acrobatics: { baseApType: "dex", modifier: 0, isProficient: false },
+    animalHandling: { baseApType: "wis", modifier: 0, isProficient: false },
+    arcana: { baseApType: "int", modifier: 0, isProficient: false },
+    athletics: { baseApType: "str", modifier: 0, isProficient: false },
+    deception: { baseApType: "cha", modifier: 0, isProficient: false },
+    history: { baseApType: "int", modifier: 0, isProficient: false },
+    insight: { baseApType: "wis", modifier: 0, isProficient: false },
+    intimidation: { baseApType: "cha", modifier: 0, isProficient: false },
+    investigation: { baseApType: "int", modifier: 0, isProficient: false },
+    medicine: { baseApType: "wis", modifier: 0, isProficient: false },
+    nature: { baseApType: "int", modifier: 0, isProficient: false },
+    perception: { baseApType: "wis", modifier: 0, isProficient: false },
+    performance: { baseApType: "cha", modifier: 0, isProficient: false },
+    persuasion: { baseApType: "cha", modifier: 0, isProficient: false },
+    religion: { baseApType: "int", modifier: 0, isProficient: false },
+    sleightOfHand: { baseApType: "dex", modifier: 0, isProficient: false },
+    stealth: { baseApType: "dex", modifier: 0, isProficient: false },
+    survival: { baseApType: "wis", modifier: 0, isProficient: false },
+  },
+  equipment: [],
+  featuresAndTraits: [],
+  spells: {
+    slots: [],
+    list: [],
+  },
+  backstory: "The fallen leaves tell a story.",
+};
+
+export const raysCharacterSheetState: CharacterSheetState = {
   character: {
     name: "Stiriacus Exspiravit",
     class: "Blood Hunter",
@@ -151,6 +241,7 @@ export const initialCharacterSheetState: CharacterSheetState = {
     background: "Rune Carver",
     race: "Dragonborn",
     alignment: "Neutral",
+    gender: "They/them",
     experiencePoints: "6500",
   },
   ap: {

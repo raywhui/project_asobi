@@ -25,6 +25,7 @@ import {
   SrdCategoryFilter,
   type SrdCategoryFilterValue,
 } from "./srd-category-filter";
+import { ClassesFilter, ClassesFilterValue } from "./classes-filter";
 
 type SrdRecord = Record<string, unknown>;
 const SIDEBAR_ANIMATION_MS = 100;
@@ -116,6 +117,7 @@ export function SearchSidebar() {
     useState<SrdCategoryFilterValue>(null);
   const [spellLevelFilter, setSpellLevelFilter] =
     useState<SpellLevelFilterValue>(null);
+  const [classesFilter, setClassesFilter] = useState<ClassesFilterValue>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<Srd2014SearchResult[]>([]);
   const [selectedResult, setSelectedResult] =
@@ -256,20 +258,26 @@ export function SearchSidebar() {
   }, [query, isOpen, categoryFilter]);
 
   const filteredResults = useMemo(() => {
-    if (categoryFilter !== "spells" || spellLevelFilter === null) {
-      return results;
-    }
-    return results.filter((result) => {
-      const level = result.data.level;
-      const numLevel =
-        typeof level === "number"
-          ? level
-          : typeof level === "string"
-            ? Number(level)
-            : undefined;
-      return numLevel === spellLevelFilter;
-    });
-  }, [results, categoryFilter, spellLevelFilter]);
+    if (categoryFilter !== "spells") return results;
+
+    const filters = [
+      spellLevelFilter === null
+        ? null
+        : (result: { data: { level: number; classes: String[] } }) =>
+            Number(result.data.level) === spellLevelFilter,
+
+      classesFilter === null
+        ? null
+        : (result: { data: { level: number; classes: String[] } }) =>
+            (result.data.classes as String[])?.includes(classesFilter),
+
+      // add new filters here as single lines
+    ].filter(Boolean);
+
+    if (filters.length === 0) return results;
+
+    return results.filter((result) => filters.every((fn) => fn(result)));
+  }, [results, categoryFilter, spellLevelFilter, classesFilter]);
 
   const handleResultClick = async (result: Srd2014SearchResult) => {
     setIsDetailLoading(true);
@@ -339,10 +347,16 @@ export function SearchSidebar() {
             }}
           />
           {categoryFilter === "spells" && (
-            <SpellLevelFilter
-              value={spellLevelFilter}
-              onChange={setSpellLevelFilter}
-            />
+            <>
+              <SpellLevelFilter
+                value={spellLevelFilter}
+                onChange={setSpellLevelFilter}
+              />
+              <ClassesFilter
+                value={classesFilter}
+                onChange={setClassesFilter}
+              />
+            </>
           )}
         </div>
 
@@ -412,27 +426,27 @@ export function SearchSidebar() {
             </div>
           ) : (
             filteredResults.map((result) => {
-                const displayName =
-                  typeof result.data.name === "string"
-                    ? result.data.name
-                    : result.index;
+              const displayName =
+                typeof result.data.name === "string"
+                  ? result.data.name
+                  : result.index;
 
-                return (
-                  <button
-                    type="button"
-                    key={`${result.collection}-${result.index}`}
-                    onClick={() => {
-                      void handleResultClick(result);
-                    }}
-                    className="hover:bg-muted/60 w-full rounded-md border p-2 text-left transition-colors"
-                  >
-                    <p className="text-sm font-medium">{displayName}</p>
-                    <p className="text-muted-foreground text-xs">
-                      {result.collection} / {result.index}
-                    </p>
-                  </button>
-                );
-              })
+              return (
+                <button
+                  type="button"
+                  key={`${result.collection}-${result.index}`}
+                  onClick={() => {
+                    void handleResultClick(result);
+                  }}
+                  className="hover:bg-muted/60 w-full rounded-md border p-2 text-left transition-colors"
+                >
+                  <p className="text-sm font-medium">{displayName}</p>
+                  <p className="text-muted-foreground text-xs">
+                    {result.collection} / {result.index}
+                  </p>
+                </button>
+              );
+            })
           )}
         </div>
       </SidebarContent>

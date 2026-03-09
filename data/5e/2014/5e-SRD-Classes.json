@@ -65,10 +65,7 @@
       "saving-throw-str",
       "saving-throw-con"
     ],
-    "saving_throws": [
-      "str",
-      "con"
-    ],
+    "saving_throws": ["str", "con"],
     "starting_equipment": [
       {
         "equipment": {
@@ -164,15 +161,9 @@
           "minimum_score": 13
         }
       ],
-      "proficiencies": [
-        "shields",
-        "simple-weapons",
-        "martial-weapons"
-      ]
+      "proficiencies": ["shields", "simple-weapons", "martial-weapons"]
     },
-    "subclasses": [
-      "berserker"
-    ]
+    "subclasses": ["berserker"]
   },
   "bard": {
     "name": "Bard",
@@ -405,10 +396,7 @@
       "saving-throw-dex",
       "saving-throw-cha"
     ],
-    "saving_throws": [
-      "dex",
-      "cha"
-    ],
+    "saving_throws": ["dex", "cha"],
     "starting_equipment": [
       {
         "equipment": {
@@ -538,9 +526,7 @@
           "minimum_score": 13
         }
       ],
-      "proficiencies": [
-        "light-armor"
-      ],
+      "proficiencies": ["light-armor"],
       "proficiency_choices": [
         {
           "desc": "skill",
@@ -760,9 +746,7 @@
         }
       ]
     },
-    "subclasses": [
-      "lore"
-    ],
+    "subclasses": ["lore"],
     "spellcasting": {
       "level": 1,
       "spellcasting_ability": {
@@ -874,10 +858,7 @@
       "saving-throw-wis",
       "saving-throw-cha"
     ],
-    "saving_throws": [
-      "wis",
-      "cha"
-    ],
+    "saving_throws": ["wis", "cha"],
     "starting_equipment": [
       {
         "equipment": {
@@ -1062,15 +1043,9 @@
           "minimum_score": 13
         }
       ],
-      "proficiencies": [
-        "light-armor",
-        "medium-armor",
-        "shields"
-      ]
+      "proficiencies": ["light-armor", "medium-armor", "shields"]
     },
-    "subclasses": [
-      "life"
-    ],
+    "subclasses": ["life"],
     "spellcasting": {
       "level": 1,
       "spellcasting_ability": {
@@ -1206,10 +1181,7 @@
       "saving-throw-int",
       "saving-throw-wis"
     ],
-    "saving_throws": [
-      "int",
-      "wis"
-    ],
+    "saving_throws": ["int", "wis"],
     "starting_equipment": [
       {
         "equipment": {
@@ -1317,15 +1289,9 @@
           "minimum_score": 13
         }
       ],
-      "proficiencies": [
-        "light-armor",
-        "medium-armor",
-        "shields"
-      ]
+      "proficiencies": ["light-armor", "medium-armor", "shields"]
     },
-    "subclasses": [
-      "land"
-    ],
+    "subclasses": ["land"],
     "spellcasting": {
       "level": 1,
       "spellcasting_ability": {
@@ -1451,10 +1417,7 @@
       "saving-throw-str",
       "saving-throw-con"
     ],
-    "saving_throws": [
-      "str",
-      "con"
-    ],
+    "saving_throws": ["str", "con"],
     "starting_equipment": [],
     "starting_equipment_options": [
       {
@@ -1658,9 +1621,7 @@
         "martial-weapons"
       ]
     },
-    "subclasses": [
-      "champion"
-    ]
+    "subclasses": ["champion"]
   },
   "monk": {
     "name": "Monk",
@@ -1964,10 +1925,7 @@
       "saving-throw-dex",
       "saving-throw-str"
     ],
-    "saving_throws": [
-      "str",
-      "dex"
-    ],
+    "saving_throws": ["str", "dex"],
     "starting_equipment": [
       {
         "equipment": {
@@ -2056,14 +2014,9 @@
           "minimum_score": 13
         }
       ],
-      "proficiencies": [
-        "simple-weapons",
-        "shortswords"
-      ]
+      "proficiencies": ["simple-weapons", "shortswords"]
     },
-    "subclasses": [
-      "open-hand"
-    ]
+    "subclasses": ["open-hand"]
   },
   "paladin": {
     "name": "Paladin",
@@ -2130,10 +2083,7 @@
       "saving-throw-wis",
       "saving-throw-cha"
     ],
-    "saving_throws": [
-      "wis",
-      "cha"
-    ],
+    "saving_throws": ["wis", "cha"],
     "starting_equipment": [
       {
         "equipment": {
@@ -2295,9 +2245,7 @@
         "martial-weapons"
       ]
     },
-    "subclasses": [
-      "devotion"
-    ],
+    "subclasses": ["devotion"],
     "spellcasting": {
       "level": 2,
       "spellcasting_ability": {
@@ -2412,10 +2360,7 @@
       "saving-throw-dex",
       "saving-throw-str"
     ],
-    "saving_throws": [
-      "str",
-      "dex"
-    ],
+    "saving_throws": ["str", "dex"],
     "starting_equipment": [
       {
         "equipment": {
@@ -2612,9 +2557,7 @@
         }
       ]
     },
-    "subclasses": [
-      "hunter"
-    ],
+    "subclasses": ["hunter"],
     "spellcasting": {
       "level": 2,
       "spellcasting_ability": {
@@ -2752,10 +2695,7 @@
       "saving-throw-dex",
       "saving-throw-int"
     ],
-    "saving_throws": [
-      "dex",
-      "int"
-    ],
+    "saving_throws": ["dex", "int"],
     "starting_equipment": [
       {
         "equipment": {
@@ -2891,10 +2831,7 @@
           "minimum_score": 13
         }
       ],
-      "proficiencies": [
-        "light-armor",
-        "thieves-tools"
-      ],
+      "proficiencies": ["light-armor", "thieves-tools"],
       "proficiency_choices": [
         {
           "choose": 1,
@@ -2984,9 +2921,7 @@
         }
       ]
     },
-    "subclasses": [
-      "thief"
-    ]
+    "subclasses": ["thief"]
   },
   "sorcerer": {
     "name": "Sorcerer",
@@ -3054,10 +2989,7 @@
       "saving-throw-con",
       "saving-throw-cha"
     ],
-    "saving_throws": [
-      "con",
-      "cha"
-    ],
+    "saving_throws": ["con", "cha"],
     "starting_equipment": [
       {
         "equipment": {
@@ -3187,9 +3119,7 @@
       ],
       "proficiencies": []
     },
-    "subclasses": [
-      "draconic"
-    ],
+    "subclasses": ["draconic"],
     "spellcasting": {
       "level": 1,
       "spellcasting_ability": {
@@ -3306,10 +3236,7 @@
       "saving-throw-wis",
       "saving-throw-cha"
     ],
-    "saving_throws": [
-      "wis",
-      "cha"
-    ],
+    "saving_throws": ["wis", "cha"],
     "starting_equipment": [
       {
         "equipment": {
@@ -3456,14 +3383,9 @@
           "minimum_score": 13
         }
       ],
-      "proficiencies": [
-        "light-armor",
-        "simple-weapons"
-      ]
+      "proficiencies": ["light-armor", "simple-weapons"]
     },
-    "subclasses": [
-      "fiend"
-    ],
+    "subclasses": ["fiend"],
     "spellcasting": {
       "level": 1,
       "spellcasting_ability": {
@@ -3577,10 +3499,7 @@
       "saving-throw-int",
       "saving-throw-wis"
     ],
-    "saving_throws": [
-      "int",
-      "wis"
-    ],
+    "saving_throws": ["int", "wis"],
     "starting_equipment": [
       {
         "equipment": {
@@ -3690,9 +3609,7 @@
       ],
       "proficiencies": []
     },
-    "subclasses": [
-      "evocation"
-    ],
+    "subclasses": ["evocation"],
     "spellcasting": {
       "level": 1,
       "spellcasting_ability": {

@@ -86,7 +86,7 @@ export default async function ProtectedPage() {
             <CardTitle>Create New Character</CardTitle>
             <CardDescription>
               Making a new character from scratch. Currently only able to fill
-              in the sheets. Dynamic character creation and homebrew coming
+              in the sheets. Dynamic character creation and homebrews coming
               soon.
             </CardDescription>
           </CardHeader>

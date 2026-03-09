@@ -213,14 +213,16 @@ export type Srd2014SearchResult = {
 export async function searchSrd2014Indexes(
   query: string,
   limit = 10,
+  collections?: Srd2014CollectionKey[],
 ): Promise<Srd2014SearchResult[]> {
   const normalizedQuery = normalizeLookupKey(query);
   if (!normalizedQuery) return [];
 
   const aggregated: Srd2014SearchResult[] = [];
-  const collectionKeys = Object.keys(
-    SRD_2014_COLLECTION_IMPORTERS,
-  ) as Srd2014CollectionKey[];
+  const collectionKeys =
+    collections && collections.length > 0
+      ? collections
+      : (Object.keys(SRD_2014_COLLECTION_IMPORTERS) as Srd2014CollectionKey[]);
 
   for (const collectionKey of collectionKeys) {
     if (aggregated.length >= limit) break;
@@ -248,4 +250,18 @@ export async function searchSrd2014Indexes(
   }
 
   return aggregated.slice(0, limit);
+}
+
+export async function getAllSrd2014ByCollection(
+  collectionKey: Srd2014CollectionKey,
+  limit = 500,
+): Promise<Srd2014SearchResult[]> {
+  const collection = await loadSrd2014Collection(collectionKey);
+  const indexes = Object.keys(collection).slice(0, limit);
+  const records = await lookupSrd2014Indexes(collectionKey, indexes);
+  return records.map((data, idx) => {
+    const index = indexes[idx];
+    if (!index) throw new Error("Index mismatch");
+    return { collection: collectionKey, index, data };
+  });
 }

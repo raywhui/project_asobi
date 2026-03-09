@@ -1,7 +1,7 @@
 "use client";
 
-import { PanelRightClose, Search, X } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { PanelRightClose, Search } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import {
@@ -10,11 +10,21 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import {
+  getAllSrd2014ByCollection,
   lookupSrd2014Index,
   type Srd2014CollectionKey,
   searchSrd2014Indexes,
   type Srd2014SearchResult,
 } from "@/lib/utils";
+
+import {
+  SpellLevelFilter,
+  type SpellLevelFilterValue,
+} from "./spell-level-filter";
+import {
+  SrdCategoryFilter,
+  type SrdCategoryFilterValue,
+} from "./srd-category-filter";
 
 type SrdRecord = Record<string, unknown>;
 const SIDEBAR_ANIMATION_MS = 100;
@@ -98,10 +108,14 @@ function extractBadges(result: Srd2014SearchResult) {
   return badges.slice(0, 5);
 }
 
-export function DashboardSearchSidebar() {
+export function SearchSidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [query, setQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] =
+    useState<SrdCategoryFilterValue>(null);
+  const [spellLevelFilter, setSpellLevelFilter] =
+    useState<SpellLevelFilterValue>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<Srd2014SearchResult[]>([]);
   const [selectedResult, setSelectedResult] =
@@ -196,16 +210,40 @@ export function DashboardSearchSidebar() {
     }
 
     const trimmed = query.trim();
+
     if (!trimmed) {
-      setResults([]);
-      setIsLoading(false);
-      return;
+      if (categoryFilter === null) {
+        setResults([]);
+        setIsLoading(false);
+        return;
+      }
+
+      const timeout = window.setTimeout(async () => {
+        setIsLoading(true);
+        try {
+          const nextResults = await getAllSrd2014ByCollection(
+            categoryFilter,
+            500,
+          );
+          setResults(nextResults);
+        } finally {
+          setIsLoading(false);
+        }
+      }, 300);
+
+      return () => window.clearTimeout(timeout);
     }
+
+    const collections = categoryFilter !== null ? [categoryFilter] : undefined;
 
     const timeout = window.setTimeout(async () => {
       setIsLoading(true);
       try {
-        const nextResults = await searchSrd2014Indexes(trimmed, 20);
+        const nextResults = await searchSrd2014Indexes(
+          trimmed,
+          20,
+          collections,
+        );
         setResults(nextResults);
       } finally {
         setIsLoading(false);
@@ -215,7 +253,23 @@ export function DashboardSearchSidebar() {
     return () => {
       window.clearTimeout(timeout);
     };
-  }, [query, isOpen]);
+  }, [query, isOpen, categoryFilter]);
+
+  const filteredResults = useMemo(() => {
+    if (categoryFilter !== "spells" || spellLevelFilter === null) {
+      return results;
+    }
+    return results.filter((result) => {
+      const level = result.data.level;
+      const numLevel =
+        typeof level === "number"
+          ? level
+          : typeof level === "string"
+            ? Number(level)
+            : undefined;
+      return numLevel === spellLevelFilter;
+    });
+  }, [results, categoryFilter, spellLevelFilter]);
 
   const handleResultClick = async (result: Srd2014SearchResult) => {
     setIsDetailLoading(true);
@@ -258,23 +312,38 @@ export function DashboardSearchSidebar() {
           >
             <PanelRightClose className="h-4 w-4" />
           </button>
-          <p className="text-center text-sm font-semibold">5e Lookup</p>
+          <p className="text-center text-sm font-semibold">5e SRD Lookup</p>
           <span className="h-6 w-6" aria-hidden />
         </div>
       </SidebarHeader>
       <SidebarContent className="space-y-3">
-        <div className="relative">
-          <Search className="text-muted-foreground absolute left-3 top-2.5 h-4 w-4" />
-          <Input
-            value={query}
-            onChange={(event) => {
-              setQuery(event.target.value);
-              setSelectedResult(null);
-              setSelectedData(null);
+        <div className="space-y-2">
+          <div className="relative">
+            <Search className="text-muted-foreground absolute left-3 top-2.5 h-4 w-4" />
+            <Input
+              value={query}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setSelectedResult(null);
+                setSelectedData(null);
+              }}
+              placeholder="Search index or name..."
+              className="pl-9"
+            />
+          </div>
+          <SrdCategoryFilter
+            value={categoryFilter}
+            onChange={(value) => {
+              setCategoryFilter(value);
+              if (value !== "spells") setSpellLevelFilter(null);
             }}
-            placeholder="Search index or name..."
-            className="pl-9"
           />
+          {categoryFilter === "spells" && (
+            <SpellLevelFilter
+              value={spellLevelFilter}
+              onChange={setSpellLevelFilter}
+            />
+          )}
         </div>
 
         {isLoading && (
@@ -284,6 +353,16 @@ export function DashboardSearchSidebar() {
         {!isLoading && query.trim().length > 0 && results.length === 0 && (
           <p className="text-muted-foreground text-xs">No matches found.</p>
         )}
+
+        {!isLoading &&
+          categoryFilter === "spells" &&
+          spellLevelFilter !== null &&
+          results.length > 0 &&
+          filteredResults.length === 0 && (
+            <p className="text-muted-foreground text-xs">
+              No spells at this level.
+            </p>
+          )}
 
         <div className="space-y-2">
           {selectedResult ? (
@@ -332,28 +411,28 @@ export function DashboardSearchSidebar() {
               )}
             </div>
           ) : (
-            results.map((result) => {
-              const displayName =
-                typeof result.data.name === "string"
-                  ? result.data.name
-                  : result.index;
+            filteredResults.map((result) => {
+                const displayName =
+                  typeof result.data.name === "string"
+                    ? result.data.name
+                    : result.index;
 
-              return (
-                <button
-                  type="button"
-                  key={`${result.collection}-${result.index}`}
-                  onClick={() => {
-                    void handleResultClick(result);
-                  }}
-                  className="hover:bg-muted/60 w-full rounded-md border p-2 text-left transition-colors"
-                >
-                  <p className="text-sm font-medium">{displayName}</p>
-                  <p className="text-muted-foreground text-xs">
-                    {result.collection} / {result.index}
-                  </p>
-                </button>
-              );
-            })
+                return (
+                  <button
+                    type="button"
+                    key={`${result.collection}-${result.index}`}
+                    onClick={() => {
+                      void handleResultClick(result);
+                    }}
+                    className="hover:bg-muted/60 w-full rounded-md border p-2 text-left transition-colors"
+                  >
+                    <p className="text-sm font-medium">{displayName}</p>
+                    <p className="text-muted-foreground text-xs">
+                      {result.collection} / {result.index}
+                    </p>
+                  </button>
+                );
+              })
           )}
         </div>
       </SidebarContent>

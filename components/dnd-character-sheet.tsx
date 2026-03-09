@@ -3,11 +3,8 @@
 import {
   type ComponentProps,
   type CSSProperties,
-  type DragEvent,
   type PointerEvent as ReactPointerEvent,
-  type TouchEvent,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -48,6 +45,8 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea as BaseTextarea } from "@/components/ui/textarea";
 import { ExpandableCardModal } from "@/components/expandable-card-modal";
 import { EditableListField } from "@/components/editable-list-field";
+import { useCardDragAndDrop } from "@/components/hooks/use-card-drag-and-drop";
+import { useLayoutPersistence } from "@/components/hooks/use-layout-persistence";
 import { type CharacterSheetState } from "@/data/dnd-character-sheet";
 import { cn, formatSavingThrow } from "@/lib/utils";
 import { Checkbox } from "./ui/checkbox";
@@ -137,34 +136,6 @@ function createInitialSpans(): Record<SectionId, CardSpan> {
   };
 }
 
-function parseStoredSpans(
-  raw: string | null,
-): Record<SectionId, CardSpan> | null {
-  if (!raw) return null;
-
-  try {
-    const parsed = JSON.parse(raw) as Partial<Record<SectionId, CardSpan>>;
-    const next = createInitialSpans();
-
-    for (const id of initialOrder) {
-      const span = parsed[id];
-      if (!span) continue;
-      const colSpan = Number(span.colSpan);
-      const rowSpan = Number(span.rowSpan);
-      if (!Number.isFinite(colSpan) || !Number.isFinite(rowSpan)) continue;
-
-      next[id] = {
-        colSpan: Math.min(5, Math.max(1, Math.round(colSpan))),
-        rowSpan: Math.min(3, Math.max(1, Math.round(rowSpan))),
-      };
-    }
-
-    return next;
-  } catch {
-    return null;
-  }
-}
-
 type SheetInputProps = ComponentProps<typeof BaseInput> & {
   isEditing: boolean;
 };
@@ -233,92 +204,38 @@ export function DndCharacterSheet({
   const [isResizeEnabled, setIsResizeEnabled] = useState(true);
   const [isSpellCardVisible, setIsSpellCardVisible] = useState(true);
   const [columnCount, setColumnCount] = useState<ColumnCount>(4);
-  const [order, setOrder] = useState<SectionId[] | null>(null);
-  const [cardSpans, setCardSpans] =
-    useState<Record<SectionId, CardSpan>>(createInitialSpans);
+  const {
+    order,
+    setOrder,
+    cardSpans,
+    setCardSpans,
+    cardSpansRef,
+    persistSpans,
+  } = useLayoutPersistence<SectionId>({
+    storageKeyOrder: ORDER_STORAGE_KEY,
+    storageKeySpans: SPANS_STORAGE_KEY,
+    initialOrder,
+    createInitialSpans,
+  });
   const [resizeState, setResizeState] = useState<ResizeState | null>(null);
-  const [draggingId, setDraggingId] = useState<SectionId | null>(null);
-  const [touchDraggingId, setTouchDraggingId] = useState<SectionId | null>(
-    null,
-  );
-  const dragPreviewRef = useRef<HTMLDivElement | null>(null);
-  const draggingIdRef = useRef<SectionId | null>(null);
-  const touchDraggingIdRef = useRef<SectionId | null>(null);
-  const reorderLockRef = useRef(false);
-  const lastDragTargetRef = useRef<SectionId | null>(null);
-  const lastTouchTargetRef = useRef<SectionId | null>(null);
-  const dragHandleArmedRef = useRef<SectionId | null>(null);
-  const cardSpansRef =
-    useRef<Record<SectionId, CardSpan>>(createInitialSpans());
   const gridRef = useRef<HTMLDivElement | null>(null);
-  const previousCardPositionsRef = useRef<
-    Partial<Record<SectionId, { left: number; top: number }>>
-  >({});
-  const pendingFromPositionsRef = useRef<Partial<
-    Record<SectionId, { left: number; top: number }>
-  > | null>(null);
 
-  useEffect(() => {
-    const raw = window.localStorage.getItem(ORDER_STORAGE_KEY);
-    if (!raw) {
-      setOrder(initialOrder);
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(raw) as string[];
-      const parsedSet = new Set(parsed);
-      const valid =
-        parsed.length === initialOrder.length &&
-        initialOrder.every((id) => parsedSet.has(id));
-
-      if (valid) {
-        setOrder(parsed as SectionId[]);
-        return;
-      }
-    } catch {
-      // Ignore invalid localStorage data and use defaults.
-    }
-    setOrder(initialOrder);
-  }, []);
-
-  useEffect(() => {
-    const storedSpans = parseStoredSpans(
-      window.localStorage.getItem(SPANS_STORAGE_KEY),
-    );
-    if (storedSpans) {
-      setCardSpans(storedSpans);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!order) return;
-    window.localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(order));
-  }, [order]);
-
-  useEffect(() => {
-    draggingIdRef.current = draggingId;
-    touchDraggingIdRef.current = touchDraggingId;
-  }, [draggingId, touchDraggingId]);
-
-  useEffect(() => {
-    cardSpansRef.current = cardSpans;
-  }, [cardSpans]);
-
-  useEffect(() => {
-    if (!isDragEnabled) {
-      setDraggingId(null);
-      setTouchDraggingId(null);
-      dragHandleArmedRef.current = null;
-      reorderLockRef.current = false;
-      lastDragTargetRef.current = null;
-      lastTouchTargetRef.current = null;
-      if (dragPreviewRef.current) {
-        dragPreviewRef.current.remove();
-        dragPreviewRef.current = null;
-      }
-    }
-  }, [isDragEnabled]);
+  const {
+    getCardWrapperClasses,
+    getHeaderHandleClasses,
+    armDragHandle,
+    dragHandlers,
+    cancelDragInteractions,
+  } = useCardDragAndDrop<SectionId>({
+    isDragEnabled,
+    isEditing,
+    hasActiveResize: !!resizeState,
+    activeResizeId: resizeState?.id ?? null,
+    order,
+    setOrder,
+    gridRef,
+    reorder,
+  });
 
   useEffect(() => {
     if (!isResizeEnabled) {
@@ -724,33 +641,6 @@ export function DndCharacterSheet({
     );
   };
 
-  const clearDragPreview = () => {
-    if (dragPreviewRef.current) {
-      dragPreviewRef.current.remove();
-      dragPreviewRef.current = null;
-    }
-  };
-
-  const getCurrentCardPositions = () => {
-    const grid = gridRef.current;
-    if (!grid) return {};
-
-    const cards = Array.from(
-      grid.querySelectorAll<HTMLElement>("[data-section-id]"),
-    );
-    const positions: Partial<Record<SectionId, { left: number; top: number }>> =
-      {};
-
-    cards.forEach((card) => {
-      const id = card.dataset.sectionId as SectionId | undefined;
-      if (!id) return;
-      const rect = card.getBoundingClientRect();
-      positions[id] = { left: rect.left, top: rect.top };
-    });
-
-    return positions;
-  };
-
   const clamp = (value: number, min: number, max: number) =>
     Math.min(max, Math.max(min, value));
 
@@ -760,44 +650,6 @@ export function DndCharacterSheet({
     const template = getComputedStyle(grid).gridTemplateColumns;
     if (!template) return 1;
     return template.split(" ").filter(Boolean).length;
-  };
-
-  const moveCard = (dragId: SectionId, targetId: SectionId) => {
-    if (!isDragEnabled) return;
-    if (dragId === targetId) return;
-    if (reorderLockRef.current) return;
-
-    reorderLockRef.current = true;
-    setOrder((current) => {
-      if (!current) {
-        reorderLockRef.current = false;
-        return current;
-      }
-      const fromIndex = current.indexOf(dragId);
-      const toIndex = current.indexOf(targetId);
-      if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
-        reorderLockRef.current = false;
-        return current;
-      }
-
-      pendingFromPositionsRef.current = getCurrentCardPositions();
-      return reorder(current, dragId, targetId);
-    });
-  };
-
-  const finishDrag = () => {
-    setDraggingId(null);
-    dragHandleArmedRef.current = null;
-    reorderLockRef.current = false;
-    lastDragTargetRef.current = null;
-    clearDragPreview();
-  };
-
-  const finishTouchDrag = () => {
-    setTouchDraggingId(null);
-    dragHandleArmedRef.current = null;
-    reorderLockRef.current = false;
-    lastTouchTargetRef.current = null;
   };
 
   const getGridSpanStyle = (id: SectionId): CSSProperties => {
@@ -814,35 +666,6 @@ export function DndCharacterSheet({
       : columnCount === 4
         ? "xl:grid-cols-4"
         : "xl:grid-cols-5";
-
-  const getCardWrapperClasses = (id: SectionId) =>
-    cn(
-      "transition-[transform,opacity,box-shadow] border-border duration-300 ease-out will-change-transform",
-      "relative",
-      (draggingId === id || touchDraggingId === id) &&
-        "scale-[0.98] opacity-35",
-      (draggingId === id || touchDraggingId === id) &&
-        "outline outline-2 outline-dashed outline-primary/50 outline-offset-2",
-      resizeState?.id === id && "select-none",
-    );
-
-  const armDragHandle = (
-    id: SectionId,
-    event: ReactPointerEvent<HTMLElement>,
-  ) => {
-    if (!isDragEnabled || isEditing || resizeState) return;
-    if (event.button !== 0) return;
-    dragHandleArmedRef.current = id;
-  };
-
-  const getHeaderHandleClasses = () =>
-    cn(
-      "flex items-center justify-between select-none",
-      !isEditing &&
-        !resizeState &&
-        isDragEnabled &&
-        "cursor-grab active:cursor-grabbing",
-    );
 
   const startResize = (
     id: SectionId,
@@ -861,12 +684,7 @@ export function DndCharacterSheet({
     const rect = wrapper.getBoundingClientRect();
     const span = cardSpans[id];
 
-    reorderLockRef.current = false;
-    setDraggingId(null);
-    setTouchDraggingId(null);
-    lastDragTargetRef.current = null;
-    lastTouchTargetRef.current = null;
-    clearDragPreview();
+    cancelDragInteractions();
 
     setResizeState({
       id,
@@ -894,162 +712,6 @@ export function DndCharacterSheet({
       </button>
     );
   };
-
-  const dragHandlers = (id: SectionId) => ({
-    draggable: isDragEnabled && !isEditing && !resizeState,
-    onDragStart: (event: DragEvent<HTMLDivElement>) => {
-      if (
-        !isDragEnabled ||
-        isEditing ||
-        resizeState ||
-        dragHandleArmedRef.current !== id
-      ) {
-        event.preventDefault();
-        return;
-      }
-
-      const node = event.currentTarget;
-      const rect = node.getBoundingClientRect();
-      const preview = node.cloneNode(true) as HTMLDivElement;
-      preview.style.position = "fixed";
-      preview.style.top = "-10000px";
-      preview.style.left = "-10000px";
-      preview.style.width = `${rect.width}px`;
-      preview.style.pointerEvents = "none";
-      preview.style.opacity = "0.55";
-      preview.style.transform = "scale(0.98)";
-      preview.style.filter = "saturate(0.9)";
-      preview.style.zIndex = "9999";
-      document.body.appendChild(preview);
-      dragPreviewRef.current = preview;
-
-      const offsetX = event.clientX - rect.left;
-      const offsetY = event.clientY - rect.top;
-      event.dataTransfer.effectAllowed = "move";
-      event.dataTransfer.setDragImage(preview, offsetX, offsetY);
-
-      setDraggingId(id);
-      lastDragTargetRef.current = null;
-    },
-    onDragEnter: (event: DragEvent<HTMLDivElement>) => {
-      if (!isDragEnabled || isEditing || resizeState) return;
-      event.preventDefault();
-      if (draggingId && draggingId !== id) {
-        if (lastDragTargetRef.current === id) return;
-        lastDragTargetRef.current = id;
-        moveCard(draggingId, id);
-      }
-    },
-    onDragOver: (event: DragEvent<HTMLDivElement>) => {
-      if (!isDragEnabled || isEditing || resizeState) return;
-      event.preventDefault();
-    },
-    onDrop: (event: DragEvent<HTMLDivElement>) => {
-      if (!isDragEnabled || isEditing || resizeState) return;
-      event.preventDefault();
-      finishDrag();
-    },
-    onDragEnd: () => {
-      setDraggingId(null);
-      dragHandleArmedRef.current = null;
-      reorderLockRef.current = false;
-      lastDragTargetRef.current = null;
-      clearDragPreview();
-    },
-    onTouchStart: () => {
-      if (
-        !isDragEnabled ||
-        isEditing ||
-        resizeState ||
-        dragHandleArmedRef.current !== id
-      ) {
-        return;
-      }
-      setTouchDraggingId(id);
-      lastTouchTargetRef.current = null;
-    },
-    onTouchMove: (event: TouchEvent<HTMLDivElement>) => {
-      if (!isDragEnabled || isEditing || resizeState) return;
-      const touch = event.touches[0];
-      const target = document
-        .elementFromPoint(touch.clientX, touch.clientY)
-        ?.closest("[data-section-id]") as HTMLElement | null;
-      const targetId = target?.dataset.sectionId as SectionId | undefined;
-
-      if (targetId && touchDraggingId && touchDraggingId !== targetId) {
-        if (lastTouchTargetRef.current === targetId) return;
-        lastTouchTargetRef.current = targetId;
-        moveCard(touchDraggingId, targetId);
-      }
-    },
-    onTouchEnd: () => {
-      if (!isDragEnabled || isEditing || resizeState) return;
-      finishTouchDrag();
-    },
-  });
-
-  useEffect(() => clearDragPreview, []);
-  useEffect(() => {
-    const clearArm = () => {
-      dragHandleArmedRef.current = null;
-    };
-    window.addEventListener("pointerup", clearArm);
-    window.addEventListener("pointercancel", clearArm);
-    return () => {
-      window.removeEventListener("pointerup", clearArm);
-      window.removeEventListener("pointercancel", clearArm);
-    };
-  }, []);
-  useLayoutEffect(() => {
-    const grid = gridRef.current;
-    if (!grid) return;
-    const activeDragId = draggingIdRef.current ?? touchDraggingIdRef.current;
-    const fromPositions =
-      pendingFromPositionsRef.current ?? previousCardPositionsRef.current;
-
-    const cards = Array.from(
-      grid.querySelectorAll<HTMLElement>("[data-section-id]"),
-    );
-    const nextPositions: Partial<
-      Record<SectionId, { left: number; top: number }>
-    > = {};
-
-    cards.forEach((card) => {
-      const id = card.dataset.sectionId as SectionId | undefined;
-      if (!id) return;
-
-      // Prevent stacked transforms from previous reorder frames.
-      card.getAnimations().forEach((animation) => animation.cancel());
-
-      const rect = card.getBoundingClientRect();
-      nextPositions[id] = { left: rect.left, top: rect.top };
-
-      // Never animate the active dragged card itself.
-      if (id === activeDragId) return;
-
-      const previous = fromPositions[id];
-      if (!previous) return;
-
-      const deltaX = previous.left - rect.left;
-      const deltaY = previous.top - rect.top;
-      if (!deltaX && !deltaY) return;
-
-      card.animate(
-        [
-          { transform: `translate(${deltaX}px, ${deltaY}px)` },
-          { transform: "translate(0, 0)" },
-        ],
-        {
-          duration: 260,
-          easing: "cubic-bezier(0.2, 0.7, 0.2, 1)",
-        },
-      );
-    });
-
-    previousCardPositionsRef.current = nextPositions;
-    pendingFromPositionsRef.current = null;
-    reorderLockRef.current = false;
-  }, [order]);
 
   useEffect(() => {
     if (!resizeState) return;
@@ -1104,10 +766,7 @@ export function DndCharacterSheet({
     };
 
     const handlePointerUp = () => {
-      window.localStorage.setItem(
-        SPANS_STORAGE_KEY,
-        JSON.stringify(cardSpansRef.current),
-      );
+      persistSpans();
       setResizeState(null);
     };
 
@@ -1119,11 +778,7 @@ export function DndCharacterSheet({
       window.removeEventListener("pointerup", handlePointerUp);
       document.body.style.userSelect = "";
     };
-  }, [resizeState]);
-
-  useEffect(() => {
-    console.log("cardSpans:", cardSpans);
-  }, [cardSpans]);
+  }, [resizeState, persistSpans]);
 
   return (
     <div className="mx-auto w-full space-y-6 p-4 md:p-8 lg:w-[80vw]">

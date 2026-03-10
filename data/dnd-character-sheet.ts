@@ -4,6 +4,7 @@ type AbilityKey = "str" | "dex" | "con" | "int" | "wis" | "cha";
 
 type SpellSlot = {
   title: string;
+  id: string;
   description: string;
   amount: number;
   max: number;
@@ -378,12 +379,14 @@ export const raysCharacterSheetState: CharacterSheetState = {
     slots: [
       {
         title: "1st-Level",
+        id: "1",
         description: "Spells cast at will without consuming spell slots.",
         amount: 2,
         max: 2,
       },
       {
         title: "2nd-Level",
+        id: "2",
         description: "Spells cast at will without consuming spell slots.",
         amount: 2,
         max: 2,

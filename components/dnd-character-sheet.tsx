@@ -29,6 +29,7 @@ import {
   Swords,
   Triangle,
   LoaderPinwheel,
+  Trash2,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -48,7 +49,7 @@ import { EditableListField } from "@/components/editable-list-field";
 import { useCardDragAndDrop } from "@/components/hooks/use-card-drag-and-drop";
 import { useLayoutPersistence } from "@/components/hooks/use-layout-persistence";
 import { type CharacterSheetState } from "@/data/dnd-character-sheet";
-import { cn, formatSavingThrow } from "@/lib/utils";
+import { cn, formatSavingThrow, Srd2014CollectionKey } from "@/lib/utils";
 import { Checkbox } from "./ui/checkbox";
 import {
   Tooltip,
@@ -56,6 +57,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import { useLayoutConfig } from "./hooks/use-layout-config";
 
 type SectionId =
   | "basics"
@@ -82,7 +84,6 @@ const initialOrder: SectionId[] = [
 const ORDER_STORAGE_KEY = "dnd-sheet-card-order-v1";
 const SPANS_STORAGE_KEY = "dnd-sheet-card-spans-v1";
 const COLUMN_OPTIONS = [3, 4, 5] as const;
-type ColumnCount = (typeof COLUMN_OPTIONS)[number];
 type CardSpan = { colSpan: number; rowSpan: number };
 type ResizeState = {
   id: SectionId;
@@ -198,12 +199,11 @@ export function DndCharacterSheet({
   onSave?: (charId: string, sheet: CharacterSheetState) => Promise<unknown>;
 }) {
   const [sheet, setSheet] = useState<CharacterSheetState>(userCharacterData);
+  const [prevSheet, setPrevSheet] =
+    useState<CharacterSheetState>(userCharacterData);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isDragEnabled, setIsDragEnabled] = useState(true);
-  const [isResizeEnabled, setIsResizeEnabled] = useState(true);
   const [isSpellCardVisible, setIsSpellCardVisible] = useState(true);
-  const [columnCount, setColumnCount] = useState<ColumnCount>(4);
   const {
     order,
     setOrder,
@@ -217,6 +217,8 @@ export function DndCharacterSheet({
     initialOrder,
     createInitialSpans,
   });
+  const { layoutConfig, setColumnCount, setDragEnabled, setResizeEnabled } =
+    useLayoutConfig();
   const [resizeState, setResizeState] = useState<ResizeState | null>(null);
   const gridRef = useRef<HTMLDivElement | null>(null);
 
@@ -227,7 +229,7 @@ export function DndCharacterSheet({
     dragHandlers,
     cancelDragInteractions,
   } = useCardDragAndDrop<SectionId>({
-    isDragEnabled,
+    isDragEnabled: layoutConfig.isDragEnabled,
     isEditing,
     hasActiveResize: !!resizeState,
     activeResizeId: resizeState?.id ?? null,
@@ -238,10 +240,10 @@ export function DndCharacterSheet({
   });
 
   useEffect(() => {
-    if (!isResizeEnabled) {
+    if (!layoutConfig.isResizeEnabled) {
       setResizeState(null);
     }
-  }, [isResizeEnabled]);
+  }, [layoutConfig.isResizeEnabled]);
 
   const editableInputClass = "";
   const characterOptionalFields = [
@@ -374,11 +376,23 @@ export function DndCharacterSheet({
           ...current.spells.slots,
           {
             title: `Slot ${current.spells.slots.length + 1}`,
+            id: `${current.spells.slots.length}`,
             description: "",
             amount: 0,
             max: 1,
           },
         ],
+      },
+    }));
+  };
+
+  const removeSpellSlot = (id: string) => {
+    if (!isEditing) return;
+    setSheet((current) => ({
+      ...current,
+      spells: {
+        ...current.spells,
+        slots: current.spells.slots.filter((data) => data.id !== id),
       },
     }));
   };
@@ -621,21 +635,26 @@ export function DndCharacterSheet({
     [],
   );
 
-  const handleSkillLookup = (skillKey: keyof CharacterSheetState["skills"]) => {
+  const handleQuickLookup = (
+    collection: Srd2014CollectionKey,
+    key: keyof CharacterSheetState["skills"] | keyof CharacterSheetState["ap"],
+  ) => {
     if (typeof window === "undefined") return;
 
-    const index = String(skillKey).replace(/[A-Z]/g, (char) => {
+    const index = String(key).replace(/[A-Z]/g, (char) => {
       return `-${char.toLowerCase()}`;
     });
+
+    console.log(index);
 
     window.dispatchEvent(
       new CustomEvent<{
         index: string;
-        collection: "skills";
+        collection: Srd2014CollectionKey;
       }>("dnd:sidebar-lookup", {
         detail: {
           index,
-          collection: "skills",
+          collection: collection,
         },
       }),
     );
@@ -661,9 +680,9 @@ export function DndCharacterSheet({
   };
 
   const gridColumnClass =
-    columnCount === 3
+    layoutConfig.columnCount === 3
       ? "xl:grid-cols-3"
-      : columnCount === 4
+      : layoutConfig.columnCount === 4
         ? "xl:grid-cols-4"
         : "xl:grid-cols-5";
 
@@ -671,7 +690,7 @@ export function DndCharacterSheet({
     id: SectionId,
     event: ReactPointerEvent<HTMLButtonElement>,
   ) => {
-    if (!isResizeEnabled || isEditing) return;
+    if (!layoutConfig.isResizeEnabled || isEditing) return;
 
     event.preventDefault();
     event.stopPropagation();
@@ -700,7 +719,7 @@ export function DndCharacterSheet({
   };
 
   const renderResizeHandle = (id: SectionId) => {
-    if (!isResizeEnabled || isEditing) return null;
+    if (!layoutConfig.isResizeEnabled || isEditing) return null;
     return (
       <button
         type="button"
@@ -717,8 +736,8 @@ export function DndCharacterSheet({
     if (!resizeState) return;
 
     const handlePointerMove = (event: PointerEvent) => {
-      const columnCount = getGridColumnCount();
-      const maxColSpan = Math.max(1, columnCount);
+      const colCount = getGridColumnCount();
+      const maxColSpan = Math.max(1, colCount);
       const maxRowSpan = 3;
       const deltaX = event.clientX - resizeState.startX;
       const deltaY = event.clientY - resizeState.startY;
@@ -855,9 +874,9 @@ export function DndCharacterSheet({
           </Badge>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline">
-                <Settings2 className="mr-2 h-4 w-4" />
-                Sheet Controls
+              <Button variant="ghost">
+                <Settings2 className="h-4 w-4" />
+                {/* Sheet Controls */}
               </Button>
             </PopoverTrigger>
             <PopoverContent align="end" className="w-80 space-y-4">
@@ -867,16 +886,24 @@ export function DndCharacterSheet({
                   className="w-full justify-start"
                   disabled={isSaving}
                   onClick={async () => {
-                    if (isEditing) {
-                      if (charId && onSave) {
-                        setIsSaving(true);
-                        await onSave(charId, sheet);
-                      }
-                      setIsSaving(false);
-                      setIsEditing(false);
-                    } else {
+                    if (!isEditing) {
                       setIsEditing(true);
+                      return;
                     }
+
+                    const hasChanges =
+                      JSON.stringify(sheet) !== JSON.stringify(prevSheet);
+
+                    if (charId && onSave && hasChanges) {
+                      console.log("saving...");
+                      setIsSaving(true);
+                      await onSave(charId, sheet);
+                      setPrevSheet(sheet);
+                      setIsSaving(false);
+                      console.log("saved!");
+                    }
+
+                    setIsEditing(false);
                   }}
                 >
                   {isEditing ? (
@@ -906,7 +933,11 @@ export function DndCharacterSheet({
                         key={count}
                         type="button"
                         size="sm"
-                        variant={columnCount === count ? "default" : "ghost"}
+                        variant={
+                          layoutConfig.columnCount === count
+                            ? "default"
+                            : "ghost"
+                        }
                         onClick={() => setColumnCount(count)}
                         className="h-8 flex-1 px-2 text-xs"
                       >
@@ -924,7 +955,7 @@ export function DndCharacterSheet({
                     <Move
                       className={cn(
                         "h-4 w-4 transition-colors",
-                        isDragEnabled
+                        layoutConfig.isDragEnabled
                           ? "text-primary"
                           : "text-muted-foreground",
                       )}
@@ -937,8 +968,8 @@ export function DndCharacterSheet({
                     </div>
                   </div>
                   <Switch
-                    checked={isDragEnabled}
-                    onCheckedChange={setIsDragEnabled}
+                    checked={layoutConfig.isDragEnabled}
+                    onCheckedChange={setDragEnabled}
                   />
                 </div>
 
@@ -947,7 +978,7 @@ export function DndCharacterSheet({
                     <Scaling
                       className={cn(
                         "h-4 w-4 transition-colors",
-                        isResizeEnabled
+                        layoutConfig.isResizeEnabled
                           ? "text-primary"
                           : "text-muted-foreground",
                       )}
@@ -960,8 +991,8 @@ export function DndCharacterSheet({
                     </div>
                   </div>
                   <Switch
-                    checked={isResizeEnabled}
-                    onCheckedChange={setIsResizeEnabled}
+                    checked={layoutConfig.isResizeEnabled}
+                    onCheckedChange={setResizeEnabled}
                   />
                 </div>
               </div>
@@ -1007,7 +1038,7 @@ export function DndCharacterSheet({
                 {...dragHandlers(sectionId)}
               >
                 <ExpandableCardModal
-                  showDragHandle={isDragEnabled}
+                  showDragHandle={layoutConfig.isDragEnabled}
                   showToggleButton={isEditing}
                   title="Ability Scores"
                   cardClassName="h-full"
@@ -1077,7 +1108,7 @@ export function DndCharacterSheet({
                             </div>
                           </div>
                         )}
-                        <Label className="text-muted-foreground">
+                        <Label className="text-muted-foreground hover:bg-stone-600">
                           {ability.label}
                         </Label>
                       </div>
@@ -1099,7 +1130,7 @@ export function DndCharacterSheet({
                 {...dragHandlers(sectionId)}
               >
                 <ExpandableCardModal
-                  showDragHandle={isDragEnabled}
+                  showDragHandle={layoutConfig.isDragEnabled}
                   showToggleButton={isEditing}
                   title="Combat"
                   cardClassName="h-full"
@@ -1116,7 +1147,7 @@ export function DndCharacterSheet({
                       className={`grid gap-2 ${cardSpans.combat.colSpan <= 1 ? "col-span-1" : "col-span-1"}`}
                     >
                       <div className="flex items-center gap-2">
-                        <Heart className="w-8 h-8" color="pink" />
+                        <Heart size={24} color="pink" />
                         <div className="flex items-center">
                           <SheetInput
                             isEditing={isEditing}
@@ -1159,7 +1190,10 @@ export function DndCharacterSheet({
                                     )
                                   }
                                 />
-                                <HeartPlus className="w-6 h-6 text-[#00A3A3] dark:text-[#00FFFF]" />
+                                <HeartPlus
+                                  size={18}
+                                  className="text-[#00A3A3] dark:text-[#00FFFF]"
+                                />
                                 <p>{`)`}</p>
                               </div>
                               {isEditing && (
@@ -1226,6 +1260,7 @@ export function DndCharacterSheet({
                       <SheetInput
                         isEditing={isEditing}
                         value={sheet.combat.armorClass}
+                        type="number"
                         readOnly={!isEditing}
                         className="text-3xl w-full"
                         onChange={(event) =>
@@ -1236,17 +1271,24 @@ export function DndCharacterSheet({
                     <Label className="text-muted-foreground">Armor Class</Label>
                   </div>
                   <div className="grid gap-2">
-                    <div className="flex justify-center items-center gap-2">
+                    <div className="flex justify-start items-center gap-2">
                       <Swords className="w-8 h-8 dark:text-[yellow]" />
-                      <SheetInput
-                        isEditing={isEditing}
-                        value={sheet.combat.initiative}
-                        readOnly={!isEditing}
-                        className="text-3xl w-full"
-                        onChange={(event) =>
-                          updateCombatField("initiative", event.target.value)
-                        }
-                      />
+                      <div className="flex justify-center items-center">
+                        {sheet.combat.initiative >= 0 && (
+                          <p className="text-3xl">+</p>
+                        )}
+
+                        <SheetInput
+                          isEditing={isEditing}
+                          type="number"
+                          value={sheet.combat.initiative}
+                          readOnly={!isEditing}
+                          className="text-3xl w-full"
+                          onChange={(event) =>
+                            updateCombatField("initiative", event.target.value)
+                          }
+                        />
+                      </div>
                     </div>
                     <Label className="text-muted-foreground">Initiative</Label>
                   </div>
@@ -1274,6 +1316,7 @@ export function DndCharacterSheet({
                           isEditing={isEditing}
                           value={sheet.combat.proficiencyBonus}
                           readOnly={!isEditing}
+                          type="number"
                           className="text-3xl w-full"
                           onChange={(event) =>
                             updateCombatField(
@@ -1325,7 +1368,7 @@ export function DndCharacterSheet({
                 {...dragHandlers(sectionId)}
               >
                 <ExpandableCardModal
-                  showDragHandle={isDragEnabled}
+                  showDragHandle={layoutConfig.isDragEnabled}
                   showToggleButton={isEditing}
                   title="Saving Throws"
                   cardClassName="h-full"
@@ -1395,7 +1438,20 @@ export function DndCharacterSheet({
                         {sheet.savingThrow[ability.key].isProficient && (
                           <Triangle className="w-3 h-3 text-[#3888F2] dark:text-[#3888F2]" />
                         )}
-                        <Label>{ability.label}</Label>
+                        <Label
+                          className="rounded-sm px-1 hover:bg-stone-600 hover:cursor-pointer "
+                          onClick={() =>
+                            handleQuickLookup("ability-scores", ability.key)
+                          }
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              handleQuickLookup("ability-scores", ability.key);
+                            }
+                          }}
+                        >
+                          {ability.label}
+                        </Label>
                       </div>
                     </div>
                   ))}
@@ -1415,7 +1471,7 @@ export function DndCharacterSheet({
                 {...dragHandlers(sectionId)}
               >
                 <ExpandableCardModal
-                  showDragHandle={isDragEnabled}
+                  showDragHandle={layoutConfig.isDragEnabled}
                   showToggleButton={isEditing}
                   title="Skills"
                   cardClassName="h-full"
@@ -1487,14 +1543,16 @@ export function DndCharacterSheet({
                                 role="button"
                                 tabIndex={0}
                                 className="cursor-pointer rounded-sm px-1 hover:bg-stone-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                                onClick={() => handleSkillLookup(skill.key)}
+                                onClick={() =>
+                                  handleQuickLookup("skills", skill.key)
+                                }
                                 onKeyDown={(event) => {
                                   if (
                                     event.key === "Enter" ||
                                     event.key === " "
                                   ) {
                                     event.preventDefault();
-                                    handleSkillLookup(skill.key);
+                                    handleQuickLookup("skills", skill.key);
                                   }
                                 }}
                               >
@@ -1525,7 +1583,7 @@ export function DndCharacterSheet({
                 {...dragHandlers(sectionId)}
               >
                 <ExpandableCardModal
-                  showDragHandle={isDragEnabled}
+                  showDragHandle={layoutConfig.isDragEnabled}
                   showToggleButton={isEditing}
                   title="Equipment"
                   cardClassName="h-full"
@@ -1559,7 +1617,7 @@ export function DndCharacterSheet({
                 {...dragHandlers(sectionId)}
               >
                 <ExpandableCardModal
-                  showDragHandle={isDragEnabled}
+                  showDragHandle={layoutConfig.isDragEnabled}
                   showToggleButton={isEditing}
                   title="Features & Traits"
                   cardClassName="h-full"
@@ -1593,7 +1651,7 @@ export function DndCharacterSheet({
                 {...dragHandlers(sectionId)}
               >
                 <ExpandableCardModal
-                  showDragHandle={isDragEnabled}
+                  showDragHandle={layoutConfig.isDragEnabled}
                   showToggleButton={isEditing}
                   title="Spells"
                   cardClassName="h-full"
@@ -1604,7 +1662,9 @@ export function DndCharacterSheet({
                 >
                   <div className="space-y-2 pb-4">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium">Spell Slots</p>
+                      {sheet.spells.slots.length > 0 && (
+                        <p className="text-sm font-medium">Spell Slots</p>
+                      )}
                       {isEditing && (
                         <Button
                           type="button"
@@ -1681,6 +1741,15 @@ export function DndCharacterSheet({
                                     }
                                     className="h-8 w-14"
                                   />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    aria-label="Remove list item"
+                                    onClick={() => removeSpellSlot(slot.id)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
                                 </div>
                               )}
                               {!isEditing && (
@@ -1742,7 +1811,7 @@ export function DndCharacterSheet({
                 {...dragHandlers(sectionId)}
               >
                 <ExpandableCardModal
-                  showDragHandle={isDragEnabled}
+                  showDragHandle={layoutConfig.isDragEnabled}
                   showToggleButton={isEditing}
                   title="Backstory"
                   cardClassName="h-full"

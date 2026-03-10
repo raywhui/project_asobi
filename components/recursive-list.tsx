@@ -85,9 +85,11 @@ function RecursiveListNodeItem({ item, itemKey }: RecursiveListNodeProps) {
               {item.title}
             </span>
           </TooltipTrigger>
-          <TooltipContent side="top">
-            <p className="text-lg">{item.description}</p>
-          </TooltipContent>
+          {item.description.length > 0 && (
+            <TooltipContent side="top" className="max-w-96 w-full">
+              <p className="text-sm w-full">{item.description}</p>
+            </TooltipContent>
+          )}
         </Tooltip>
       </div>
 

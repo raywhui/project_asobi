@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "Project Asobi",
+  "name": "ProjectAsobi",
   "version": "0.1.1",
   "scripts": {
     "dev": "next dev --turbopack",

@@ -32,7 +32,10 @@ export default async function ProtectedLayout({
           <div className="w-full max-w-screen-2xl flex justify-between items-center p-3 px-5 text-sm">
             <div className="flex gap-5 items-center font-semibold">
               <Link className="font-medium text-xl" href={"/"}>
-                ProjectAsobi
+                ProjectAsobi{" "}
+                <p className="text-xs inline">
+                  v{process.env.NEXT_PUBLIC_APP_VERSION}
+                </p>
               </Link>
             </div>
             <div className="flex items-center gap-3">

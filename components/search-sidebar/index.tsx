@@ -26,6 +26,7 @@ import {
   type SrdCategoryFilterValue,
 } from "./srd-category-filter";
 import { ClassesFilter, ClassesFilterValue } from "./classes-filter";
+import EquipmentText from "./equipment-text";
 
 type SrdRecord = Record<string, unknown>;
 const SIDEBAR_ANIMATION_MS = 100;
@@ -308,7 +309,7 @@ export function SearchSidebar() {
   return (
     <Sidebar
       side="right"
-      className={`sticky top-16 h-[calc(100vh-6rem)] shrink-0 rounded-lg transition-transform duration-[250ms] ease-out will-change-transform bg-card border-0 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+      className={`sticky top-16 h-[calc(100vh-6rem)] shrink-0 rounded-lg transition-transform duration-200 ease-out will-change-transform bg-card border-0 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
     >
       <SidebarHeader className="mx-4 px-0 py-4">
         <div className="grid grid-cols-[24px_1fr_24px] items-center gap-2">
@@ -416,11 +417,17 @@ export function SearchSidebar() {
                       </span>
                     ))}
                   </div>
-                  <p className="text-sm whitespace-pre-wrap">
-                    {extractBodyText(
-                      (selectedData ?? selectedResult.data) as SrdRecord,
-                    )}
-                  </p>
+                  <div className="text-sm whitespace-pre-wrap">
+                    {/* <p className="text-sm whitespace-pre-wrap">
+                      {selectedResult.collection !== "equipment" &&
+                        extractBodyText(
+                          (selectedData ?? selectedResult.data) as SrdRecord,
+                        )}
+                    </p> */}
+                    {/* {selectedResult.collection === "equipment" && ( */}
+                    <EquipmentText data={selectedResult.data} />
+                    {/* )} */}
+                  </div>
                 </>
               )}
             </div>

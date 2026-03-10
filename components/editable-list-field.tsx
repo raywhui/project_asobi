@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
-import { createRecursiveListItem, RecursiveList, type RecursiveListItem } from "@/components/recursive-list";
+import {
+  createRecursiveListItem,
+  RecursiveList,
+  type RecursiveListItem,
+} from "@/components/recursive-list";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -19,8 +23,8 @@ type EditableListFieldProps = {
 function normalizeItems(items: RecursiveListItem[]): RecursiveListItem[] {
   return items
     .map((item) => ({
-      title: item.title.trim(),
-      description: item.description.trim(),
+      title: item.title,
+      description: item.description,
       children: normalizeItems(item.children),
     }))
     .filter((item) => item.title.length > 0);
@@ -44,7 +48,10 @@ function updateItemAtPath(
   });
 }
 
-function removeItemAtPath(items: RecursiveListItem[], path: number[]): RecursiveListItem[] {
+function removeItemAtPath(
+  items: RecursiveListItem[],
+  path: number[],
+): RecursiveListItem[] {
   if (path.length === 0) return items;
   const [head, ...rest] = path;
 
@@ -69,7 +76,9 @@ export function EditableListField({
   className,
   placeholder = "Add item...",
 }: EditableListFieldProps) {
-  const [items, setItems] = useState<RecursiveListItem[]>(() => normalizeItems(value));
+  const [items, setItems] = useState<RecursiveListItem[]>(() =>
+    normalizeItems(value),
+  );
   const [draftTitle, setDraftTitle] = useState("");
   const [draftDescription, setDraftDescription] = useState("");
 
@@ -120,13 +129,18 @@ export function EditableListField({
     commitItems(removeItemAtPath(items, path));
   };
 
-  const renderEditor = (item: RecursiveListItem, path: number[]): React.ReactNode => {
+  const renderEditor = (
+    item: RecursiveListItem,
+    path: number[],
+  ): React.ReactNode => {
     return (
       <div key={path.join("-")} className="space-y-2 rounded-md border p-3">
         <div className="flex flex-col gap-2 sm:flex-row">
           <Input
             value={item.title}
-            onChange={(event) => updateFieldAtPath(path, "title", event.target.value)}
+            onChange={(event) =>
+              updateFieldAtPath(path, "title", event.target.value)
+            }
             placeholder="Title"
           />
           <Input

@@ -277,7 +277,11 @@ export function SearchSidebar() {
 
     if (filters.length === 0) return results;
 
-    return results.filter((result) => filters.every((fn) => fn(result)));
+    return results.filter((result) =>
+      filters.every((fn) => {
+        if (fn) fn(result as any);
+      }),
+    );
   }, [results, categoryFilter, spellLevelFilter, classesFilter]);
 
   const handleResultClick = async (result: Srd2014SearchResult) => {

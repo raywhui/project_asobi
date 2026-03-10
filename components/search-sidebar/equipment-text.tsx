@@ -1,4 +1,10 @@
-export default function EquipmentText({ data, subSection = 0 }) {
+export default function EquipmentText({
+  data,
+  subSection = 0,
+}: {
+  data: any;
+  subSection?: number;
+}) {
   return (
     <div
       className={subSection > 0 ? "pl-4 border-l-2 border-l-red-200 mt-2" : ""}

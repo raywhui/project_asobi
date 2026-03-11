@@ -800,692 +800,604 @@ export function DndCharacterSheet({
   }, [resizeState, persistSpans]);
 
   return (
-    <div className="mx-auto w-full space-y-6 p-4 md:p-8 lg:w-[80vw]">
-      <div
-        className={cn(
-          "flex flex-col gap-4 rounded-xl border bg-card p-4 md:flex-row md:items-center md:justify-between",
-          "bg-gradient-to-t from-[#e5e5e5]/5 to-card shadow-xs dark:bg-card",
-        )}
-      >
-        <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2 text-2xl font-bold tracking-tight md:text-3xl">
-            <SheetInput
-              isEditing={isEditing}
-              value={sheet.character.name}
-              readOnly={!isEditing}
-              placeholder="Name"
-              className="h-auto w-auto  bg-transparent p-0 pr-0 text-2xl font-bold leading-tight shadow-none focus-visible:ring-0 md:text-3xl"
-              onChange={(event) =>
-                updateCharacterField("name", event.target.value)
-              }
-            />
-            <Dot className="h-8 w-8" />
-            <SheetInput
-              isEditing={isEditing}
-              value={sheet.character.class}
-              readOnly={!isEditing}
-              placeholder="Class"
-              className="h-auto w-auto bg-transparent p-0 pr-0 text-2xl font-bold leading-tight shadow-none focus-visible:ring-0 md:text-3xl"
-              onChange={(event) =>
-                updateCharacterField("class", event.target.value)
-              }
-            />
-            <Dot className="h-8 w-8" />
-            <span>Level</span>
-            <SheetInput
-              isEditing={isEditing}
-              value={sheet.character.level}
-              type="number"
-              placeholder="Level"
-              readOnly={!isEditing}
-              className="h-auto w-20 bg-transparent p-0 pr-0 text-2xl font-bold leading-tight shadow-none focus-visible:ring-0 md:text-3xl"
-              onChange={(event) =>
-                updateCharacterField("level", event.target.value)
-              }
-            />
-          </div>
-          {characterOptionalFields.length > 0 && (
-            <div className="text-md text-muted-foreground flex flex-wrap items-center gap-1">
-              {characterOptionalFields.map(({ key, label }, index) => (
-                <div key={key} className="flex items-center gap-1">
-                  {(sheet.character[key] || isEditing) && (
-                    <>
-                      {index > 0 && <span>|</span>}
-                      {isEditing && <span>{label}:</span>}
-                      <SheetInput
-                        isEditing={isEditing}
-                        value={sheet.character[key]}
-                        readOnly={!isEditing}
-                        className="h-auto w-auto bg-transparent p-0 pr-0 text-md leading-7 shadow-none focus-visible:ring-0"
-                        onChange={(event) =>
-                          updateCharacterField(key, event.target.value)
-                        }
-                      />
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
+    // <div className="mx-auto w-full space-y-6 p-4 md:p-8 lg:w-[80vw]">
+    <div className="mx-auto max-w-screen-xl p-4 md:p-8">
+      <div className="space-y-6 w-">
+        <div
+          className={cn(
+            "flex flex-col gap-4 rounded-xl border bg-card p-4 md:flex-row md:items-center md:justify-between",
+            "bg-gradient-to-t from-[#e5e5e5]/5 to-card shadow-xs dark:bg-card",
           )}
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant={isEditing ? "default" : "secondary"}>
-            {isEditing ? "Editing Enabled" : "Read-Only"}
-          </Badge>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="ghost">
-                <Settings2 className="h-4 w-4" />
-                {/* Sheet Controls */}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="end" className="w-80 space-y-4">
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Sheet Mode</p>
-                <Button
-                  className="w-full justify-start"
-                  disabled={isSaving}
-                  onClick={async () => {
-                    if (!isEditing) {
-                      setIsEditing(true);
-                      return;
-                    }
-
-                    const hasChanges =
-                      JSON.stringify(sheet) !== JSON.stringify(prevSheet);
-
-                    if (charId && onSave && hasChanges) {
-                      console.log("saving...");
-                      setIsSaving(true);
-                      await onSave(charId, sheet);
-                      setPrevSheet(sheet);
-                      setIsSaving(false);
-                      console.log("saved!");
-                    }
-
-                    setIsEditing(false);
-                  }}
-                >
-                  {isEditing ? (
-                    <>
-                      {isSaving ? (
-                        <LoaderPinwheel className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <Save className="mr-2 h-4 w-4" />
-                      )}
-                      Save Sheet
-                    </>
-                  ) : (
-                    <>
-                      <Pencil className="mr-2 h-4 w-4" />
-                      Edit Mode
-                    </>
-                  )}
+        >
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2 text-2xl font-bold tracking-tight md:text-3xl">
+              <SheetInput
+                isEditing={isEditing}
+                value={sheet.character.name}
+                readOnly={!isEditing}
+                placeholder="Name"
+                className="h-auto w-auto  bg-transparent p-0 pr-0 text-2xl font-bold leading-tight shadow-none focus-visible:ring-0 md:text-3xl"
+                onChange={(event) =>
+                  updateCharacterField("name", event.target.value)
+                }
+              />
+              <Dot className="h-8 w-8" />
+              <SheetInput
+                isEditing={isEditing}
+                value={sheet.character.class}
+                readOnly={!isEditing}
+                placeholder="Class"
+                className="h-auto w-auto bg-transparent p-0 pr-0 text-2xl font-bold leading-tight shadow-none focus-visible:ring-0 md:text-3xl"
+                onChange={(event) =>
+                  updateCharacterField("class", event.target.value)
+                }
+              />
+              <Dot className="h-8 w-8" />
+              <span>Level</span>
+              <SheetInput
+                isEditing={isEditing}
+                value={sheet.character.level}
+                type="number"
+                placeholder="Level"
+                readOnly={!isEditing}
+                className="h-auto w-20 bg-transparent p-0 pr-0 text-2xl font-bold leading-tight shadow-none focus-visible:ring-0 md:text-3xl"
+                onChange={(event) =>
+                  updateCharacterField("level", event.target.value)
+                }
+              />
+            </div>
+            {characterOptionalFields.length > 0 && (
+              <div className="text-md text-muted-foreground flex flex-wrap items-center gap-1">
+                {characterOptionalFields.map(({ key, label }, index) => (
+                  <div key={key} className="flex items-center gap-1">
+                    {(sheet.character[key] || isEditing) && (
+                      <>
+                        {index > 0 && <span>|</span>}
+                        {isEditing && <span>{label}:</span>}
+                        <SheetInput
+                          isEditing={isEditing}
+                          value={sheet.character[key]}
+                          readOnly={!isEditing}
+                          className="h-auto w-auto bg-transparent p-0 pr-0 text-md leading-7 shadow-none focus-visible:ring-0"
+                          onChange={(event) =>
+                            updateCharacterField(key, event.target.value)
+                          }
+                        />
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant={isEditing ? "default" : "secondary"}>
+              {isEditing ? "Editing Enabled" : "Read-Only"}
+            </Badge>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost">
+                  <Settings2 className="h-4 w-4" />
+                  {/* Sheet Controls */}
                 </Button>
-              </div>
-
-              {isEditing && (
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-80 space-y-4">
                 <div className="space-y-2">
-                  <p className="text-sm font-medium">Layout Columns</p>
-                  <div className="flex items-center gap-1 rounded-md border bg-background p-1">
-                    {COLUMN_OPTIONS.map((count) => (
-                      <Button
-                        key={count}
-                        type="button"
-                        size="sm"
-                        variant={
-                          layoutConfig.columnCount === count
-                            ? "default"
-                            : "ghost"
-                        }
-                        onClick={() => setColumnCount(count)}
-                        className="h-8 flex-1 px-2 text-xs"
-                      >
-                        {count} Col
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              )}
+                  <p className="text-sm font-medium">Sheet Mode</p>
+                  <Button
+                    className="w-full justify-start"
+                    disabled={isSaving}
+                    onClick={async () => {
+                      if (!isEditing) {
+                        setIsEditing(true);
+                        return;
+                      }
 
-              <div className="space-y-3">
-                <p className="text-sm font-medium">Card Interactions</p>
-                <div className="flex items-center justify-between rounded-md border p-2">
-                  <div className="flex items-center gap-2">
-                    <Move
-                      className={cn(
-                        "h-4 w-4 transition-colors",
-                        layoutConfig.isDragEnabled
-                          ? "text-primary"
-                          : "text-muted-foreground",
-                      )}
-                    />
-                    <div className="leading-tight">
-                      <p className="text-sm">Drag and Drop</p>
-                      <p className="text-xs text-muted-foreground">
-                        Reorder cards in the grid
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={layoutConfig.isDragEnabled}
-                    onCheckedChange={setDragEnabled}
-                  />
-                </div>
+                      const hasChanges =
+                        JSON.stringify(sheet) !== JSON.stringify(prevSheet);
 
-                <div className="flex items-center justify-between rounded-md border p-2">
-                  <div className="flex items-center gap-2">
-                    <Scaling
-                      className={cn(
-                        "h-4 w-4 transition-colors",
-                        layoutConfig.isResizeEnabled
-                          ? "text-primary"
-                          : "text-muted-foreground",
-                      )}
-                    />
-                    <div className="leading-tight">
-                      <p className="text-sm">Resize Cards</p>
-                      <p className="text-xs text-muted-foreground">
-                        Enable drag-to-resize handles
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={layoutConfig.isResizeEnabled}
-                    onCheckedChange={setResizeEnabled}
-                  />
-                </div>
-              </div>
+                      if (charId && onSave && hasChanges) {
+                        console.log("saving...");
+                        setIsSaving(true);
+                        await onSave(charId, sheet);
+                        setPrevSheet(sheet);
+                        setIsSaving(false);
+                        console.log("saved!");
+                      }
 
-              <div className="space-y-3">
-                <p className="text-sm font-medium">Card Visibility</p>
-                <div className="flex items-center justify-between rounded-md border p-2">
-                  <div className="leading-tight">
-                    <p className="text-sm">Spell Card</p>
-                    <p className="text-xs text-muted-foreground">
-                      Show or hide the spells section
-                    </p>
-                  </div>
-                  <Switch
-                    checked={isSpellCardVisible}
-                    onCheckedChange={setIsSpellCardVisible}
-                  />
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </div>
-      </div>
-      <div
-        ref={gridRef}
-        className={cn(
-          "grid grid-cols-1 gap-4 [grid-auto-flow:dense] md:grid-cols-2",
-          gridColumnClass,
-        )}
-      >
-        {order?.map((sectionId) => {
-          if (sectionId === "spells" && !isSpellCardVisible) {
-            return null;
-          }
-
-          if (sectionId === "abilities") {
-            return (
-              <div
-                key={sectionId}
-                data-section-id={sectionId}
-                className={cn(getCardWrapperClasses(sectionId))}
-                style={getGridSpanStyle(sectionId)}
-                {...dragHandlers(sectionId)}
-              >
-                <ExpandableCardModal
-                  showDragHandle={layoutConfig.isDragEnabled}
-                  showToggleButton={isEditing}
-                  title="Ability Scores"
-                  cardClassName="h-full"
-                  headerClassName={getHeaderHandleClasses()}
-                  titleClassName="w-full"
-                  onHeaderPointerDown={(event) =>
-                    armDragHandle(sectionId, event)
-                  }
-                  contentClassName={`grid gap-3 ${cardSpans.abilities.colSpan <= 1 ? "grid-cols-1" : "grid-cols-6"}`}
-                >
-                  {abilities.map((ability) => (
-                    <div
-                      key={ability.key}
-                      className={`flex items-center gap-2 ${cardSpans.abilities.colSpan <= 1 ? "flex-row" : "flex-col"}`}
-                    >
-                      <p className="text-3xl w-8">
-                        {`(${formatSavingThrow(sheet.ap[ability.key].base + sheet.ap[ability.key].modifier)})`}
-                      </p>
-                      {cardSpans.abilities.colSpan <= 1 && (
-                        <div className="flex items-center justify-center pl-6 pr-2">
-                          <Dot className="w-4 h-4" />
-                        </div>
-                      )}
-                      <div className="flex flex-col items-center justify-center">
-                        <p className="text-lg w-full p-0">
-                          {sheet.ap[ability.key].base +
-                            sheet.ap[ability.key].modifier}
-                        </p>
-                        {isEditing && (
-                          <div className="flex items-center justify-center gap-2">
-                            <div className="flex flex-col items-center justify-center gap-2">
-                              <SheetInput
-                                isEditing={isEditing}
-                                value={sheet.ap[ability.key].base}
-                                type="number"
-                                readOnly={!isEditing}
-                                className="text-lg w-full p-0"
-                                onChange={(event) =>
-                                  updateAbilityBase(
-                                    ability.key,
-                                    event.target.value,
-                                  )
-                                }
-                              />
-                              <Label className="text-muted-foreground">
-                                Base
-                              </Label>
-                            </div>
-                            <p>+</p>
-                            <div className="flex flex-col items-center justify-center gap-2">
-                              <SheetInput
-                                isEditing={isEditing}
-                                value={sheet.ap[ability.key].modifier}
-                                type="number"
-                                readOnly={!isEditing}
-                                className="text-lg w-full p-0"
-                                onChange={(event) =>
-                                  updateAbilityModifier(
-                                    ability.key,
-                                    event.target.value,
-                                  )
-                                }
-                              />
-                              <Label className="text-muted-foreground">
-                                Modifier
-                              </Label>
-                            </div>
-                          </div>
+                      setIsEditing(false);
+                    }}
+                  >
+                    {isEditing ? (
+                      <>
+                        {isSaving ? (
+                          <LoaderPinwheel className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Save className="mr-2 h-4 w-4" />
                         )}
-                        <Label className="text-muted-foreground hover:bg-stone-600">
-                          {ability.label}
-                        </Label>
+                        Save Sheet
+                      </>
+                    ) : (
+                      <>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit Mode
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {isEditing && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Layout Columns</p>
+                    <div className="flex items-center gap-1 rounded-md border bg-background p-1">
+                      {COLUMN_OPTIONS.map((count) => (
+                        <Button
+                          key={count}
+                          type="button"
+                          size="sm"
+                          variant={
+                            layoutConfig.columnCount === count
+                              ? "default"
+                              : "ghost"
+                          }
+                          onClick={() => setColumnCount(count)}
+                          className="h-8 flex-1 px-2 text-xs"
+                        >
+                          {count} Col
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  <p className="text-sm font-medium">Card Interactions</p>
+                  <div className="flex items-center justify-between rounded-md border p-2">
+                    <div className="flex items-center gap-2">
+                      <Move
+                        className={cn(
+                          "h-4 w-4 transition-colors",
+                          layoutConfig.isDragEnabled
+                            ? "text-primary"
+                            : "text-muted-foreground",
+                        )}
+                      />
+                      <div className="leading-tight">
+                        <p className="text-sm">Drag and Drop</p>
+                        <p className="text-xs text-muted-foreground">
+                          Reorder cards in the grid
+                        </p>
                       </div>
                     </div>
-                  ))}
-                </ExpandableCardModal>
-                {renderResizeHandle(sectionId)}
-              </div>
-            );
-          }
+                    <Switch
+                      checked={layoutConfig.isDragEnabled}
+                      onCheckedChange={setDragEnabled}
+                    />
+                  </div>
 
-          if (sectionId === "combat") {
-            return (
-              <div
-                key={sectionId}
-                data-section-id={sectionId}
-                className={cn(getCardWrapperClasses(sectionId))}
-                style={getGridSpanStyle(sectionId)}
-                {...dragHandlers(sectionId)}
-              >
-                <ExpandableCardModal
-                  showDragHandle={layoutConfig.isDragEnabled}
-                  showToggleButton={isEditing}
-                  title="Combat"
-                  cardClassName="h-full"
-                  headerClassName={getHeaderHandleClasses()}
-                  onHeaderPointerDown={(event) =>
-                    armDragHandle(sectionId, event)
-                  }
-                  contentClassName={`grid gap-6 ${cardSpans.combat.colSpan <= 1 ? "grid-cols-2" : "grid-cols-3"}`}
+                  <div className="flex items-center justify-between rounded-md border p-2">
+                    <div className="flex items-center gap-2">
+                      <Scaling
+                        className={cn(
+                          "h-4 w-4 transition-colors",
+                          layoutConfig.isResizeEnabled
+                            ? "text-primary"
+                            : "text-muted-foreground",
+                        )}
+                      />
+                      <div className="leading-tight">
+                        <p className="text-sm">Resize Cards</p>
+                        <p className="text-xs text-muted-foreground">
+                          Enable drag-to-resize handles
+                        </p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={layoutConfig.isResizeEnabled}
+                      onCheckedChange={setResizeEnabled}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <p className="text-sm font-medium">Card Visibility</p>
+                  <div className="flex items-center justify-between rounded-md border p-2">
+                    <div className="leading-tight">
+                      <p className="text-sm">Spell Card</p>
+                      <p className="text-xs text-muted-foreground">
+                        Show or hide the spells section
+                      </p>
+                    </div>
+                    <Switch
+                      checked={isSpellCardVisible}
+                      onCheckedChange={setIsSpellCardVisible}
+                    />
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+        <div
+          ref={gridRef}
+          className={cn(
+            "grid grid-cols-1 gap-4 [grid-auto-flow:dense] md:grid-cols-2",
+            gridColumnClass,
+          )}
+        >
+          {order?.map((sectionId) => {
+            if (sectionId === "spells" && !isSpellCardVisible) {
+              return null;
+            }
+
+            if (sectionId === "abilities") {
+              return (
+                <div
+                  key={sectionId}
+                  data-section-id={sectionId}
+                  className={cn(getCardWrapperClasses(sectionId))}
+                  style={getGridSpanStyle(sectionId)}
+                  {...dragHandlers(sectionId)}
                 >
-                  <div
-                    className={`grid gap-6 ${cardSpans.combat.colSpan <= 1 ? "grid-cols-1 col-span-2" : "grid-cols-2 col-span-3"}`}
+                  <ExpandableCardModal
+                    showDragHandle={layoutConfig.isDragEnabled}
+                    showToggleButton={isEditing}
+                    title="Ability Scores"
+                    cardClassName="h-full"
+                    headerClassName={getHeaderHandleClasses()}
+                    titleClassName="w-full"
+                    onHeaderPointerDown={(event) =>
+                      armDragHandle(sectionId, event)
+                    }
+                    contentClassName={`grid gap-3 ${cardSpans.abilities.colSpan <= 1 ? "grid-cols-1" : "grid-cols-6"}`}
                   >
-                    <div
-                      className={`grid gap-2 ${cardSpans.combat.colSpan <= 1 ? "col-span-1" : "col-span-1"}`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Heart size={24} color="pink" />
-                        <div className="flex items-center">
-                          <SheetInput
-                            isEditing={isEditing}
-                            type="number"
-                            value={sheet.combat.currentHp}
-                            readOnly={!isEditing}
-                            className="text-3xl p-0 w-auto"
-                            onChange={(event) =>
-                              updateCombatField("currentHp", event.target.value)
-                            }
-                          />
-                          <p className="text-4xl w-auto text-center">/</p>
-                          <SheetInput
-                            isEditing={isEditing}
-                            type="number"
-                            value={sheet.combat.maxHp}
-                            readOnly={!isEditing}
-                            className="text-3xl p-0 w-auto"
-                            onChange={(event) =>
-                              updateCombatField("maxHp", event.target.value)
-                            }
-                          />
-                          {(sheet.combat.tempHp > 0 || isEditing) && (
-                            <div className="grid">
-                              <div className="flex justify-center items-center gap-1">
-                                <p className="ml-1">{`(`}</p>
-                                <p className="text-[#00A3A3] dark:text-[#00FFFF]">
-                                  +
-                                </p>
+                    {abilities.map((ability) => (
+                      <div
+                        key={ability.key}
+                        className={`flex items-center gap-2 ${cardSpans.abilities.colSpan <= 1 ? "flex-row" : "flex-col"}`}
+                      >
+                        <p className="text-3xl w-8">
+                          {`(${formatSavingThrow(sheet.ap[ability.key].base + sheet.ap[ability.key].modifier)})`}
+                        </p>
+                        {cardSpans.abilities.colSpan <= 1 && (
+                          <div className="flex items-center justify-center pl-6 pr-2">
+                            <Dot className="w-4 h-4" />
+                          </div>
+                        )}
+                        <div className="flex flex-col items-center justify-center">
+                          <p className="text-lg w-full p-0">
+                            {sheet.ap[ability.key].base +
+                              sheet.ap[ability.key].modifier}
+                          </p>
+                          {isEditing && (
+                            <div className="flex items-center justify-center gap-2">
+                              <div className="flex flex-col items-center justify-center gap-2">
                                 <SheetInput
                                   isEditing={isEditing}
+                                  value={sheet.ap[ability.key].base}
                                   type="number"
-                                  value={sheet.combat.tempHp}
                                   readOnly={!isEditing}
-                                  className="text-3xl w-auto pr-0 text-[#00A3A3] dark:text-[#00FFFF]"
+                                  className="text-lg w-full p-0"
                                   onChange={(event) =>
-                                    updateCombatField(
-                                      "tempHp",
+                                    updateAbilityBase(
+                                      ability.key,
                                       event.target.value,
                                     )
                                   }
                                 />
-                                <HeartPlus
-                                  size={18}
-                                  className="text-[#00A3A3] dark:text-[#00FFFF]"
-                                />
-                                <p>{`)`}</p>
-                              </div>
-                              {isEditing && (
-                                <Label className="text-muted-foreground text-xs">
-                                  Temp HP
+                                <Label className="text-muted-foreground">
+                                  Base
                                 </Label>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <Label className="text-muted-foreground">
-                        Current HP
-                      </Label>
-                    </div>
-                    <div
-                      className={`grid gap-2 ${cardSpans.combat.colSpan <= 1 ? "col-span-1" : "col-span-1"}`}
-                    >
-                      <div className="flex justify-start items-center gap-2">
-                        <Dice3 className="w-8 h-8 dark:text-[#b383fe]" />
-                        <div className="flex justify-start items-center">
-                          <p className="text-3xl p-0 w-auto">{`(`}</p>
-                          <SheetInput
-                            isEditing={isEditing}
-                            type="number"
-                            value={sheet.combat.hitDice.amount}
-                            readOnly={!isEditing}
-                            className="text-3xl p-0 w-auto"
-                            onChange={(event) =>
-                              updateCombatField(
-                                "hitDice",
-                                "amount",
-                                event.target.value,
-                              )
-                            }
-                          />
-                          <SheetInput
-                            isEditing={isEditing}
-                            value={sheet.combat.hitDice.diceType}
-                            readOnly={!isEditing}
-                            className="text-3xl p-0 w-auto"
-                            onChange={(event) =>
-                              updateCombatField(
-                                "hitDice",
-                                "diceType",
-                                event.target.value,
-                              )
-                            }
-                          />
-                          <p className="text-3xl p-0 w-auto">{`)`}</p>
-                          <p className="text-3xl p-0 w-auto">
-                            {formatSavingThrow(
-                              sheet.ap.con.base + sheet.ap.con.modifier,
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                      <Label className="text-muted-foreground">Hit Dice</Label>
-                    </div>
-                  </div>
-                  <div className="grid gap-2">
-                    <div className="flex justify-center items-center gap-2">
-                      <Shield className="w-8 h-8 dark:text-[#00FF80]" />
-                      <SheetInput
-                        isEditing={isEditing}
-                        value={sheet.combat.armorClass}
-                        type="number"
-                        readOnly={!isEditing}
-                        className="text-3xl w-full"
-                        onChange={(event) =>
-                          updateCombatField("armorClass", event.target.value)
-                        }
-                      />
-                    </div>
-                    <Label className="text-muted-foreground">Armor Class</Label>
-                  </div>
-                  <div className="grid gap-2">
-                    <div className="flex justify-start items-center gap-2">
-                      <Swords className="w-8 h-8 dark:text-[yellow]" />
-                      <div className="flex justify-center items-center">
-                        {sheet.combat.initiative >= 0 && (
-                          <p className="text-3xl">+</p>
-                        )}
-
-                        <SheetInput
-                          isEditing={isEditing}
-                          type="number"
-                          value={sheet.combat.initiative}
-                          readOnly={!isEditing}
-                          className="text-3xl w-full"
-                          onChange={(event) =>
-                            updateCombatField("initiative", event.target.value)
-                          }
-                        />
-                      </div>
-                    </div>
-                    <Label className="text-muted-foreground">Initiative</Label>
-                  </div>
-                  <div className="grid gap-2">
-                    <div className="flex justify-center items-center gap-2">
-                      <Footprints className="w-8 h-8" color="grey" />
-                      <SheetInput
-                        isEditing={isEditing}
-                        value={sheet.combat.speed}
-                        readOnly={!isEditing}
-                        className="text-3xl w-full whitespace-nowrap"
-                        onChange={(event) =>
-                          updateCombatField("speed", event.target.value)
-                        }
-                      />
-                    </div>
-                    <Label className="text-muted-foreground">Speed (ft)</Label>
-                  </div>
-                  <div className="grid gap-2">
-                    <div className="flex justify-start items-center gap-2">
-                      <Triangle className="w-8 h-8 text-[#3888F2]" />
-                      <div className="flex justify-center items-center">
-                        <p className="text-3xl">+</p>
-                        <SheetInput
-                          isEditing={isEditing}
-                          value={sheet.combat.proficiencyBonus}
-                          readOnly={!isEditing}
-                          type="number"
-                          className="text-3xl w-full"
-                          onChange={(event) =>
-                            updateCombatField(
-                              "proficiencyBonus",
-                              event.target.value,
-                            )
-                          }
-                        />
-                      </div>
-                    </div>
-                    <Label className="text-muted-foreground">
-                      Proficiency Bonus
-                    </Label>
-                  </div>
-                  <div className="grid gap-2">
-                    <div className="flex justify-center items-center gap-2">
-                      <Skull className="w-8 h-8" color="#ef4444" />
-                      <SheetInput
-                        isEditing={isEditing}
-                        value={`${sheet.combat.deathSavesSuccesses}/${sheet.combat.deathSavesFailures}`}
-                        readOnly={!isEditing}
-                        className="text-3xl w-full"
-                        onChange={(event) => {
-                          const [s = "", f = ""] = event.target.value
-                            .split("/")
-                            .map((part) => part.trim());
-                          updateCombatField("deathSavesSuccesses", s);
-                          updateCombatField("deathSavesFailures", f);
-                        }}
-                      />
-                    </div>
-                    <Label className="text-muted-foreground">
-                      Death Saves (S/F)
-                    </Label>
-                  </div>
-                </ExpandableCardModal>
-                {renderResizeHandle(sectionId)}
-              </div>
-            );
-          }
-
-          if (sectionId === "savingThrows") {
-            return (
-              <div
-                key={sectionId}
-                data-section-id={sectionId}
-                className={cn(getCardWrapperClasses(sectionId))}
-                style={getGridSpanStyle(sectionId)}
-                {...dragHandlers(sectionId)}
-              >
-                <ExpandableCardModal
-                  showDragHandle={layoutConfig.isDragEnabled}
-                  showToggleButton={isEditing}
-                  title="Saving Throws"
-                  cardClassName="h-full"
-                  headerClassName={getHeaderHandleClasses()}
-                  onHeaderPointerDown={(event) =>
-                    armDragHandle(sectionId, event)
-                  }
-                  contentClassName={`grid grid-cols-2 ${cardSpans.savingThrows.colSpan <= 1 ? "md:grid-cols-1" : "md:grid-cols-2"}`}
-                >
-                  {abilities.map((ability, i) => (
-                    <div key={ability.key}>
-                      <div
-                        className={`flex gap-2 justify-start items-center border-muted border-solid py-1 ${i < abilities.length - 1 ? "[border-bottom-width:1px]" : ""}`}
-                      >
-                        {isEditing && (
-                          <>
-                            <div className="flex justify-center items-center gap-1">
-                              <p>{`(`}</p>
-                              <div className="flex justify-center items-center gap-2">
-                                <Checkbox
-                                  id={`saving-throw-${ability.key}-proficiency`}
-                                  name={`saving-throw-${ability.key}-proficiency`}
-                                  checked={
-                                    sheet.savingThrow[ability.key].isProficient
-                                  }
-                                  onCheckedChange={(value) =>
-                                    updateSavingThrowProficiency(
+                              </div>
+                              <p>+</p>
+                              <div className="flex flex-col items-center justify-center gap-2">
+                                <SheetInput
+                                  isEditing={isEditing}
+                                  value={sheet.ap[ability.key].modifier}
+                                  type="number"
+                                  readOnly={!isEditing}
+                                  className="text-lg w-full p-0"
+                                  onChange={(event) =>
+                                    updateAbilityModifier(
                                       ability.key,
-                                      value === true,
+                                      event.target.value,
                                     )
                                   }
                                 />
-                                <p className="text-sm">Add Proficiency</p>
+                                <Label className="text-muted-foreground">
+                                  Modifier
+                                </Label>
                               </div>
-                              <p>{`)`}</p>
                             </div>
-                            <Label className="text-sm">
-                              Additional Modifiers
-                            </Label>
+                          )}
+                          <Label className="text-muted-foreground hover:bg-stone-600">
+                            {ability.label}
+                          </Label>
+                        </div>
+                      </div>
+                    ))}
+                  </ExpandableCardModal>
+                  {renderResizeHandle(sectionId)}
+                </div>
+              );
+            }
+
+            if (sectionId === "combat") {
+              return (
+                <div
+                  key={sectionId}
+                  data-section-id={sectionId}
+                  className={cn(getCardWrapperClasses(sectionId))}
+                  style={getGridSpanStyle(sectionId)}
+                  {...dragHandlers(sectionId)}
+                >
+                  <ExpandableCardModal
+                    showDragHandle={layoutConfig.isDragEnabled}
+                    showToggleButton={isEditing}
+                    title="Combat"
+                    cardClassName="h-full"
+                    headerClassName={getHeaderHandleClasses()}
+                    onHeaderPointerDown={(event) =>
+                      armDragHandle(sectionId, event)
+                    }
+                    contentClassName={`grid gap-6 ${cardSpans.combat.colSpan <= 1 ? "grid-cols-2" : "grid-cols-3"}`}
+                  >
+                    <div
+                      className={`grid gap-6 ${cardSpans.combat.colSpan <= 1 ? "grid-cols-1 col-span-2" : "grid-cols-2 col-span-3"}`}
+                    >
+                      <div
+                        className={`grid gap-2 ${cardSpans.combat.colSpan <= 1 ? "col-span-1" : "col-span-1"}`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Heart size={24} color="pink" />
+                          <div className="flex items-center">
                             <SheetInput
                               isEditing={isEditing}
-                              value={sheet.savingThrow[ability.key].modifier}
                               type="number"
+                              value={sheet.combat.currentHp}
                               readOnly={!isEditing}
-                              className="w-auto"
+                              className="text-3xl p-0 w-auto"
                               onChange={(event) =>
-                                updateSavingThrowModifier(
-                                  ability.key,
+                                updateCombatField(
+                                  "currentHp",
                                   event.target.value,
                                 )
                               }
                             />
-                          </>
-                        )}
-                        <p className="pr-3 text-md leading-7 w-[15%]">
-                          {`${formatSavingThrow(
-                            sheet.ap[ability.key].base +
-                              sheet.ap[ability.key].modifier,
-                            [
-                              sheet.savingThrow[ability.key].modifier,
-                              sheet.savingThrow[ability.key].isProficient
-                                ? sheet.combat.proficiencyBonus
-                                : 0,
-                            ],
-                          )}`}
-                        </p>
-                        {sheet.savingThrow[ability.key].isProficient && (
-                          <Triangle className="w-3 h-3 text-[#3888F2] dark:text-[#3888F2]" />
-                        )}
-                        <Label
-                          className="rounded-sm px-1 hover:bg-stone-600 hover:cursor-pointer "
-                          onClick={() =>
-                            handleQuickLookup("ability-scores", ability.key)
-                          }
-                          onKeyDown={(event) => {
-                            if (event.key === "Enter" || event.key === " ") {
-                              event.preventDefault();
-                              handleQuickLookup("ability-scores", ability.key);
-                            }
-                          }}
-                        >
-                          {ability.label}
+                            <p className="text-4xl w-auto text-center">/</p>
+                            <SheetInput
+                              isEditing={isEditing}
+                              type="number"
+                              value={sheet.combat.maxHp}
+                              readOnly={!isEditing}
+                              className="text-3xl p-0 w-auto"
+                              onChange={(event) =>
+                                updateCombatField("maxHp", event.target.value)
+                              }
+                            />
+                            {(sheet.combat.tempHp > 0 || isEditing) && (
+                              <div className="grid">
+                                <div className="flex justify-center items-center gap-1">
+                                  <p className="ml-1">{`(`}</p>
+                                  <p className="text-[#00A3A3] dark:text-[#00FFFF]">
+                                    +
+                                  </p>
+                                  <SheetInput
+                                    isEditing={isEditing}
+                                    type="number"
+                                    value={sheet.combat.tempHp}
+                                    readOnly={!isEditing}
+                                    className="text-3xl w-auto pr-0 text-[#00A3A3] dark:text-[#00FFFF]"
+                                    onChange={(event) =>
+                                      updateCombatField(
+                                        "tempHp",
+                                        event.target.value,
+                                      )
+                                    }
+                                  />
+                                  <HeartPlus
+                                    size={18}
+                                    className="text-[#00A3A3] dark:text-[#00FFFF]"
+                                  />
+                                  <p>{`)`}</p>
+                                </div>
+                                {isEditing && (
+                                  <Label className="text-muted-foreground text-xs">
+                                    Temp HP
+                                  </Label>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <Label className="text-muted-foreground">
+                          Current HP
+                        </Label>
+                      </div>
+                      <div
+                        className={`grid gap-2 ${cardSpans.combat.colSpan <= 1 ? "col-span-1" : "col-span-1"}`}
+                      >
+                        <div className="flex justify-start items-center gap-2">
+                          <Dice3 className="w-8 h-8 dark:text-[#b383fe]" />
+                          <div className="flex justify-start items-center">
+                            <p className="text-3xl p-0 w-auto">{`(`}</p>
+                            <SheetInput
+                              isEditing={isEditing}
+                              type="number"
+                              value={sheet.combat.hitDice.amount}
+                              readOnly={!isEditing}
+                              className="text-3xl p-0 w-auto"
+                              onChange={(event) =>
+                                updateCombatField(
+                                  "hitDice",
+                                  "amount",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                            <SheetInput
+                              isEditing={isEditing}
+                              value={sheet.combat.hitDice.diceType}
+                              readOnly={!isEditing}
+                              className="text-3xl p-0 w-auto"
+                              onChange={(event) =>
+                                updateCombatField(
+                                  "hitDice",
+                                  "diceType",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                            <p className="text-3xl p-0 w-auto">{`)`}</p>
+                            <p className="text-3xl p-0 w-auto">
+                              {formatSavingThrow(
+                                sheet.ap.con.base + sheet.ap.con.modifier,
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                        <Label className="text-muted-foreground">
+                          Hit Dice
                         </Label>
                       </div>
                     </div>
-                  ))}
-                </ExpandableCardModal>
-                {renderResizeHandle(sectionId)}
-              </div>
-            );
-          }
+                    <div className="grid gap-2">
+                      <div className="flex justify-center items-center gap-2">
+                        <Shield className="w-8 h-8 dark:text-[#00FF80]" />
+                        <SheetInput
+                          isEditing={isEditing}
+                          value={sheet.combat.armorClass}
+                          type="number"
+                          readOnly={!isEditing}
+                          className="text-3xl w-full"
+                          onChange={(event) =>
+                            updateCombatField("armorClass", event.target.value)
+                          }
+                        />
+                      </div>
+                      <Label className="text-muted-foreground">
+                        Armor Class
+                      </Label>
+                    </div>
+                    <div className="grid gap-2">
+                      <div className="flex justify-start items-center gap-2">
+                        <Swords className="w-8 h-8 dark:text-[yellow]" />
+                        <div className="flex justify-center items-center">
+                          {sheet.combat.initiative >= 0 && (
+                            <p className="text-3xl">+</p>
+                          )}
 
-          if (sectionId === "skills") {
-            return (
-              <div
-                key={sectionId}
-                data-section-id={sectionId}
-                className={cn(getCardWrapperClasses(sectionId))}
-                style={getGridSpanStyle(sectionId)}
-                {...dragHandlers(sectionId)}
-              >
-                <ExpandableCardModal
-                  showDragHandle={layoutConfig.isDragEnabled}
-                  showToggleButton={isEditing}
-                  title="Skills"
-                  cardClassName="h-full"
-                  headerClassName={getHeaderHandleClasses()}
-                  onHeaderPointerDown={(event) =>
-                    armDragHandle(sectionId, event)
-                  }
-                  contentClassName={`grid grid-cols-2 ${cardSpans.skills.colSpan <= 1 ? "md:grid-cols-1" : "md:grid-cols-2"}`}
+                          <SheetInput
+                            isEditing={isEditing}
+                            type="number"
+                            value={sheet.combat.initiative}
+                            readOnly={!isEditing}
+                            className="text-3xl w-full"
+                            onChange={(event) =>
+                              updateCombatField(
+                                "initiative",
+                                event.target.value,
+                              )
+                            }
+                          />
+                        </div>
+                      </div>
+                      <Label className="text-muted-foreground">
+                        Initiative
+                      </Label>
+                    </div>
+                    <div className="grid gap-2">
+                      <div className="flex justify-center items-center gap-2">
+                        <Footprints className="w-8 h-8" color="grey" />
+                        <SheetInput
+                          isEditing={isEditing}
+                          value={sheet.combat.speed}
+                          readOnly={!isEditing}
+                          className="text-3xl w-full whitespace-nowrap"
+                          onChange={(event) =>
+                            updateCombatField("speed", event.target.value)
+                          }
+                        />
+                      </div>
+                      <Label className="text-muted-foreground">
+                        Speed (ft)
+                      </Label>
+                    </div>
+                    <div className="grid gap-2">
+                      <div className="flex justify-start items-center gap-2">
+                        <Triangle className="w-8 h-8 text-[#3888F2]" />
+                        <div className="flex justify-center items-center">
+                          <p className="text-3xl">+</p>
+                          <SheetInput
+                            isEditing={isEditing}
+                            value={sheet.combat.proficiencyBonus}
+                            readOnly={!isEditing}
+                            type="number"
+                            className="text-3xl w-full"
+                            onChange={(event) =>
+                              updateCombatField(
+                                "proficiencyBonus",
+                                event.target.value,
+                              )
+                            }
+                          />
+                        </div>
+                      </div>
+                      <Label className="text-muted-foreground">
+                        Proficiency Bonus
+                      </Label>
+                    </div>
+                    <div className="grid gap-2">
+                      <div className="flex justify-center items-center gap-2">
+                        <Skull className="w-8 h-8" color="#ef4444" />
+                        <SheetInput
+                          isEditing={isEditing}
+                          value={`${sheet.combat.deathSavesSuccesses}/${sheet.combat.deathSavesFailures}`}
+                          readOnly={!isEditing}
+                          className="text-3xl w-full"
+                          onChange={(event) => {
+                            const [s = "", f = ""] = event.target.value
+                              .split("/")
+                              .map((part) => part.trim());
+                            updateCombatField("deathSavesSuccesses", s);
+                            updateCombatField("deathSavesFailures", f);
+                          }}
+                        />
+                      </div>
+                      <Label className="text-muted-foreground">
+                        Death Saves (S/F)
+                      </Label>
+                    </div>
+                  </ExpandableCardModal>
+                  {renderResizeHandle(sectionId)}
+                </div>
+              );
+            }
+
+            if (sectionId === "savingThrows") {
+              return (
+                <div
+                  key={sectionId}
+                  data-section-id={sectionId}
+                  className={cn(getCardWrapperClasses(sectionId))}
+                  style={getGridSpanStyle(sectionId)}
+                  {...dragHandlers(sectionId)}
                 >
-                  <TooltipProvider>
-                    {skills.map((skill, i) => (
-                      <div key={skill.key}>
+                  <ExpandableCardModal
+                    showDragHandle={layoutConfig.isDragEnabled}
+                    showToggleButton={isEditing}
+                    title="Saving Throws"
+                    cardClassName="h-full"
+                    headerClassName={getHeaderHandleClasses()}
+                    onHeaderPointerDown={(event) =>
+                      armDragHandle(sectionId, event)
+                    }
+                    contentClassName={`grid grid-cols-2 ${cardSpans.savingThrows.colSpan <= 1 ? "md:grid-cols-1" : "md:grid-cols-2"}`}
+                  >
+                    {abilities.map((ability, i) => (
+                      <div key={ability.key}>
                         <div
-                          className={`flex gap-2 justify-start items-center border-muted border-solid py-1 ${i < skills.length - 1 ? "[border-bottom-width:1px]" : ""}`}
+                          className={`flex gap-2 justify-start items-center border-muted border-solid py-1 ${i < abilities.length - 1 ? "[border-bottom-width:1px]" : ""}`}
                         >
                           {isEditing && (
                             <>
@@ -1493,14 +1405,15 @@ export function DndCharacterSheet({
                                 <p>{`(`}</p>
                                 <div className="flex justify-center items-center gap-2">
                                   <Checkbox
-                                    id={`skill-${skill.key}-proficiency`}
-                                    name={`skill-${skill.key}-proficiency`}
+                                    id={`saving-throw-${ability.key}-proficiency`}
+                                    name={`saving-throw-${ability.key}-proficiency`}
                                     checked={
-                                      sheet.skills[skill.key].isProficient
+                                      sheet.savingThrow[ability.key]
+                                        .isProficient
                                     }
                                     onCheckedChange={(value) =>
-                                      updateSkillProficiency(
-                                        skill.key,
+                                      updateSavingThrowProficiency(
+                                        ability.key,
                                         value === true,
                                       )
                                     }
@@ -1514,332 +1427,445 @@ export function DndCharacterSheet({
                               </Label>
                               <SheetInput
                                 isEditing={isEditing}
-                                value={sheet.skills[skill.key].modifier}
+                                value={sheet.savingThrow[ability.key].modifier}
                                 type="number"
                                 readOnly={!isEditing}
                                 className="w-auto"
                                 onChange={(event) =>
-                                  updateSkillModifier(
-                                    skill.key,
+                                  updateSavingThrowModifier(
+                                    ability.key,
                                     event.target.value,
                                   )
                                 }
                               />
                             </>
                           )}
-
                           <p className="pr-3 text-md leading-7 w-[15%]">
-                            {`${formatSavingThrow(sheet.ap[sheet.skills[skill.key].baseApType].base + sheet.ap[sheet.skills[skill.key].baseApType].modifier, [sheet.skills[skill.key].modifier, sheet.skills[skill.key].isProficient ? sheet.combat.proficiencyBonus : 0])}`}
+                            {`${formatSavingThrow(
+                              sheet.ap[ability.key].base +
+                                sheet.ap[ability.key].modifier,
+                              [
+                                sheet.savingThrow[ability.key].modifier,
+                                sheet.savingThrow[ability.key].isProficient
+                                  ? sheet.combat.proficiencyBonus
+                                  : 0,
+                              ],
+                            )}`}
                           </p>
-                          {sheet.skills[skill.key].isProficient && (
+                          {sheet.savingThrow[ability.key].isProficient && (
                             <Triangle className="w-3 h-3 text-[#3888F2] dark:text-[#3888F2]" />
                           )}
-                          {/* {const skills = await lookupSrd2014Indexes("skills", [
-                "athletics",
-              ]);} */}
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Label
-                                role="button"
-                                tabIndex={0}
-                                className="cursor-pointer rounded-sm px-1 hover:bg-stone-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                                onClick={() =>
-                                  handleQuickLookup("skills", skill.key)
-                                }
-                                onKeyDown={(event) => {
-                                  if (
-                                    event.key === "Enter" ||
-                                    event.key === " "
-                                  ) {
-                                    event.preventDefault();
-                                    handleQuickLookup("skills", skill.key);
-                                  }
-                                }}
-                              >
-                                {skill.label}
-                              </Label>
-                            </TooltipTrigger>
-                            {/* <TooltipContent>
-                              <p>sup</p>
-                            </TooltipContent> */}
-                          </Tooltip>
+                          <Label
+                            className="rounded-sm px-1 hover:bg-stone-600 hover:cursor-pointer "
+                            onClick={() =>
+                              handleQuickLookup("ability-scores", ability.key)
+                            }
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter" || event.key === " ") {
+                                event.preventDefault();
+                                handleQuickLookup(
+                                  "ability-scores",
+                                  ability.key,
+                                );
+                              }
+                            }}
+                          >
+                            {ability.label}
+                          </Label>
                         </div>
                       </div>
                     ))}
-                  </TooltipProvider>
-                </ExpandableCardModal>
-                {renderResizeHandle(sectionId)}
-              </div>
-            );
-          }
+                  </ExpandableCardModal>
+                  {renderResizeHandle(sectionId)}
+                </div>
+              );
+            }
 
-          if (sectionId === "equipment") {
-            return (
-              <div
-                key={sectionId}
-                data-section-id={sectionId}
-                className={cn(getCardWrapperClasses(sectionId))}
-                style={getGridSpanStyle(sectionId)}
-                {...dragHandlers(sectionId)}
-              >
-                <ExpandableCardModal
-                  showDragHandle={layoutConfig.isDragEnabled}
-                  showToggleButton={isEditing}
-                  title="Equipment"
-                  cardClassName="h-full"
-                  headerClassName={getHeaderHandleClasses()}
-                  onHeaderPointerDown={(event) =>
-                    armDragHandle(sectionId, event)
-                  }
+            if (sectionId === "skills") {
+              return (
+                <div
+                  key={sectionId}
+                  data-section-id={sectionId}
+                  className={cn(getCardWrapperClasses(sectionId))}
+                  style={getGridSpanStyle(sectionId)}
+                  {...dragHandlers(sectionId)}
                 >
-                  <EditableListField
-                    value={sheet.equipment}
-                    isEditing={isEditing}
-                    className="min-h-32"
-                    onChange={(value) =>
-                      updateListOrBackstoryField("equipment", value)
+                  <ExpandableCardModal
+                    showDragHandle={layoutConfig.isDragEnabled}
+                    showToggleButton={isEditing}
+                    title="Skills"
+                    cardClassName="h-full"
+                    headerClassName={getHeaderHandleClasses()}
+                    onHeaderPointerDown={(event) =>
+                      armDragHandle(sectionId, event)
                     }
-                    placeholder="Add equipment..."
-                  />
-                </ExpandableCardModal>
-                {renderResizeHandle(sectionId)}
-              </div>
-            );
-          }
-
-          if (sectionId === "features") {
-            return (
-              <div
-                key={sectionId}
-                data-section-id={sectionId}
-                className={cn(getCardWrapperClasses(sectionId))}
-                style={getGridSpanStyle(sectionId)}
-                {...dragHandlers(sectionId)}
-              >
-                <ExpandableCardModal
-                  showDragHandle={layoutConfig.isDragEnabled}
-                  showToggleButton={isEditing}
-                  title="Features & Traits"
-                  cardClassName="h-full"
-                  headerClassName={getHeaderHandleClasses()}
-                  onHeaderPointerDown={(event) =>
-                    armDragHandle(sectionId, event)
-                  }
-                >
-                  <EditableListField
-                    value={sheet.featuresAndTraits}
-                    isEditing={isEditing}
-                    className="min-h-32"
-                    onChange={(value) =>
-                      updateListOrBackstoryField("featuresAndTraits", value)
-                    }
-                    placeholder="Add feature or trait..."
-                  />
-                </ExpandableCardModal>
-                {renderResizeHandle(sectionId)}
-              </div>
-            );
-          }
-
-          if (sectionId === "spells") {
-            return (
-              <div
-                key={sectionId}
-                data-section-id={sectionId}
-                className={cn(getCardWrapperClasses(sectionId))}
-                style={getGridSpanStyle(sectionId)}
-                {...dragHandlers(sectionId)}
-              >
-                <ExpandableCardModal
-                  showDragHandle={layoutConfig.isDragEnabled}
-                  showToggleButton={isEditing}
-                  title="Spells"
-                  cardClassName="h-full"
-                  headerClassName={getHeaderHandleClasses()}
-                  onHeaderPointerDown={(event) =>
-                    armDragHandle(sectionId, event)
-                  }
-                >
-                  <div className="space-y-2 pb-4">
-                    <div className="flex items-center justify-between">
-                      {sheet.spells.slots.length > 0 && (
-                        <p className="text-sm font-medium">Spell Slots</p>
-                      )}
-                      {isEditing && (
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          onClick={addSpellSlot}
-                        >
-                          <Plus className="mr-1 h-4 w-4" />
-                          Add Spell Slot
-                        </Button>
-                      )}
-                    </div>
-                    <div
-                      className={`grid justify-center items-center gap-2 ${cardSpans.spells.colSpan <= 1 ? "grid-cols-1" : "grid-cols-3"}`}
-                    >
-                      {sheet.spells.slots.map((slot, index) => (
-                        <div
-                          key={`slot-${index}`}
-                          className="p-2 rounded-md border col-span-1"
-                        >
-                          <div className="leading-tight flex-1 pr-2">
-                            <SheetInput
-                              isEditing={isEditing}
-                              value={slot.title}
-                              readOnly={!isEditing}
-                              className="text-sm font-medium h-auto w-auto"
-                              onChange={(event) =>
-                                updateSpellSlotTitle(index, event.target.value)
-                              }
-                            />
-                          </div>
-                          <div className="flex items-center gap-2 justify-between">
-                            <div className="grid items-center grid-cols-4 gap-1">
-                              {Array.from({ length: slot.max }).map((_, i) => (
-                                <Diamond
-                                  key={`slot-${index}-diamond-${i}`}
-                                  className={cn(
-                                    "h-5 w-5 transition-colors",
-                                    i < slot.amount
-                                      ? "text-cyan-400"
-                                      : "text-muted-foreground",
-                                  )}
+                    contentClassName={`grid grid-cols-2 ${cardSpans.skills.colSpan <= 1 ? "md:grid-cols-1" : "md:grid-cols-2"}`}
+                  >
+                    <TooltipProvider>
+                      {skills.map((skill, i) => (
+                        <div key={skill.key}>
+                          <div
+                            className={`flex gap-2 justify-start items-center border-muted border-solid py-1 ${i < skills.length - 1 ? "[border-bottom-width:1px]" : ""}`}
+                          >
+                            {isEditing && (
+                              <>
+                                <div className="flex justify-center items-center gap-1">
+                                  <p>{`(`}</p>
+                                  <div className="flex justify-center items-center gap-2">
+                                    <Checkbox
+                                      id={`skill-${skill.key}-proficiency`}
+                                      name={`skill-${skill.key}-proficiency`}
+                                      checked={
+                                        sheet.skills[skill.key].isProficient
+                                      }
+                                      onCheckedChange={(value) =>
+                                        updateSkillProficiency(
+                                          skill.key,
+                                          value === true,
+                                        )
+                                      }
+                                    />
+                                    <p className="text-sm">Add Proficiency</p>
+                                  </div>
+                                  <p>{`)`}</p>
+                                </div>
+                                <Label className="text-sm">
+                                  Additional Modifiers
+                                </Label>
+                                <SheetInput
+                                  isEditing={isEditing}
+                                  value={sheet.skills[skill.key].modifier}
+                                  type="number"
+                                  readOnly={!isEditing}
+                                  className="w-auto"
+                                  onChange={(event) =>
+                                    updateSkillModifier(
+                                      skill.key,
+                                      event.target.value,
+                                    )
+                                  }
                                 />
-                              ))}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <p className="text-xs tabular-nums text-muted-foreground">
-                                {slot.amount}/{slot.max}
-                              </p>
-                              {isEditing && (
-                                <div className="flex items-center gap-1">
-                                  <BaseInput
-                                    type="number"
-                                    value={slot.amount}
-                                    onChange={(event) =>
-                                      updateSpellSlotAmountInput(
-                                        index,
-                                        event.target.value,
-                                      )
+                              </>
+                            )}
+
+                            <p className="pr-3 text-md leading-7 w-[15%]">
+                              {`${formatSavingThrow(sheet.ap[sheet.skills[skill.key].baseApType].base + sheet.ap[sheet.skills[skill.key].baseApType].modifier, [sheet.skills[skill.key].modifier, sheet.skills[skill.key].isProficient ? sheet.combat.proficiencyBonus : 0])}`}
+                            </p>
+                            {sheet.skills[skill.key].isProficient && (
+                              <Triangle className="w-3 h-3 text-[#3888F2] dark:text-[#3888F2]" />
+                            )}
+                            {/* {const skills = await lookupSrd2014Indexes("skills", [
+                "athletics",
+              ]);} */}
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Label
+                                  role="button"
+                                  tabIndex={0}
+                                  className="cursor-pointer rounded-sm px-1 hover:bg-stone-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                  onClick={() =>
+                                    handleQuickLookup("skills", skill.key)
+                                  }
+                                  onKeyDown={(event) => {
+                                    if (
+                                      event.key === "Enter" ||
+                                      event.key === " "
+                                    ) {
+                                      event.preventDefault();
+                                      handleQuickLookup("skills", skill.key);
                                     }
-                                    className="h-8 w-14"
-                                  />
-                                  <span className="text-xs text-muted-foreground">
-                                    /
-                                  </span>
-                                  <BaseInput
-                                    type="number"
-                                    value={slot.max}
-                                    onChange={(event) =>
-                                      updateSpellSlotMax(
-                                        index,
-                                        event.target.value,
-                                      )
-                                    }
-                                    className="h-8 w-14"
-                                  />
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    aria-label="Remove list item"
-                                    onClick={() => removeSpellSlot(slot.id)}
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              )}
-                              {!isEditing && (
-                                <div className="flex flex-col">
-                                  <Button
-                                    type="button"
-                                    size="icon"
-                                    variant="ghost"
-                                    className="h-5 w-5"
-                                    onClick={() =>
-                                      updateSpellSlotAmount(index, 1)
-                                    }
-                                    disabled={slot.amount >= slot.max}
-                                    aria-label={`Increase ${slot.title} slots`}
-                                  >
-                                    <ChevronUp className="h-3 w-3" />
-                                  </Button>
-                                  <Button
-                                    type="button"
-                                    size="icon"
-                                    variant="ghost"
-                                    className="h-5 w-5"
-                                    onClick={() =>
-                                      updateSpellSlotAmount(index, -1)
-                                    }
-                                    disabled={slot.amount <= 0}
-                                    aria-label={`Decrease ${slot.title} slots`}
-                                  >
-                                    <ChevronDown className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              )}
-                            </div>
+                                  }}
+                                >
+                                  {skill.label}
+                                </Label>
+                              </TooltipTrigger>
+                              {/* <TooltipContent>
+                              <p>sup</p>
+                            </TooltipContent> */}
+                            </Tooltip>
                           </div>
                         </div>
                       ))}
-                    </div>
-                  </div>
-                  <EditableListField
-                    value={sheet.spells.list}
-                    isEditing={isEditing}
-                    className="min-h-32"
-                    onChange={updateSpellList}
-                    placeholder="Add spell..."
-                  />
-                </ExpandableCardModal>
-                {renderResizeHandle(sectionId)}
-              </div>
-            );
-          }
+                    </TooltipProvider>
+                  </ExpandableCardModal>
+                  {renderResizeHandle(sectionId)}
+                </div>
+              );
+            }
 
-          if (sectionId === "backstory") {
-            return (
-              <div
-                key={sectionId}
-                data-section-id={sectionId}
-                className={cn(getCardWrapperClasses(sectionId))}
-                style={getGridSpanStyle(sectionId)}
-                {...dragHandlers(sectionId)}
-              >
-                <ExpandableCardModal
-                  showDragHandle={layoutConfig.isDragEnabled}
-                  showToggleButton={isEditing}
-                  title="Backstory"
-                  cardClassName="h-full"
-                  headerClassName={getHeaderHandleClasses()}
-                  onHeaderPointerDown={(event) =>
-                    armDragHandle(sectionId, event)
-                  }
+            if (sectionId === "equipment") {
+              return (
+                <div
+                  key={sectionId}
+                  data-section-id={sectionId}
+                  className={cn(getCardWrapperClasses(sectionId))}
+                  style={getGridSpanStyle(sectionId)}
+                  {...dragHandlers(sectionId)}
                 >
-                  <SheetTextarea
-                    isEditing={isEditing}
-                    value={sheet.backstory}
-                    readOnly={!isEditing}
-                    className={cn("min-h-40", editableInputClass)}
-                    onChange={(event) =>
-                      updateListOrBackstoryField(
-                        "backstory",
-                        event.target.value,
-                      )
+                  <ExpandableCardModal
+                    showDragHandle={layoutConfig.isDragEnabled}
+                    showToggleButton={isEditing}
+                    title="Equipment"
+                    cardClassName="h-full"
+                    headerClassName={getHeaderHandleClasses()}
+                    onHeaderPointerDown={(event) =>
+                      armDragHandle(sectionId, event)
                     }
-                  />
-                </ExpandableCardModal>
-                {renderResizeHandle(sectionId)}
-              </div>
-            );
-          }
+                  >
+                    <EditableListField
+                      value={sheet.equipment}
+                      isEditing={isEditing}
+                      className="min-h-32"
+                      onChange={(value) =>
+                        updateListOrBackstoryField("equipment", value)
+                      }
+                      placeholder="Add equipment..."
+                    />
+                  </ExpandableCardModal>
+                  {renderResizeHandle(sectionId)}
+                </div>
+              );
+            }
 
-          return null;
-        })}
+            if (sectionId === "features") {
+              return (
+                <div
+                  key={sectionId}
+                  data-section-id={sectionId}
+                  className={cn(getCardWrapperClasses(sectionId))}
+                  style={getGridSpanStyle(sectionId)}
+                  {...dragHandlers(sectionId)}
+                >
+                  <ExpandableCardModal
+                    showDragHandle={layoutConfig.isDragEnabled}
+                    showToggleButton={isEditing}
+                    title="Features & Traits"
+                    cardClassName="h-full"
+                    headerClassName={getHeaderHandleClasses()}
+                    onHeaderPointerDown={(event) =>
+                      armDragHandle(sectionId, event)
+                    }
+                  >
+                    <EditableListField
+                      value={sheet.featuresAndTraits}
+                      isEditing={isEditing}
+                      className="min-h-32"
+                      onChange={(value) =>
+                        updateListOrBackstoryField("featuresAndTraits", value)
+                      }
+                      placeholder="Add feature or trait..."
+                    />
+                  </ExpandableCardModal>
+                  {renderResizeHandle(sectionId)}
+                </div>
+              );
+            }
+
+            if (sectionId === "spells") {
+              return (
+                <div
+                  key={sectionId}
+                  data-section-id={sectionId}
+                  className={cn(getCardWrapperClasses(sectionId))}
+                  style={getGridSpanStyle(sectionId)}
+                  {...dragHandlers(sectionId)}
+                >
+                  <ExpandableCardModal
+                    showDragHandle={layoutConfig.isDragEnabled}
+                    showToggleButton={isEditing}
+                    title="Spells"
+                    cardClassName="h-full"
+                    headerClassName={getHeaderHandleClasses()}
+                    onHeaderPointerDown={(event) =>
+                      armDragHandle(sectionId, event)
+                    }
+                  >
+                    <div className="space-y-2 pb-4">
+                      <div className="flex items-center justify-between">
+                        {sheet.spells.slots.length > 0 && (
+                          <p className="text-sm font-medium">Spell Slots</p>
+                        )}
+                        {isEditing && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={addSpellSlot}
+                          >
+                            <Plus className="mr-1 h-4 w-4" />
+                            Add Spell Slot
+                          </Button>
+                        )}
+                      </div>
+                      <div
+                        className={`grid justify-center items-center gap-2 ${cardSpans.spells.colSpan <= 1 ? "grid-cols-1" : "grid-cols-3"}`}
+                      >
+                        {sheet.spells.slots.map((slot, index) => (
+                          <div
+                            key={`slot-${index}`}
+                            className="p-2 rounded-md border col-span-1"
+                          >
+                            <div className="leading-tight flex-1 pr-2">
+                              <SheetInput
+                                isEditing={isEditing}
+                                value={slot.title}
+                                readOnly={!isEditing}
+                                className="text-sm font-medium h-auto w-auto"
+                                onChange={(event) =>
+                                  updateSpellSlotTitle(
+                                    index,
+                                    event.target.value,
+                                  )
+                                }
+                              />
+                            </div>
+                            <div className="flex items-center gap-2 justify-between">
+                              <div className="grid items-center grid-cols-4 gap-1">
+                                {Array.from({ length: slot.max }).map(
+                                  (_, i) => (
+                                    <Diamond
+                                      key={`slot-${index}-diamond-${i}`}
+                                      className={cn(
+                                        "h-5 w-5 transition-colors",
+                                        i < slot.amount
+                                          ? "text-cyan-400"
+                                          : "text-muted-foreground",
+                                      )}
+                                    />
+                                  ),
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <p className="text-xs tabular-nums text-muted-foreground">
+                                  {slot.amount}/{slot.max}
+                                </p>
+                                {isEditing && (
+                                  <div className="flex items-center gap-1">
+                                    <BaseInput
+                                      type="number"
+                                      value={slot.amount}
+                                      onChange={(event) =>
+                                        updateSpellSlotAmountInput(
+                                          index,
+                                          event.target.value,
+                                        )
+                                      }
+                                      className="h-8 w-14"
+                                    />
+                                    <span className="text-xs text-muted-foreground">
+                                      /
+                                    </span>
+                                    <BaseInput
+                                      type="number"
+                                      value={slot.max}
+                                      onChange={(event) =>
+                                        updateSpellSlotMax(
+                                          index,
+                                          event.target.value,
+                                        )
+                                      }
+                                      className="h-8 w-14"
+                                    />
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      aria-label="Remove list item"
+                                      onClick={() => removeSpellSlot(slot.id)}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                )}
+                                {!isEditing && (
+                                  <div className="flex flex-col">
+                                    <Button
+                                      type="button"
+                                      size="icon"
+                                      variant="ghost"
+                                      className="h-5 w-5"
+                                      onClick={() =>
+                                        updateSpellSlotAmount(index, 1)
+                                      }
+                                      disabled={slot.amount >= slot.max}
+                                      aria-label={`Increase ${slot.title} slots`}
+                                    >
+                                      <ChevronUp className="h-3 w-3" />
+                                    </Button>
+                                    <Button
+                                      type="button"
+                                      size="icon"
+                                      variant="ghost"
+                                      className="h-5 w-5"
+                                      onClick={() =>
+                                        updateSpellSlotAmount(index, -1)
+                                      }
+                                      disabled={slot.amount <= 0}
+                                      aria-label={`Decrease ${slot.title} slots`}
+                                    >
+                                      <ChevronDown className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <EditableListField
+                      value={sheet.spells.list}
+                      isEditing={isEditing}
+                      className="min-h-32"
+                      onChange={updateSpellList}
+                      placeholder="Add spell..."
+                    />
+                  </ExpandableCardModal>
+                  {renderResizeHandle(sectionId)}
+                </div>
+              );
+            }
+
+            if (sectionId === "backstory") {
+              return (
+                <div
+                  key={sectionId}
+                  data-section-id={sectionId}
+                  className={cn(getCardWrapperClasses(sectionId))}
+                  style={getGridSpanStyle(sectionId)}
+                  {...dragHandlers(sectionId)}
+                >
+                  <ExpandableCardModal
+                    showDragHandle={layoutConfig.isDragEnabled}
+                    showToggleButton={isEditing}
+                    title="Backstory"
+                    cardClassName="h-full"
+                    headerClassName={getHeaderHandleClasses()}
+                    onHeaderPointerDown={(event) =>
+                      armDragHandle(sectionId, event)
+                    }
+                  >
+                    <SheetTextarea
+                      isEditing={isEditing}
+                      value={sheet.backstory}
+                      readOnly={!isEditing}
+                      className={cn("min-h-40", editableInputClass)}
+                      onChange={(event) =>
+                        updateListOrBackstoryField(
+                          "backstory",
+                          event.target.value,
+                        )
+                      }
+                    />
+                  </ExpandableCardModal>
+                  {renderResizeHandle(sectionId)}
+                </div>
+              );
+            }
+
+            return null;
+          })}
+        </div>
       </div>
     </div>
   );

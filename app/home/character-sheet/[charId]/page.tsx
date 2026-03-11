@@ -3,7 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { DndCharacterSheet } from "@/components/dnd-character-sheet";
 import { getCharacterById } from "@/api/characters";
-import { updateCharacter } from "./actions";
+import { updateCharacter, updatePlayerNotes } from "./actions";
+import { SearchSidebar } from "@/components/search-sidebar";
+import PlayerNotes from "@/components/search-sidebar/player-notes";
 
 export default async function CharSheetPage({
   params,
@@ -26,12 +28,23 @@ export default async function CharSheetPage({
   }
 
   return (
-    <div>
-      <DndCharacterSheet
-        userCharacterData={character.data}
-        charId={charId}
-        onSave={updateCharacter}
-      />
+    <div className="flex flex-row">
+      <div className="bg-background rounded-3xl w-full">
+        <DndCharacterSheet
+          userCharacterData={character.data}
+          charId={charId}
+          onSave={updateCharacter}
+        />
+      </div>
+      <div>
+        <SearchSidebar>
+          <PlayerNotes
+            charId={charId}
+            value={character.playerNotes}
+            onSave={updatePlayerNotes}
+          />
+        </SearchSidebar>
+      </div>
     </div>
   );
 }

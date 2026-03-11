@@ -27,11 +27,11 @@ export default async function ProtectedLayout({
 
   return (
     <main className="min-h-screen flex flex-row bg-card">
-      <div className="flex-1 w-full flex flex-col items-center">
+      <div className="w-full">
         <nav className="w-full flex justify-center h-16">
           <div className="w-full max-w-screen-2xl flex justify-between items-center p-3 px-5 text-sm">
             <div className="flex gap-5 items-center font-semibold">
-              <Link className="font-medium text-xl" href={"/"}>
+              <Link className="font-medium text-xl" href={"/home"}>
                 ProjectAsobi{" "}
                 <p className="text-xs inline">
                   v{process.env.NEXT_PUBLIC_APP_VERSION}
@@ -44,9 +44,7 @@ export default async function ProtectedLayout({
             </div>
           </div>
         </nav>
-        <div className="w-full flex flex-row justify-center px-4 py-6 rounded-3xl bg-background">
-          <div>{children}</div>
-        </div>
+        <div>{children}</div>
         <footer className="w-full flex items-center justify-center mx-auto text-center text-xs gap-8 py-8">
           <p>
             Built by{" "}
@@ -62,9 +60,9 @@ export default async function ProtectedLayout({
           <ThemeSwitcher />
         </footer>
       </div>
-      <div>
+      {/* <div>
         <SearchSidebar />
-      </div>
+      </div> */}
     </main>
   );
 }

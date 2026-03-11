@@ -3,9 +3,5 @@ export default function CharSheetLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <section className="min-h-screen flex flex-col items-center">
-      {children}
-    </section>
-  );
+  return <section className="min-h-screen">{children}</section>;
 }

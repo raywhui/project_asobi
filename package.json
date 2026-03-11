@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "ProjectAsobi",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",

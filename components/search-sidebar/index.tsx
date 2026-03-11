@@ -488,11 +488,7 @@ export function SearchSidebar({ children }: { children?: ReactNode }) {
           </div>
         </SidebarContent>
       ) : (
-        <SidebarContent className="space-y-3">
-          {/* <PlayerNotes />
-           */}
-          {children}
-        </SidebarContent>
+        <SidebarContent className="space-y-3">{children}</SidebarContent>
       )}
     </Sidebar>
   );

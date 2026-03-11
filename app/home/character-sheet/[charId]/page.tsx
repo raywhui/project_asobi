@@ -40,7 +40,7 @@ export default async function CharSheetPage({
         <SearchSidebar>
           <PlayerNotes
             charId={charId}
-            value={character.playerNotes}
+            initialValue={character.playerNotes}
             onSave={updatePlayerNotes}
           />
         </SearchSidebar>

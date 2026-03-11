@@ -1,30 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, use } from "react";
 import { Textarea } from "../ui/textarea";
 
 type SaveStatus = "saved" | "saving" | "unsaved";
 
-// async function saveNote(content: string): Promise<void> {
-//   await fetch("/api/notes", {
-//     method: "POST",
-//     body: JSON.stringify({ content }),
-//     headers: { "Content-Type": "application/json" },
-//   });
-// }
-
 export default function PlayerNotes({
   charId,
   onSave,
-  value,
+  initialValue,
 }: {
   charId: string;
   onSave: (charId: string, val: string) => Promise<unknown>;
-  value: string | null;
+  initialValue: string | null;
 }) {
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("saved");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const debounceTimer = useRef<ReturnType<typeof setTimeout>>(null);
-  const [saveStatus, setSaveStatus] = useState<SaveStatus>("saved");
 
   const save = useCallback(async (content: string): Promise<void> => {
     setSaveStatus("saving");
@@ -45,6 +37,13 @@ export default function PlayerNotes({
     [save],
   );
 
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.value = initialValue ?? "";
+      console.log("mount textareaRef: ", initialValue);
+    }
+  }, [initialValue]);
+
   // Cleanup timer on unmount
   useEffect(() => {
     return () => clearTimeout(debounceTimer.current ?? undefined);
@@ -56,13 +55,12 @@ export default function PlayerNotes({
         className="min-h-[50dvh]"
         ref={textareaRef}
         onChange={handleChange}
-        defaultValue={value ? value : ""}
       />
       <span className="text-muted-foreground text-xs">
         {saveStatus === "saving"
           ? "Saving..."
           : saveStatus === "saved"
-            ? "✓ Saved"
+            ? "Saved"
             : "Unsaved changes"}
       </span>
     </div>

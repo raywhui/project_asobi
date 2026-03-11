@@ -1673,7 +1673,7 @@ export function DndCharacterSheet({
                   <ExpandableCardModal
                     showDragHandle={layoutConfig.isDragEnabled}
                     showToggleButton={isEditing}
-                    title="Spells"
+                    title="Spells | Attacks"
                     cardClassName="h-full"
                     headerClassName={getHeaderHandleClasses()}
                     onHeaderPointerDown={(event) =>
@@ -1682,9 +1682,9 @@ export function DndCharacterSheet({
                   >
                     <div className="space-y-2 pb-4">
                       <div className="flex items-center justify-between">
-                        {sheet.spells.slots.length > 0 && (
+                        {/* {sheet.spells.slots.length > 0 && (
                           <p className="text-sm font-medium">Spell Slots</p>
-                        )}
+                        )} */}
                         {isEditing && (
                           <Button
                             type="button"
@@ -1703,7 +1703,7 @@ export function DndCharacterSheet({
                         {sheet.spells.slots.map((slot, index) => (
                           <div
                             key={`slot-${index}`}
-                            className="p-2 rounded-md border col-span-1"
+                            className="p-2 rounded-md border col-span-1 flex flex-col h-full"
                           >
                             <div className="leading-tight flex-1 pr-2">
                               <SheetInput
@@ -1778,8 +1778,8 @@ export function DndCharacterSheet({
                                   </div>
                                 )}
                                 {!isEditing && (
-                                  <div className="flex flex-col">
-                                    <Button
+                                  <div className="flex flex-col h-10">
+                                    {/* <Button
                                       type="button"
                                       size="icon"
                                       variant="ghost"
@@ -1804,7 +1804,7 @@ export function DndCharacterSheet({
                                       aria-label={`Decrease ${slot.title} slots`}
                                     >
                                       <ChevronDown className="h-3 w-3" />
-                                    </Button>
+                                    </Button> */}
                                   </div>
                                 )}
                               </div>

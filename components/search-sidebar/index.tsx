@@ -274,25 +274,35 @@ export function SearchSidebar({ children }: { children?: ReactNode }) {
   const filteredResults = useMemo(() => {
     if (categoryFilter !== "spells") return results;
 
+    // console.log(
+    //   (result: { data: { level: number; classes: String[] } }) =>
+    //     Number(result.data.level) === spellLevelFilter,
+    // );
+
+    console.log("spellLevelFilter: ", spellLevelFilter);
+    console.log("classesFilter: ", classesFilter);
+
     const filters = [
       spellLevelFilter === null
         ? null
-        : (result: { data: { level: number; classes: String[] } }) =>
+        : (result: Srd2014SearchResult) =>
             Number(result.data.level) === spellLevelFilter,
 
       classesFilter === null
         ? null
-        : (result: { data: { level: number; classes: String[] } }) =>
+        : (result: Srd2014SearchResult) =>
             (result.data.classes as String[])?.includes(classesFilter),
 
       // add new filters here as single lines
     ].filter(Boolean);
 
+    // console.log(filters);
+
     if (filters.length === 0) return results;
 
     return results.filter((result) =>
       filters.every((fn) => {
-        if (fn) fn(result as any);
+        if (fn) return fn(result);
       }),
     );
   }, [results, categoryFilter, spellLevelFilter, classesFilter]);

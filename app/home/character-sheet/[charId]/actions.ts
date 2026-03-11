@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { updateCharacterById, updatePlayerNotesById } from "@/api/characters";
 import { CharacterSheetState } from "@/data/dnd-character-sheet";
 
@@ -13,5 +14,7 @@ export async function updateCharacter(
 
 export async function updatePlayerNotes(charId: string, value: string) {
   const data = await updatePlayerNotesById(charId, value);
-  return data;
+  // return data;
+  // Revalidation needed to clear the cache of the notes component
+  revalidatePath("/home/character-sheet/[charId]", "page");
 }

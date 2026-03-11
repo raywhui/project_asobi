@@ -75,8 +75,6 @@ export async function updateCharacterById(
 
   if (error) throw new Error(error.message);
 
-  console.log("updated:", data);
-
   return data;
 }
 
@@ -89,8 +87,6 @@ export async function updatePlayerNotesById(charId: string, value: string) {
     .eq("char_id", charId);
 
   if (error) throw new Error(error.message);
-
-  console.log("updated:", data);
 
   return data;
 }

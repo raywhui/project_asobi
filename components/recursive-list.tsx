@@ -81,13 +81,15 @@ function RecursiveListNodeItem({ item, itemKey }: RecursiveListNodeProps) {
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <span className="cursor-pointer rounded-md text-md hover:bg-stone-600">
+            <span className="rounded-md text-base hover:bg-stone-600">
               {item.title}
             </span>
           </TooltipTrigger>
           {item.description.length > 0 && (
             <TooltipContent side="top" className="max-w-96 w-full">
-              <p className="text-sm w-full">{item.description}</p>
+              <p className="text-sm w-full whitespace-pre-wrap">
+                {item.description}
+              </p>
             </TooltipContent>
           )}
         </Tooltip>
@@ -103,7 +105,12 @@ function RecursiveListNodeItem({ item, itemKey }: RecursiveListNodeProps) {
           )}
         >
           <div className="min-h-0">
-            <ul className="mt-1 list-none list-inside border-l-2 border-solid border-l-red-200 pl-2">
+            <ul
+              className={cn(
+                "mt-1 ml-2 ",
+                "border-l-2 border-solid border-l-muted",
+              )}
+            >
               {item.children.map((child, index) => (
                 <RecursiveListNodeItem
                   key={`${itemKey}-${index}-${child.title}`}

@@ -1,6 +1,5 @@
 import { EnvVarWarning } from "@/components/env-var-warning";
 import { AuthButton } from "@/components/auth-button";
-import { SearchSidebar } from "@/components/search-sidebar";
 import { ThemeModeToggle } from "@/components/theme-mode-toggle";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { createClient } from "@/lib/supabase/server";

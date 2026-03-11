@@ -1,7 +1,14 @@
 "use client";
 
-import { PanelRightClose, Search } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { PanelRightClose, PencilLine, Search } from "lucide-react";
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { Input } from "@/components/ui/input";
 import {
@@ -110,9 +117,10 @@ function extractBadges(result: Srd2014SearchResult) {
   return badges.slice(0, 5);
 }
 
-export function SearchSidebar() {
+export function SearchSidebar({ children }: { children?: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+  const [isSearchMode, setIsSearchMode] = useState(true);
   const [query, setQuery] = useState("");
   const [categoryFilter, setCategoryFilter] =
     useState<SrdCategoryFilterValue>(null);
@@ -133,19 +141,24 @@ export function SearchSidebar() {
     closeTimeoutRef.current = null;
   }, []);
 
-  const openSidebar = useCallback(() => {
-    clearCloseTimeout();
-    if (isSidebarVisible) {
-      setIsOpen(true);
-      return;
-    }
+  const openSidebar = useCallback(
+    (mode?: "notes") => {
+      clearCloseTimeout();
+      if (isSidebarVisible) {
+        setIsOpen(true);
+        return;
+      }
 
-    setIsOpen(false);
-    setIsSidebarVisible(true);
-    window.requestAnimationFrame(() => {
-      setIsOpen(true);
-    });
-  }, [clearCloseTimeout, isSidebarVisible]);
+      setIsOpen(false);
+      setIsSidebarVisible(true);
+      mode === "notes" ? setIsSearchMode(false) : setIsSearchMode(true);
+
+      window.requestAnimationFrame(() => {
+        setIsOpen(true);
+      });
+    },
+    [clearCloseTimeout, isSidebarVisible],
+  );
 
   const closeSidebar = useCallback(() => {
     clearCloseTimeout();
@@ -299,21 +312,31 @@ export function SearchSidebar() {
 
   if (!isSidebarVisible) {
     return (
-      <button
-        type="button"
-        onClick={openSidebar}
-        className="bg-background text-foreground fixed top-20 right-20 flex h-10 w-10 shrink-0 items-center justify-center rounded-md border opacity-70 transition-opacity hover:opacity-100"
-        aria-label="Open sidebar"
-      >
-        <Search className="h-4 w-4" />
-      </button>
+      <div className="fixed top-32 right-20">
+        <button
+          type="button"
+          onClick={() => openSidebar()}
+          className="bg-background text-foreground mb-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-md border opacity-70 transition-opacity hover:opacity-100"
+          aria-label="Open sidebar"
+        >
+          <Search className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => openSidebar("notes")}
+          className="bg-background text-foreground flex h-10 w-10 shrink-0 items-center justify-center rounded-md border opacity-70 transition-opacity hover:opacity-100"
+          aria-label="Open sidebar"
+        >
+          <PencilLine className="h-4 w-4" />
+        </button>
+      </div>
     );
   }
 
   return (
     <Sidebar
       side="right"
-      className={`sticky top-16 h-[calc(100vh-6rem)] shrink-0 rounded-lg transition-transform duration-200 ease-out will-change-transform bg-card border-0 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+      className={`sticky top-16 h-[calc(100vh-6rem)] w-[20vw] shrink-0 rounded-lg transition-transform duration-200 ease-out will-change-transform bg-card border-0 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
     >
       <SidebarHeader className="mx-4 px-0 py-4">
         <div className="grid grid-cols-[24px_1fr_24px] items-center gap-2">
@@ -325,142 +348,152 @@ export function SearchSidebar() {
           >
             <PanelRightClose className="h-4 w-4" />
           </button>
-          <p className="text-center text-sm font-semibold">5e SRD Lookup</p>
+          <p className="text-center text-sm font-semibold">
+            {isSearchMode ? "5e SRD Lookup" : "Player Notes"}
+          </p>
           <span className="h-6 w-6" aria-hidden />
         </div>
       </SidebarHeader>
-      <SidebarContent className="space-y-3">
-        <div className="space-y-2">
-          <div className="relative">
-            <Search className="text-muted-foreground absolute left-3 top-2.5 h-4 w-4" />
-            <Input
-              value={query}
-              onChange={(event) => {
-                setQuery(event.target.value);
-                setSelectedResult(null);
-                setSelectedData(null);
-              }}
-              placeholder="Search index or name..."
-              className="pl-9"
-            />
-          </div>
-          <SrdCategoryFilter
-            value={categoryFilter}
-            onChange={(value) => {
-              setCategoryFilter(value);
-              if (value !== "spells") setSpellLevelFilter(null);
-            }}
-          />
-          {categoryFilter === "spells" && (
-            <>
-              <SpellLevelFilter
-                value={spellLevelFilter}
-                onChange={setSpellLevelFilter}
-              />
-              <ClassesFilter
-                value={classesFilter}
-                onChange={setClassesFilter}
-              />
-            </>
-          )}
-        </div>
-
-        {isLoading && (
-          <p className="text-muted-foreground text-xs">Searching...</p>
-        )}
-
-        {!isLoading && query.trim().length > 0 && results.length === 0 && (
-          <p className="text-muted-foreground text-xs">No matches found.</p>
-        )}
-
-        {!isLoading &&
-          categoryFilter === "spells" &&
-          spellLevelFilter !== null &&
-          results.length > 0 &&
-          filteredResults.length === 0 && (
-            <p className="text-muted-foreground text-xs">
-              No spells at this level.
-            </p>
-          )}
-
-        <div className="space-y-2">
-          {selectedResult ? (
-            <div className="space-y-3 rounded-md ">
-              <button
-                type="button"
-                onClick={() => {
+      {isSearchMode ? (
+        <SidebarContent className="space-y-3">
+          <div className="space-y-2">
+            <div className="relative">
+              <Search className="text-muted-foreground absolute left-3 top-2.5 h-4 w-4" />
+              <Input
+                value={query}
+                onChange={(event) => {
+                  setQuery(event.target.value);
                   setSelectedResult(null);
                   setSelectedData(null);
                 }}
-                className="text-muted-foreground hover:text-foreground text-xs underline"
-              >
-                Back to results
-              </button>
+                placeholder="Search index or name..."
+                className="pl-9"
+              />
+            </div>
+            <SrdCategoryFilter
+              value={categoryFilter}
+              onChange={(value) => {
+                setCategoryFilter(value);
+                if (value !== "spells") setSpellLevelFilter(null);
+              }}
+            />
+            {categoryFilter === "spells" && (
+              <>
+                <SpellLevelFilter
+                  value={spellLevelFilter}
+                  onChange={setSpellLevelFilter}
+                />
+                <ClassesFilter
+                  value={classesFilter}
+                  onChange={setClassesFilter}
+                />
+              </>
+            )}
+          </div>
 
-              {isDetailLoading && (
-                <p className="text-muted-foreground text-xs">
-                  Loading entry...
-                </p>
-              )}
+          {isLoading && (
+            <p className="text-muted-foreground text-xs">Searching...</p>
+          )}
 
-              {!isDetailLoading && (
-                <>
-                  <h3 className="text-base font-semibold">
-                    {typeof (selectedData ?? selectedResult.data).name ===
-                    "string"
-                      ? String((selectedData ?? selectedResult.data).name)
-                      : toTitleCase(selectedResult.index)}
-                  </h3>
-                  <div className="flex flex-wrap gap-1">
-                    {extractBadges(selectedResult).map((badge) => (
-                      <span
-                        key={badge}
-                        className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-[11px]"
-                      >
-                        {badge}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="text-sm whitespace-pre-wrap">
-                    {/* <p className="text-sm whitespace-pre-wrap">
+          {!isLoading && query.trim().length > 0 && results.length === 0 && (
+            <p className="text-muted-foreground text-xs">No matches found.</p>
+          )}
+
+          {!isLoading &&
+            categoryFilter === "spells" &&
+            spellLevelFilter !== null &&
+            results.length > 0 &&
+            filteredResults.length === 0 && (
+              <p className="text-muted-foreground text-xs">
+                No spells at this level.
+              </p>
+            )}
+
+          <div className="space-y-2">
+            {selectedResult ? (
+              <div className="space-y-3 rounded-md ">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedResult(null);
+                    setSelectedData(null);
+                  }}
+                  className="text-muted-foreground hover:text-foreground text-xs underline"
+                >
+                  Back to results
+                </button>
+
+                {isDetailLoading && (
+                  <p className="text-muted-foreground text-xs">
+                    Loading entry...
+                  </p>
+                )}
+
+                {!isDetailLoading && (
+                  <>
+                    <h3 className="text-base font-semibold">
+                      {typeof (selectedData ?? selectedResult.data).name ===
+                      "string"
+                        ? String((selectedData ?? selectedResult.data).name)
+                        : toTitleCase(selectedResult.index)}
+                    </h3>
+                    <div className="flex flex-wrap gap-1">
+                      {extractBadges(selectedResult).map((badge) => (
+                        <span
+                          key={badge}
+                          className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-[11px]"
+                        >
+                          {badge}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="text-sm whitespace-pre-wrap">
+                      {/* <p className="text-sm whitespace-pre-wrap">
                       {selectedResult.collection !== "equipment" &&
                         extractBodyText(
                           (selectedData ?? selectedResult.data) as SrdRecord,
                         )}
                     </p> */}
-                    {/* {selectedResult.collection === "equipment" && ( */}
-                    <EquipmentText data={selectedResult.data} />
-                    {/* )} */}
-                  </div>
-                </>
-              )}
-            </div>
-          ) : (
-            filteredResults.map((result) => {
-              const displayName =
-                typeof result.data.name === "string"
-                  ? result.data.name
-                  : result.index;
+                      {/* {selectedResult.collection === "equipment" && ( */}
+                      <EquipmentText data={selectedResult.data} />
+                      {/* )} */}
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              filteredResults.map((result) => {
+                const displayName =
+                  typeof result.data.name === "string"
+                    ? result.data.name
+                    : result.index;
 
-              return (
-                <button
-                  type="button"
-                  key={`${result.collection}-${result.index}`}
-                  onClick={() => {
-                    void handleResultClick(result);
-                  }}
-                  className="hover:bg-muted/60 w-full rounded-md border p-2 text-left transition-colors"
-                >
-                  <p className="text-sm font-medium">{displayName}</p>
-                  <p className="text-muted-foreground text-xs">
-                    {result.collection} / {result.index}
-                  </p>
-                </button>
-              );
-            })
-          )}
-        </div>
-      </SidebarContent>
+                return (
+                  <button
+                    type="button"
+                    key={`${result.collection}-${result.index}`}
+                    onClick={() => {
+                      void handleResultClick(result);
+                    }}
+                    className="hover:bg-muted/60 w-full rounded-md border p-2 text-left transition-colors"
+                  >
+                    <p className="text-sm font-medium">{displayName}</p>
+                    <p className="text-muted-foreground text-xs">
+                      {result.collection} / {result.index}
+                    </p>
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </SidebarContent>
+      ) : (
+        <SidebarContent className="space-y-3">
+          {/* <PlayerNotes />
+           */}
+          {children}
+        </SidebarContent>
+      )}
     </Sidebar>
   );
 }

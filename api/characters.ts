@@ -52,7 +52,7 @@ export async function getCharacterById(charId: string) {
 
   let { data, error } = await supabase
     .from("characters")
-    .select()
+    .select("charId:char_id, data, playerNotes:player_notes")
     .eq("char_id", charId)
     .single()
     .overrideTypes<{ data: CharacterSheetState }>();
@@ -72,7 +72,21 @@ export async function updateCharacterById(
     .from("characters")
     .update({ data: sheet })
     .eq("char_id", charId);
-  // .overrideTypes<{ data: CharacterSheetState }>();
+
+  if (error) throw new Error(error.message);
+
+  console.log("updated:", data);
+
+  return data;
+}
+
+export async function updatePlayerNotesById(charId: string, value: string) {
+  const supabase = await createClient();
+
+  let { data, error } = await supabase
+    .from("characters")
+    .update({ player_notes: value })
+    .eq("char_id", charId);
 
   if (error) throw new Error(error.message);
 

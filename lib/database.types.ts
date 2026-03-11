@@ -19,18 +19,21 @@ export type Database = {
           char_id: string
           data: Json | null
           inserted_at: string
+          player_notes: string | null
           user_id: string
         }
         Insert: {
           char_id?: string
           data?: Json | null
           inserted_at?: string
+          player_notes?: string | null
           user_id?: string
         }
         Update: {
           char_id?: string
           data?: Json | null
           inserted_at?: string
+          player_notes?: string | null
           user_id?: string
         }
         Relationships: []

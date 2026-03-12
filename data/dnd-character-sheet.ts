@@ -143,6 +143,7 @@ export type CharacterSheetState = {
     list: RecursiveListItem[];
   };
   backstory: string;
+  otherProficiencies: RecursiveListItem[];
 };
 
 export const blankInitialCharacterSheet: CharacterSheetState = {
@@ -232,6 +233,7 @@ export const blankInitialCharacterSheet: CharacterSheetState = {
     list: [],
   },
   backstory: "The fallen leaves tell a story.",
+  otherProficiencies: [],
 };
 
 export const raysCharacterSheetState: CharacterSheetState = {
@@ -462,4 +464,75 @@ export const raysCharacterSheetState: CharacterSheetState = {
   },
   backstory:
     "I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face",
+  otherProficiencies: [
+    {
+      title: "Weapons",
+      children: [
+        {
+          title: "Simple Melee/Ranged Weapons",
+          children: [],
+          description: "",
+        },
+        {
+          title: "Martial Melee/Ranged Weapons",
+          children: [],
+          description: "",
+        },
+      ],
+      description: "",
+    },
+    {
+      title: "Armor",
+      children: [
+        {
+          title: "Light/Medium",
+          children: [],
+          description: "",
+        },
+        {
+          title: "Shields",
+          children: [],
+          description: "",
+        },
+      ],
+      description: "",
+    },
+    {
+      title: "Tools",
+      children: [
+        {
+          title: "Leatherworker's Tools",
+          children: [],
+          description: "",
+        },
+        {
+          title: "Alchemist's Supplies",
+          children: [],
+          description: "",
+        },
+      ],
+      description: "",
+    },
+    {
+      title: "Languages",
+      children: [
+        {
+          title: "Common",
+          children: [],
+          description: "",
+        },
+        {
+          title: "Draconic",
+          children: [],
+          description: "",
+        },
+        {
+          title: "Giant",
+          children: [],
+          description: "",
+        },
+      ],
+      description: "",
+    },
+  ],
 };

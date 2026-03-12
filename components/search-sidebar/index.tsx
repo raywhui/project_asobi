@@ -359,7 +359,7 @@ export function SearchSidebar({ children }: { children?: ReactNode }) {
             <PanelRightClose className="h-4 w-4" />
           </button>
           <p className="text-center text-sm font-semibold">
-            {isSearchMode ? "5e SRD Lookup" : "Player Notes"}
+            {isSearchMode ? "5e SRD (2014) Lookup" : "Player Notes"}
           </p>
           <span className="h-6 w-6" aria-hidden />
         </div>

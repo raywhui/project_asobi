@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Dot } from "lucide-react";
+import { ChevronDown, ChevronRight, Dot, Triangle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import {
@@ -62,7 +62,7 @@ function RecursiveListNodeItem({ item, itemKey }: RecursiveListNodeProps) {
 
   return (
     <li className="leading-7">
-      <div className="flex  items-center gap-1">
+      <div className="flex items-center gap-1 mb-1">
         {hasChildren ? (
           <button
             type="button"
@@ -81,8 +81,13 @@ function RecursiveListNodeItem({ item, itemKey }: RecursiveListNodeProps) {
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <span className="rounded-md text-base hover:bg-stone-600">
-              {item.title}
+            <span className="rounded-md text-sm hover:bg-stone-600">
+              <div className="flex gap-2 items-center">
+                {item?.isProficient && (
+                  <Triangle className="w-3 h-3" color="#3888F2" />
+                )}
+                {item.title}
+              </div>
             </span>
           </TooltipTrigger>
           {item.description.length > 0 && (
@@ -107,7 +112,7 @@ function RecursiveListNodeItem({ item, itemKey }: RecursiveListNodeProps) {
           <div className="min-h-0">
             <ul
               className={cn(
-                "mt-1 ml-2 ",
+                "mt-1 ml-2",
                 "border-l-2 border-solid border-l-muted",
               )}
             >

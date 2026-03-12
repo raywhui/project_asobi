@@ -68,7 +68,8 @@ type SectionId =
   | "equipment"
   | "features"
   | "spells"
-  | "backstory";
+  | "backstory"
+  | "otherProficiencies";
 
 const initialOrder: SectionId[] = [
   "basics",
@@ -80,6 +81,7 @@ const initialOrder: SectionId[] = [
   "features",
   "spells",
   "backstory",
+  "otherProficiencies",
 ];
 const ORDER_STORAGE_KEY = "dnd-sheet-card-order-v1";
 const SPANS_STORAGE_KEY = "dnd-sheet-card-spans-v1";
@@ -107,6 +109,7 @@ const defaultSectionGridSpan: Record<SectionId, CardSpan> = {
   features: { colSpan: 1, rowSpan: 1 },
   spells: { colSpan: 1, rowSpan: 1 },
   backstory: { colSpan: 1, rowSpan: 1 },
+  otherProficiencies: { colSpan: 1, rowSpan: 1 },
 };
 
 function reorder<T>(list: T[], fromId: T, toId: T) {
@@ -134,6 +137,7 @@ function createInitialSpans(): Record<SectionId, CardSpan> {
     features: { ...defaultSectionGridSpan.features },
     spells: { ...defaultSectionGridSpan.spells },
     backstory: { ...defaultSectionGridSpan.backstory },
+    otherProficiencies: { ...defaultSectionGridSpan.otherProficiencies },
   };
 }
 
@@ -255,7 +259,11 @@ export function DndCharacterSheet({
   ] as const;
 
   const updateListOrBackstoryField = <
-    K extends "equipment" | "featuresAndTraits" | "backstory",
+    K extends
+      | "equipment"
+      | "featuresAndTraits"
+      | "backstory"
+      | "otherProficiencies",
   >(
     key: K,
     value: CharacterSheetState[K],
@@ -636,8 +644,11 @@ export function DndCharacterSheet({
   );
 
   const handleQuickLookup = (
-    collection: Srd2014CollectionKey,
-    key: keyof CharacterSheetState["skills"] | keyof CharacterSheetState["ap"],
+    collection: Srd2014CollectionKey | string,
+    key:
+      | keyof CharacterSheetState["skills"]
+      | keyof CharacterSheetState["ap"]
+      | string,
   ) => {
     if (typeof window === "undefined") return;
 
@@ -645,12 +656,10 @@ export function DndCharacterSheet({
       return `-${char.toLowerCase()}`;
     });
 
-    console.log(index);
-
     window.dispatchEvent(
       new CustomEvent<{
         index: string;
-        collection: Srd2014CollectionKey;
+        collection: Srd2014CollectionKey | string;
       }>("dnd:sidebar-lookup", {
         detail: {
           index,
@@ -1615,6 +1624,10 @@ export function DndCharacterSheet({
                     <EditableListField
                       value={sheet.equipment}
                       isEditing={isEditing}
+                      // itemOnClick={handleQuickLookup}
+                      itemOnClick={({ category, itemName }) =>
+                        handleQuickLookup(category, itemName)
+                      }
                       className="min-h-32"
                       onChange={(value) =>
                         updateListOrBackstoryField("equipment", value)
@@ -1649,6 +1662,9 @@ export function DndCharacterSheet({
                     <EditableListField
                       value={sheet.featuresAndTraits}
                       isEditing={isEditing}
+                      itemOnClick={({ category, itemName }) =>
+                        handleQuickLookup(category, itemName)
+                      }
                       className="min-h-32"
                       onChange={(value) =>
                         updateListOrBackstoryField("featuresAndTraits", value)
@@ -1816,6 +1832,9 @@ export function DndCharacterSheet({
                     <EditableListField
                       value={sheet.spells.list}
                       isEditing={isEditing}
+                      itemOnClick={({ category, itemName }) =>
+                        handleQuickLookup(category, itemName)
+                      }
                       className="min-h-32"
                       onChange={updateSpellList}
                       placeholder="Add spell..."
@@ -1827,6 +1846,7 @@ export function DndCharacterSheet({
             }
 
             if (sectionId === "backstory") {
+              console.log(userCharacterData);
               return (
                 <div
                   key={sectionId}
@@ -1863,6 +1883,47 @@ export function DndCharacterSheet({
               );
             }
 
+            if (sectionId === "otherProficiencies") {
+              return (
+                <div
+                  key={sectionId}
+                  data-section-id={sectionId}
+                  className={cn(getCardWrapperClasses(sectionId))}
+                  style={getGridSpanStyle(sectionId)}
+                  {...dragHandlers(sectionId)}
+                >
+                  <ExpandableCardModal
+                    showDragHandle={layoutConfig.isDragEnabled}
+                    showToggleButton={isEditing}
+                    title={
+                      <div className="flex gap-4 items-center">
+                        <Triangle size={36} color="#3888F2" />
+                        <p>Other Proficiencies & Languages</p>
+                      </div>
+                    }
+                    cardClassName="h-full"
+                    headerClassName={getHeaderHandleClasses()}
+                    onHeaderPointerDown={(event) =>
+                      armDragHandle(sectionId, event)
+                    }
+                  >
+                    <EditableListField
+                      value={sheet.otherProficiencies}
+                      isEditing={isEditing}
+                      itemOnClick={({ category, itemName }) =>
+                        handleQuickLookup(category, itemName)
+                      }
+                      className="min-h-32"
+                      onChange={(value) =>
+                        updateListOrBackstoryField("otherProficiencies", value)
+                      }
+                      placeholder="Add feature or trait..."
+                    />
+                  </ExpandableCardModal>
+                  {renderResizeHandle(sectionId)}
+                </div>
+              );
+            }
             return null;
           })}
         </div>

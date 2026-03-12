@@ -143,6 +143,7 @@ export type CharacterSheetState = {
     list: RecursiveListItem[];
   };
   backstory: string;
+  otherProficiencies: RecursiveListItem[];
 };
 
 export const blankInitialCharacterSheet: CharacterSheetState = {
@@ -232,6 +233,7 @@ export const blankInitialCharacterSheet: CharacterSheetState = {
     list: [],
   },
   backstory: "The fallen leaves tell a story.",
+  otherProficiencies: [],
 };
 
 export const raysCharacterSheetState: CharacterSheetState = {
@@ -318,46 +320,66 @@ export const raysCharacterSheetState: CharacterSheetState = {
     {
       title: "Weapons",
       description: "Primary combat gear carried by the character.",
+      lookup: { category: "", itemName: "" },
       children: [
-        { title: "Rapier", description: "Finesse melee weapon.", children: [] },
+        {
+          title: "Rapier",
+          description: "Finesse melee weapon.",
+          children: [],
+          lookup: { category: "", itemName: "" },
+        },
         {
           title: "Dagger",
           description: "Light thrown melee weapon.",
           children: [],
+          lookup: { category: "", itemName: "" },
         },
       ],
     },
     {
       title: "Adventuring Gear",
       description: "Utility and travel supplies.",
+      lookup: { category: "", itemName: "" },
       children: [
         {
           title: "Lute",
           description: "Instrument focus and performance tool.",
           children: [],
+          lookup: { category: "", itemName: "" },
         },
         {
           title: "Explorer's Pack",
           description: "Standard travel supplies for dungeon delving.",
           children: [],
+          lookup: { category: "", itemName: "" },
         },
       ],
     },
     {
       title: "Currency",
       description: "Current carried funds.",
-      children: [{ title: "45 gp", description: "Gold pieces.", children: [] }],
+      children: [
+        {
+          title: "45 gp",
+          description: "Gold pieces.",
+          children: [],
+          lookup: { category: "", itemName: "" },
+        },
+      ],
+      lookup: { category: "", itemName: "" },
     },
   ],
   featuresAndTraits: [
     {
       title: "Bardic Inspiration",
       description: "Grant allies a bonus die to checks, attacks, or saves.",
+      lookup: { category: "", itemName: "" },
       children: [
         {
           title: "Die Size: d8",
           description: "Current inspiration die.",
           children: [],
+          lookup: { category: "", itemName: "" },
         },
       ],
     },
@@ -365,13 +387,25 @@ export const raysCharacterSheetState: CharacterSheetState = {
       title: "Jack of All Trades",
       description: "Add half proficiency to checks without proficiency.",
       children: [],
+      lookup: { category: "", itemName: "" },
     },
     {
       title: "Expertise",
       description: "Double proficiency bonus in selected skills.",
+      lookup: { category: "", itemName: "" },
       children: [
-        { title: "Performance", description: "Expertise skill.", children: [] },
-        { title: "Persuasion", description: "Expertise skill.", children: [] },
+        {
+          title: "Performance",
+          description: "Expertise skill.",
+          children: [],
+          lookup: { category: "", itemName: "" },
+        },
+        {
+          title: "Persuasion",
+          description: "Expertise skill.",
+          children: [],
+          lookup: { category: "", itemName: "" },
+        },
       ],
     },
   ],
@@ -396,65 +430,77 @@ export const raysCharacterSheetState: CharacterSheetState = {
       {
         title: "Cantrips",
         description: "Spells cast at will without consuming spell slots.",
+        lookup: { category: "", itemName: "" },
         children: [
           {
             title: "Vicious Mockery",
             description:
               "Deal psychic damage and give disadvantage on next attack.",
             children: [],
+            lookup: { category: "", itemName: "" },
           },
           {
             title: "Mage Hand",
             description: "Summon a spectral hand to manipulate small objects.",
             children: [],
+            lookup: { category: "", itemName: "" },
           },
           {
             title: "Minor Illusion",
             description: "Create a simple sound or image illusion.",
             children: [],
+            lookup: { category: "", itemName: "" },
           },
         ],
       },
       {
         title: "1st-Level",
         description: "Prepared 1st-level spells.",
+        lookup: { category: "", itemName: "" },
         children: [
           {
             title: "Healing Word",
             description: "Bonus action healing at range.",
             children: [],
+            lookup: { category: "", itemName: "" },
           },
           {
             title: "Dissonant Whispers",
             description: "Psychic damage that can force movement.",
             children: [],
+            lookup: { category: "", itemName: "" },
           },
         ],
       },
       {
         title: "2nd-Level",
         description: "Prepared 2nd-level spells.",
+        lookup: { category: "", itemName: "" },
         children: [
           {
             title: "Suggestion",
             description: "Compel a creature to follow a reasonable command.",
             children: [],
+            lookup: { category: "", itemName: "" },
           },
           {
             title: "Invisibility",
             description: "Turn a creature invisible for up to one hour.",
             children: [],
+            lookup: { category: "", itemName: "" },
           },
         ],
       },
       {
         title: "3rd-Level",
         description: "Prepared 3rd-level spells.",
+        lookup: { category: "", itemName: "" },
         children: [
           {
             title: "Hypnotic Pattern",
             description: "Incapacitate creatures in a dazzling area.",
             children: [],
+            lookup: { category: "", itemName: "" },
           },
         ],
       },
@@ -462,4 +508,88 @@ export const raysCharacterSheetState: CharacterSheetState = {
   },
   backstory:
     "I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face. I have to eat face",
+  otherProficiencies: [
+    {
+      title: "Weapons",
+      lookup: { category: "", itemName: "" },
+      children: [
+        {
+          title: "Simple Melee/Ranged Weapons",
+          children: [],
+          lookup: { category: "", itemName: "" },
+          description: "",
+        },
+        {
+          title: "Martial Melee/Ranged Weapons",
+          children: [],
+          lookup: { category: "", itemName: "" },
+          description: "",
+        },
+      ],
+      description: "",
+    },
+    {
+      title: "Armor",
+      lookup: { category: "", itemName: "" },
+      children: [
+        {
+          title: "Light/Medium",
+          children: [],
+          lookup: { category: "", itemName: "" },
+          description: "",
+        },
+        {
+          title: "Shields",
+          children: [],
+          lookup: { category: "", itemName: "" },
+          description: "",
+        },
+      ],
+      description: "",
+    },
+    {
+      title: "Tools",
+      lookup: { category: "", itemName: "" },
+      children: [
+        {
+          title: "Leatherworker's Tools",
+          children: [],
+          lookup: { category: "", itemName: "" },
+          description: "",
+        },
+        {
+          title: "Alchemist's Supplies",
+          children: [],
+          lookup: { category: "", itemName: "" },
+          description: "",
+        },
+      ],
+      description: "",
+    },
+    {
+      title: "Languages",
+      lookup: { category: "", itemName: "" },
+      children: [
+        {
+          title: "Common",
+          children: [],
+          lookup: { category: "", itemName: "" },
+          description: "",
+        },
+        {
+          title: "Draconic",
+          children: [],
+          lookup: { category: "", itemName: "" },
+          description: "",
+        },
+        {
+          title: "Giant",
+          children: [],
+          lookup: { category: "", itemName: "" },
+          description: "",
+        },
+      ],
+      description: "",
+    },
+  ],
 };

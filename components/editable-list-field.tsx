@@ -10,12 +10,16 @@ import {
 } from "@/components/recursive-list";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { cn, Srd2014CollectionKey } from "@/lib/utils";
 import { Textarea } from "./ui/textarea";
 
 type EditableListFieldProps = {
   value: RecursiveListItem[];
   isEditing: boolean;
+  itemOnClick: (lookup: {
+    category: Srd2014CollectionKey | string;
+    itemName: string;
+  }) => void;
   onChange: (value: RecursiveListItem[]) => void;
   className?: string;
   placeholder?: string;
@@ -26,6 +30,11 @@ function normalizeItems(items: RecursiveListItem[]): RecursiveListItem[] {
     .map((item) => ({
       title: item.title,
       description: item.description,
+      lookup: {
+        // FIX LATER. PROB SHOULDNT HAVE UNDEFINED WITH item?.lookup?.field as an option. need to add lookup to the database entries
+        category: item?.lookup?.category || "",
+        itemName: item?.lookup?.itemName || "",
+      },
       children: normalizeItems(item.children),
     }))
     .filter((item) => item.title.length > 0);
@@ -74,6 +83,7 @@ export function EditableListField({
   value,
   isEditing,
   onChange,
+  itemOnClick,
   className,
   placeholder = "Add item...",
 }: EditableListFieldProps) {
@@ -82,6 +92,8 @@ export function EditableListField({
   );
   const [draftTitle, setDraftTitle] = useState("");
   const [draftDescription, setDraftDescription] = useState("");
+  const [draftCategory, setDraftCategory] = useState("");
+  const [draftName, setDraftName] = useState("");
 
   useEffect(() => {
     setItems(normalizeItems(value));
@@ -99,21 +111,51 @@ export function EditableListField({
 
     commitItems([
       ...items,
-      createRecursiveListItem(title, draftDescription.trim(), []),
+      createRecursiveListItem({
+        title,
+        description: draftDescription.trim(),
+        lookup: {
+          category: draftCategory.trim(),
+          itemName: draftName.trim(),
+        },
+        children: [],
+      }),
     ]);
     setDraftTitle("");
     setDraftDescription("");
+    setDraftCategory("");
+    setDraftName("");
   };
 
   const updateFieldAtPath = (
     path: number[],
-    field: "title" | "description",
+    field: "title" | "description" | "category" | "itemName",
     fieldValue: string,
   ) => {
+    // console.log(field, ": ", fieldValue);
+
+    const updatedField = (item: RecursiveListItem) =>
+      field === "category" || field === "itemName"
+        ? {
+            lookup: {
+              ...item.lookup,
+              [field]: fieldValue,
+            },
+          }
+        : { [field]: fieldValue };
+
     const nextItems = updateItemAtPath(items, path, (item) => ({
       ...item,
-      [field]: fieldValue,
+      ...updatedField(item),
     }));
+
+    // console.log(
+    //   "nextItems:",
+    //   nextItems.forEach((data) => {
+    //     console.log("data:", data);
+    //   }),
+    // );
+
     setItems(nextItems);
     onChange(normalizeItems(nextItems));
   };
@@ -121,7 +163,15 @@ export function EditableListField({
   const addChildAtPath = (path: number[]) => {
     const nextItems = updateItemAtPath(items, path, (item) => ({
       ...item,
-      children: [...item.children, createRecursiveListItem("New Item", "", [])],
+      children: [
+        ...item.children,
+        createRecursiveListItem({
+          title: "New Item",
+          description: "",
+          lookup: { category: "", itemName: "" },
+          children: [],
+        }),
+      ],
     }));
     commitItems(nextItems);
   };
@@ -137,20 +187,56 @@ export function EditableListField({
     return (
       <div key={path.join("-")} className="space-y-2 rounded-md border p-3">
         <div className="flex flex-col gap-2 sm:flex-row">
-          <Input
-            value={item.title}
-            onChange={(event) =>
-              updateFieldAtPath(path, "title", event.target.value)
-            }
-            placeholder="Title"
-          />
-          <Textarea
-            value={item.description}
-            onChange={(event) =>
-              updateFieldAtPath(path, "description", event.target.value)
-            }
-            placeholder="Tooltip description"
-          />
+          <div className="w-full">
+            <div className="flex gap-2">
+              <Input
+                value={item.title}
+                onChange={(event) => {
+                  if (event.target.value === "")
+                    return updateFieldAtPath(path, "title", " ");
+                  return updateFieldAtPath(path, "title", event.target.value);
+                }}
+                placeholder="Title"
+              />
+              <Textarea
+                value={item.description}
+                onChange={(event) =>
+                  updateFieldAtPath(path, "description", event.target.value)
+                }
+                placeholder="Tooltip description"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2 p-2 m-2 bg-accent rounded">
+              <h3 className="text-muted-foreground font-semibold text-sm">
+                Quick Lookup Configuration:
+              </h3>
+              <div className="flex gap-2">
+                <Input
+                  value={item.lookup.category}
+                  onChange={(event) => {
+                    return updateFieldAtPath(
+                      path,
+                      "category",
+                      event.target.value,
+                    );
+                  }}
+                  placeholder="Category"
+                />
+                <Input
+                  value={item.lookup.itemName}
+                  onChange={(event) => {
+                    return updateFieldAtPath(
+                      path,
+                      "itemName",
+                      event.target.value,
+                    );
+                  }}
+                  placeholder="Item Designation"
+                />
+              </div>
+            </div>
+          </div>
           <div className="flex items-center gap-1">
             <Button
               type="button"
@@ -162,6 +248,7 @@ export function EditableListField({
               <Plus className="h-4 w-4" />
             </Button>
             <Button
+              className="text-destructive"
               type="button"
               variant="ghost"
               size="icon"
@@ -185,7 +272,13 @@ export function EditableListField({
   };
 
   if (!isEditing) {
-    return <RecursiveList items={items} className={className} />;
+    return (
+      <RecursiveList
+        items={items}
+        className={className}
+        onClick={itemOnClick}
+      />
+    );
   }
 
   return (

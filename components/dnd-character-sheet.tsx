@@ -644,8 +644,11 @@ export function DndCharacterSheet({
   );
 
   const handleQuickLookup = (
-    collection: Srd2014CollectionKey,
-    key: keyof CharacterSheetState["skills"] | keyof CharacterSheetState["ap"],
+    collection: Srd2014CollectionKey | string,
+    key:
+      | keyof CharacterSheetState["skills"]
+      | keyof CharacterSheetState["ap"]
+      | string,
   ) => {
     if (typeof window === "undefined") return;
 
@@ -656,7 +659,7 @@ export function DndCharacterSheet({
     window.dispatchEvent(
       new CustomEvent<{
         index: string;
-        collection: Srd2014CollectionKey;
+        collection: Srd2014CollectionKey | string;
       }>("dnd:sidebar-lookup", {
         detail: {
           index,
@@ -1621,6 +1624,10 @@ export function DndCharacterSheet({
                     <EditableListField
                       value={sheet.equipment}
                       isEditing={isEditing}
+                      // itemOnClick={handleQuickLookup}
+                      itemOnClick={({ category, itemName }) =>
+                        handleQuickLookup(category, itemName)
+                      }
                       className="min-h-32"
                       onChange={(value) =>
                         updateListOrBackstoryField("equipment", value)
@@ -1655,6 +1662,9 @@ export function DndCharacterSheet({
                     <EditableListField
                       value={sheet.featuresAndTraits}
                       isEditing={isEditing}
+                      itemOnClick={({ category, itemName }) =>
+                        handleQuickLookup(category, itemName)
+                      }
                       className="min-h-32"
                       onChange={(value) =>
                         updateListOrBackstoryField("featuresAndTraits", value)
@@ -1822,6 +1832,9 @@ export function DndCharacterSheet({
                     <EditableListField
                       value={sheet.spells.list}
                       isEditing={isEditing}
+                      itemOnClick={({ category, itemName }) =>
+                        handleQuickLookup(category, itemName)
+                      }
                       className="min-h-32"
                       onChange={updateSpellList}
                       placeholder="Add spell..."
@@ -1897,6 +1910,9 @@ export function DndCharacterSheet({
                     <EditableListField
                       value={sheet.otherProficiencies}
                       isEditing={isEditing}
+                      itemOnClick={({ category, itemName }) =>
+                        handleQuickLookup(category, itemName)
+                      }
                       className="min-h-32"
                       onChange={(value) =>
                         updateListOrBackstoryField("otherProficiencies", value)

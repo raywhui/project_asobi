@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { MouseEventHandler, useState } from "react";
 import { ChevronDown, ChevronRight, Dot, Triangle } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn, Srd2014CollectionKey } from "@/lib/utils";
 import {
   Tooltip,
   TooltipContent,
@@ -14,21 +14,34 @@ import {
 export type RecursiveListItem = {
   title: string;
   description: string;
+  lookup: {
+    category: Srd2014CollectionKey | string;
+    itemName: string;
+  };
   children: RecursiveListItem[];
 };
 
 export class RecursiveListNode implements RecursiveListItem {
   title: string;
   description: string;
+  lookup: {
+    category: Srd2014CollectionKey | string;
+    itemName: string;
+  };
   children: RecursiveListNode[];
 
   constructor(
     title: string,
     description: string,
+    lookup: {
+      category: Srd2014CollectionKey;
+      itemName: string;
+    },
     children: RecursiveListNode[] = [],
   ) {
     this.title = title;
     this.description = description;
+    this.lookup = lookup;
     this.children = children;
   }
 
@@ -38,25 +51,38 @@ export class RecursiveListNode implements RecursiveListItem {
   }
 }
 
-export function createRecursiveListItem(
-  title: string,
-  description: string,
-  children: RecursiveListItem[] = [],
-): RecursiveListItem {
-  return { title, description, children };
+export function createRecursiveListItem({
+  title,
+  description,
+  lookup,
+  children = [],
+}: RecursiveListItem): RecursiveListItem {
+  return { title, description, lookup, children };
 }
 
 type RecursiveListProps = {
   items: RecursiveListItem[];
   className?: string;
+  onClick: (lookup: {
+    category: Srd2014CollectionKey | string;
+    itemName: string;
+  }) => void;
 };
 
 type RecursiveListNodeProps = {
   item: RecursiveListItem;
   itemKey: string;
+  onClick: (lookup: {
+    category: Srd2014CollectionKey | string;
+    itemName: string;
+  }) => void;
 };
 
-function RecursiveListNodeItem({ item, itemKey }: RecursiveListNodeProps) {
+function RecursiveListNodeItem({
+  item,
+  itemKey,
+  onClick,
+}: RecursiveListNodeProps) {
   const hasChildren = item.children.length > 0;
   const [isOpen, setIsOpen] = useState(hasChildren);
 
@@ -81,11 +107,17 @@ function RecursiveListNodeItem({ item, itemKey }: RecursiveListNodeProps) {
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <span className="rounded-md text-sm hover:bg-stone-600">
+            <span
+              className={`rounded-md text-sm hover:bg-stone-600 ${onClick !== undefined && item?.lookup?.category && item?.lookup?.itemName ? "hover:cursor-pointer" : ""}`}
+              onClick={() => {
+                if (item?.lookup?.category && item?.lookup?.itemName)
+                  onClick(item.lookup);
+              }}
+            >
               <div className="flex gap-2 items-center">
-                {item?.isProficient && (
+                {/* {item?.isProficient && (
                   <Triangle className="w-3 h-3" color="#3888F2" />
-                )}
+                )} */}
                 {item.title}
               </div>
             </span>
@@ -121,6 +153,7 @@ function RecursiveListNodeItem({ item, itemKey }: RecursiveListNodeProps) {
                   key={`${itemKey}-${index}-${child.title}`}
                   item={child}
                   itemKey={`${itemKey}-${index}-${child.title}`}
+                  onClick={onClick}
                 />
               ))}
             </ul>
@@ -131,7 +164,11 @@ function RecursiveListNodeItem({ item, itemKey }: RecursiveListNodeProps) {
   );
 }
 
-export function RecursiveList({ items, className }: RecursiveListProps) {
+export function RecursiveList({
+  items,
+  className,
+  onClick,
+}: RecursiveListProps) {
   return (
     <TooltipProvider>
       <div className={className}>
@@ -141,6 +178,7 @@ export function RecursiveList({ items, className }: RecursiveListProps) {
               key={`0-${index}-${item.title}`}
               item={item}
               itemKey={`0-${index}-${item.title}`}
+              onClick={onClick}
             />
           ))}
         </ul>

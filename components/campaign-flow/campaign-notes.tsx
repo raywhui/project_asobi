@@ -5,13 +5,13 @@ import { Textarea } from "../ui/textarea";
 
 type SaveStatus = "saved" | "saving" | "unsaved";
 
-export default function PlayerNotes({
-  charId,
+export default function CampaignNotes({
+  sessionId,
   onSave,
   initialValue,
 }: {
-  charId: string;
-  onSave: (charId: string, val: string) => Promise<unknown>;
+  sessionId: string;
+  onSave: (sessionId: string, val: string) => Promise<unknown>;
   initialValue: string | null;
 }) {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("saved");
@@ -20,7 +20,7 @@ export default function PlayerNotes({
 
   const save = useCallback(async (content: string): Promise<void> => {
     setSaveStatus("saving");
-    await onSave(charId, content);
+    await onSave(sessionId, content);
     setSaveStatus("saved");
   }, []);
 

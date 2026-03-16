@@ -108,12 +108,12 @@ export default async function ProtectedPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="">
-              <form>
-                <Button type="submit" className="w-full" disabled>
+              <Link href={"/home/dm-mode"}>
+                <Button type="submit" className="w-full">
                   <BookOpen className="w-4 h-4" />
                   Get Started
                 </Button>
-              </form>
+              </Link>
             </CardContent>
           </Card>
         </div>

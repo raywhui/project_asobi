@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, use } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Textarea } from "../ui/textarea";
 
 type SaveStatus = "saved" | "saving" | "unsaved";

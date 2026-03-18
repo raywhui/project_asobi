@@ -825,7 +825,7 @@ export function DndCharacterSheet({
                 value={sheet.character.name}
                 readOnly={!isEditing}
                 placeholder="Name"
-                className="h-auto w-auto  bg-transparent p-0 pr-0 text-2xl font-bold leading-tight shadow-none focus-visible:ring-0 md:text-3xl"
+                className="h-auto w-auto  bg-transparent p-0 pr-0 text-2xl font-semibold shadow-none focus-visible:ring-0 md:text-3xl"
                 onChange={(event) =>
                   updateCharacterField("name", event.target.value)
                 }
@@ -836,20 +836,22 @@ export function DndCharacterSheet({
                 value={sheet.character.class}
                 readOnly={!isEditing}
                 placeholder="Class"
-                className="h-auto w-auto bg-transparent p-0 pr-0 text-2xl font-bold leading-tight shadow-none focus-visible:ring-0 md:text-3xl"
+                className="h-auto w-auto bg-transparent p-0 pr-0 text-2xl font-semibold shadow-none focus-visible:ring-0 md:text-3xl"
                 onChange={(event) =>
                   updateCharacterField("class", event.target.value)
                 }
               />
               <Dot className="h-8 w-8" />
-              <span>Level</span>
+              <span className="text-2xl font-semibold shadow-none md:text-3xl">
+                Level
+              </span>
               <SheetInput
                 isEditing={isEditing}
                 value={sheet.character.level}
                 type="number"
                 placeholder="Level"
                 readOnly={!isEditing}
-                className="h-auto w-20 bg-transparent p-0 pr-0 text-2xl font-bold leading-tight shadow-none focus-visible:ring-0 md:text-3xl"
+                className="h-auto w-20 bg-transparent p-0 pr-0 text-2xl font-semibold shadow-none focus-visible:ring-0 md:text-3xl"
                 onChange={(event) =>
                   updateCharacterField("level", event.target.value)
                 }
@@ -906,12 +908,10 @@ export function DndCharacterSheet({
                         JSON.stringify(sheet) !== JSON.stringify(prevSheet);
 
                       if (charId && onSave && hasChanges) {
-                        console.log("saving...");
                         setIsSaving(true);
                         await onSave(charId, sheet);
                         setPrevSheet(sheet);
                         setIsSaving(false);
-                        console.log("saved!");
                       }
 
                       setIsEditing(false);
@@ -1227,7 +1227,7 @@ export function DndCharacterSheet({
                         className={`grid gap-2 ${cardSpans.combat.colSpan <= 1 ? "col-span-1" : "col-span-1"}`}
                       >
                         <div className="flex justify-start items-center gap-2">
-                          <Dice3 className="w-8 h-8 dark:text-[#b383fe]" />
+                          <Dice3 className="w-8 h-8 text-[#b383fe]" />
                           <div className="flex justify-start items-center">
                             <p className="text-3xl p-0 w-auto">{`(`}</p>
                             <SheetInput
@@ -1272,7 +1272,7 @@ export function DndCharacterSheet({
                     </div>
                     <div className="grid gap-2">
                       <div className="flex justify-center items-center gap-2">
-                        <Shield className="w-8 h-8 dark:text-[#00FF80]" />
+                        <Shield className="w-8 h-8 text-[#00FF80]" />
                         <SheetInput
                           isEditing={isEditing}
                           value={sheet.combat.armorClass}
@@ -1290,7 +1290,7 @@ export function DndCharacterSheet({
                     </div>
                     <div className="grid gap-2">
                       <div className="flex justify-start items-center gap-2">
-                        <Swords className="w-8 h-8 dark:text-[yellow]" />
+                        <Swords className="w-8 h-8 text-[yellow]" />
                         <div className="flex justify-center items-center">
                           {sheet.combat.initiative >= 0 && (
                             <p className="text-3xl">+</p>
@@ -1846,7 +1846,6 @@ export function DndCharacterSheet({
             }
 
             if (sectionId === "backstory") {
-              console.log(userCharacterData);
               return (
                 <div
                   key={sectionId}

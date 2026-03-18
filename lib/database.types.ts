@@ -38,6 +38,110 @@ export type Database = {
         }
         Relationships: []
       }
+      session_invites: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          max_uses: number | null
+          session_id: string | null
+          token: string
+          use_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          session_id?: string | null
+          token?: string
+          use_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          session_id?: string | null
+          token?: string
+          use_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_invites_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["session_id"]
+          },
+        ]
+      }
+      session_members: {
+        Row: {
+          char_id: string
+          id: string
+          joined_at: string | null
+          session_id: string | null
+          status: string | null
+        }
+        Insert: {
+          char_id: string
+          id?: string
+          joined_at?: string | null
+          session_id?: string | null
+          status?: string | null
+        }
+        Update: {
+          char_id?: string
+          id?: string
+          joined_at?: string | null
+          session_id?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_members_char_id_fkey"
+            columns: ["char_id"]
+            isOneToOne: false
+            referencedRelation: "characters"
+            referencedColumns: ["char_id"]
+          },
+          {
+            foreignKeyName: "session_members_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["session_id"]
+          },
+        ]
+      }
+      sessions: {
+        Row: {
+          created_at: string
+          created_by: string
+          flow_data: Json | null
+          name: string | null
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          flow_data?: Json | null
+          name?: string | null
+          session_id?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          flow_data?: Json | null
+          name?: string | null
+          session_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

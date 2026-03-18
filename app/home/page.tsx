@@ -102,18 +102,18 @@ export default async function ProtectedPage() {
           </Card>
           <Card className="w-full flex justify-between">
             <CardHeader>
-              <CardTitle>DM Mode</CardTitle>
+              <CardTitle>Campaign Planner</CardTitle>
               <CardDescription>
-                Features for running a live session. Coming soon.
+                Node based planning feature because why not. Try it out!
               </CardDescription>
             </CardHeader>
             <CardContent className="">
-              <form>
-                <Button type="submit" className="w-full" disabled>
+              <Link href={"/home/session"}>
+                <Button type="submit" className="w-full">
                   <BookOpen className="w-4 h-4" />
                   Get Started
                 </Button>
-              </form>
+              </Link>
             </CardContent>
           </Card>
         </div>

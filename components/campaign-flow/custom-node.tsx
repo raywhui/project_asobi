@@ -1,14 +1,19 @@
 import { memo } from "react";
 import { Handle, Position } from "@xyflow/react";
 import { cn } from "@/lib/utils";
+import AutoSizeInput from "../auto-size-input";
+
+type EditableNodeField = "name" | "job" | "emoji";
 
 type CustomNodeProps = {
+  id: string;
   selected: boolean;
   data: {
     name: string;
     job: string;
     emoji: string;
     note: string;
+    onUpdateField?: (field: EditableNodeField, value: string) => void;
   };
 };
 
@@ -22,11 +27,37 @@ function CustomNode({ data, selected = false }: CustomNodeProps) {
     >
       <div className="flex">
         <div className="rounded-full w-12 h-12 flex justify-center items-center bg-gray-100">
-          {data.emoji}
+          {selected ? (
+            <AutoSizeInput
+              className="nodrag nopan h-10 w-10 bg-transparent text-center text-2xl outline-none"
+              value={data.emoji}
+              minWidthPx={40}
+              onChange={(value) => data.onUpdateField?.("emoji", value)}
+            />
+          ) : (
+            data.emoji
+          )}
         </div>
-        <div className="ml-2">
-          <div className="text-lg text-primary font-bold">{data.name}</div>
-          <div className="text-gray-500">{data.job}</div>
+        <div className="ml-2 flex flex-col">
+          {selected ? (
+            <AutoSizeInput
+              className="nodrag nopan bg-transparent text-lg text-primary font-bold outline-none"
+              value={data.name}
+              onChange={(value) => data.onUpdateField?.("name", value)}
+            />
+          ) : (
+            <div className="text-lg text-primary font-bold">{data.name}</div>
+          )}
+
+          {selected ? (
+            <AutoSizeInput
+              className="nodrag nopan bg-transparent text-gray-500 outline-none"
+              value={data.job}
+              onChange={(value) => data.onUpdateField?.("job", value)}
+            />
+          ) : (
+            <div className="text-gray-500">{data.job}</div>
+          )}
         </div>
       </div>
 

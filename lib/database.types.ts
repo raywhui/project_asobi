@@ -122,18 +122,21 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string
+          flow_data: Json | null
           name: string | null
           session_id: string
         }
         Insert: {
           created_at?: string
           created_by?: string
+          flow_data?: Json | null
           name?: string | null
           session_id?: string
         }
         Update: {
           created_at?: string
           created_by?: string
+          flow_data?: Json | null
           name?: string | null
           session_id?: string
         }

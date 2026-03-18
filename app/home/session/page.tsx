@@ -6,10 +6,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Plus } from "lucide-react";
+import { BookOpen, Plus, Sword } from "lucide-react";
 import { createSessionAction, listSessionsAction } from "./actions";
 import Link from "next/link";
-// import { listSessions } from "@/api/groupSession";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -28,8 +27,8 @@ export default async function DMModePage() {
   return (
     <div className="w-full flex flex-row justify-center px-4 py-6 rounded-3xl bg-background">
       <div className="w-full max-w-3xl space-y-6 min-h-[75vh]">
-        <h1 className="text-2xl font-medium">DM Mode</h1>
-        <p className="text-base">Live Session Moderation Tools.</p>
+        <h1 className="text-2xl font-medium">Campaign Planner</h1>
+        <p className="text-base">Node based campaign planning tool.</p>
         <h2 className="text-xl font-medium">Let's get started:</h2>
         {sessions.length > 0 && (
           <Card className="w-full col-span-2 justify-between">
@@ -45,7 +44,7 @@ export default async function DMModePage() {
                   <li key={sessionId}>
                     <Link
                       className="inline"
-                      href={`/home/dm-mode/${sessionId}`}
+                      href={`/home/session/${sessionId}`}
                     >
                       <p className="inline hover:bg-stone-500 rounded">
                         {name}
@@ -60,7 +59,7 @@ export default async function DMModePage() {
         <div className="grid grid-cols-2 justify-center items-stretch gap-4">
           <Card className="w-full flex justify-between">
             <CardHeader>
-              <CardTitle>Create A New Group</CardTitle>
+              <CardTitle>Create a New Campaign</CardTitle>
               {/* <CardDescription>
                 Make a new character from scratch. Currently only able to fill
                 in fields on a blank sheet. Dynamic character creation and
@@ -80,7 +79,7 @@ export default async function DMModePage() {
           </Card>
           <Card className="w-full flex justify-between">
             <CardHeader>
-              <CardTitle>Create a new group</CardTitle>
+              <CardTitle>Run a live session</CardTitle>
               <CardDescription>
                 Features for running a live session. Coming soon.
               </CardDescription>
@@ -88,7 +87,7 @@ export default async function DMModePage() {
             <CardContent className="">
               <form>
                 <Button type="submit" className="w-full" disabled>
-                  <BookOpen className="w-4 h-4" />
+                  <Sword className="w-4 h-4" />
                   Get Started
                 </Button>
               </form>

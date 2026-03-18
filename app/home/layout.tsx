@@ -34,6 +34,14 @@ export default async function ProtectedLayout({
                 </p>
               </Link>
             </div>
+            <div className="flex gap-5">
+              <Link className="font-medium text-sm" href={"/home"}>
+                My Characters
+              </Link>
+              <Link className="font-medium text-sm" href={"/home/session"}>
+                Campaign Planner
+              </Link>
+            </div>
             <div className="flex items-center gap-3">
               {/* <ThemeModeToggle /> */}
               <AuthButton />

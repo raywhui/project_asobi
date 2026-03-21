@@ -346,7 +346,7 @@ export function SearchSidebar({ children }: { children?: ReactNode }) {
   return (
     <Sidebar
       side="right"
-      className={`sticky top-16 h-[calc(100vh-6rem)] w-[20vw] shrink-0 rounded-lg transition-transform duration-200 ease-out will-change-transform bg-card border-0 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+      className={`sticky top-16 h-[calc(100vh-6rem)] w-[40vw] shrink-0 rounded-lg transition-transform duration-200 ease-out will-change-transform bg-card border-0 ${isOpen ? "translate-x-0" : "translate-x-full"} lg:w-[20vw]`}
     >
       <SidebarHeader className="mx-4 px-0 py-4">
         <div className="grid grid-cols-[24px_1fr_24px] items-center gap-2">

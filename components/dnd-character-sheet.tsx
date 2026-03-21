@@ -810,8 +810,8 @@ export function DndCharacterSheet({
 
   return (
     // <div className="mx-auto w-full space-y-6 p-4 md:p-8 lg:w-[80vw]">
-    <div className="mx-auto max-w-screen-xl p-4 md:p-8">
-      <div className="space-y-6 w-">
+    <div className="mx-auto max-w-screen-xl p-4 md:p-4">
+      <div className="space-y-2 lg:space-y-6">
         <div
           className={cn(
             "flex flex-col gap-4 rounded-xl border bg-card p-4 md:flex-row md:items-center md:justify-between",
@@ -1030,7 +1030,7 @@ export function DndCharacterSheet({
         <div
           ref={gridRef}
           className={cn(
-            "grid grid-cols-1 gap-4 [grid-auto-flow:dense] md:grid-cols-2",
+            "grid grid-cols-1 gap-2 [grid-auto-flow:dense]  md:grid-cols-3 lg:gap-4",
             gridColumnClass,
           )}
         >

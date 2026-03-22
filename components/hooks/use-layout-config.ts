@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
+import { readClientJson, writeClientJson } from "@/lib/client-storage";
 
 type ColumnCount = 3 | 4 | 5;
 
@@ -30,32 +31,41 @@ const DEFAULT_LAYOUT_CONFIG: LayoutConfig = {
 export const useLayoutConfig = (
   initialConfig?: Partial<LayoutConfig>,
 ): UseLayoutConfigReturn => {
-  const [layoutConfig, setLayoutConfig] = useState<LayoutConfig>(
-    DEFAULT_LAYOUT_CONFIG,
+  const initialLayoutConfig = useMemo(
+    () => ({ ...DEFAULT_LAYOUT_CONFIG, ...initialConfig }),
+    [initialConfig],
   );
+  const [layoutConfig, setLayoutConfig] = useState<LayoutConfig>(
+    initialLayoutConfig,
+  );
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    let isActive = true;
 
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored)
-        setLayoutConfig({ ...DEFAULT_LAYOUT_CONFIG, ...JSON.parse(stored) });
-    } catch (e) {
-      console.warn("Failed to save layoutConfig to localStorage:", e);
-    }
-  }, []);
+    const loadLayoutConfig = async () => {
+      const stored = await readClientJson<Partial<LayoutConfig>>(STORAGE_KEY);
+      if (!isActive) return;
 
-  // Persist to localStorage whenever state changes
+      if (stored) {
+        setLayoutConfig({ ...initialLayoutConfig, ...stored });
+      } else {
+        setLayoutConfig(initialLayoutConfig);
+      }
+      setIsHydrated(true);
+    };
+
+    void loadLayoutConfig();
+    return () => {
+      isActive = false;
+    };
+  }, [initialLayoutConfig]);
+
+  // Persist to client storage whenever state changes
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    console.log(layoutConfig);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(layoutConfig));
-    } catch (e) {
-      console.warn("Failed to save layoutConfig to localStorage:", e);
-    }
-  }, [layoutConfig]);
+    if (!isHydrated) return;
+    void writeClientJson(STORAGE_KEY, layoutConfig);
+  }, [isHydrated, layoutConfig]);
 
   const setDragEnabled = useCallback((enabled: boolean) => {
     setLayoutConfig((prev) => ({ ...prev, isDragEnabled: enabled }));
@@ -70,8 +80,8 @@ export const useLayoutConfig = (
   }, []);
 
   const resetLayoutConfig = useCallback(() => {
-    setLayoutConfig({ ...DEFAULT_LAYOUT_CONFIG, ...initialConfig });
-  }, [initialConfig]);
+    setLayoutConfig(initialLayoutConfig);
+  }, [initialLayoutConfig]);
 
   const updateLayoutConfig = useCallback((updates: Partial<LayoutConfig>) => {
     setLayoutConfig((prev) => ({ ...prev, ...updates }));

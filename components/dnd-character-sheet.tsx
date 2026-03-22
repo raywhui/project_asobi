@@ -811,7 +811,7 @@ export function DndCharacterSheet({
   return (
     // <div className="mx-auto w-full space-y-6 p-4 md:p-8 lg:w-[80vw]">
     <div className="mx-auto max-w-screen-xl p-4 md:p-4">
-      <div className="space-y-2 lg:space-y-6">
+      <div className="space-y-2 lg:space-y-2">
         <div
           className={cn(
             "flex flex-col gap-4 rounded-xl border bg-card p-4 md:flex-row md:items-center md:justify-between",
@@ -882,9 +882,7 @@ export function DndCharacterSheet({
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant={isEditing ? "default" : "secondary"}>
-              {isEditing ? "Editing Enabled" : "Read-Only"}
-            </Badge>
+            {isEditing && <Badge variant="default">Curently Editing</Badge>}
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="ghost">
@@ -1030,7 +1028,7 @@ export function DndCharacterSheet({
         <div
           ref={gridRef}
           className={cn(
-            "grid grid-cols-1 gap-2 [grid-auto-flow:dense]  md:grid-cols-3 lg:gap-4",
+            "grid grid-cols-2 gap-2 [grid-auto-flow:dense]  md:grid-cols-3 lg:gap-2",
             gridColumnClass,
           )}
         >
@@ -1624,7 +1622,7 @@ export function DndCharacterSheet({
                     <EditableListField
                       value={sheet.equipment}
                       isEditing={isEditing}
-                      // itemOnClick={handleQuickLookup}
+                      isGridView={cardSpans.equipment.colSpan > 1}
                       itemOnClick={({ category, itemName }) =>
                         handleQuickLookup(category, itemName)
                       }
@@ -1662,6 +1660,7 @@ export function DndCharacterSheet({
                     <EditableListField
                       value={sheet.featuresAndTraits}
                       isEditing={isEditing}
+                      isGridView={cardSpans.features.colSpan > 1}
                       itemOnClick={({ category, itemName }) =>
                         handleQuickLookup(category, itemName)
                       }
@@ -1832,6 +1831,7 @@ export function DndCharacterSheet({
                     <EditableListField
                       value={sheet.spells.list}
                       isEditing={isEditing}
+                      isGridView={cardSpans.spells.colSpan > 1}
                       itemOnClick={({ category, itemName }) =>
                         handleQuickLookup(category, itemName)
                       }
@@ -1909,6 +1909,7 @@ export function DndCharacterSheet({
                     <EditableListField
                       value={sheet.otherProficiencies}
                       isEditing={isEditing}
+                      isGridView={cardSpans.otherProficiencies.colSpan > 1}
                       itemOnClick={({ category, itemName }) =>
                         handleQuickLookup(category, itemName)
                       }

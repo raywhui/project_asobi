@@ -16,6 +16,7 @@ import { Textarea } from "./ui/textarea";
 type EditableListFieldProps = {
   value: RecursiveListItem[];
   isEditing: boolean;
+  isGridView?: boolean;
   itemOnClick: (lookup: {
     category: Srd2014CollectionKey | string;
     itemName: string;
@@ -82,6 +83,7 @@ function removeItemAtPath(
 export function EditableListField({
   value,
   isEditing,
+  isGridView = false,
   onChange,
   itemOnClick,
   className,
@@ -276,6 +278,7 @@ export function EditableListField({
       <RecursiveList
         items={items}
         className={className}
+        isGridView={isGridView}
         onClick={itemOnClick}
       />
     );

@@ -206,6 +206,8 @@ export function DndCharacterSheet({
   const [prevSheet, setPrevSheet] =
     useState<CharacterSheetState>(userCharacterData);
   const [isEditing, setIsEditing] = useState(false);
+  const [activeEditingSectionId, setActiveEditingSectionId] =
+    useState<SectionId | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isSpellCardVisible, setIsSpellCardVisible] = useState(true);
   const {
@@ -248,6 +250,12 @@ export function DndCharacterSheet({
       setResizeState(null);
     }
   }, [layoutConfig.isResizeEnabled]);
+
+  useEffect(() => {
+    if (!isEditing) {
+      setActiveEditingSectionId(null);
+    }
+  }, [isEditing]);
 
   const editableInputClass = "";
   const characterOptionalFields = [
@@ -1037,6 +1045,9 @@ export function DndCharacterSheet({
               return null;
             }
 
+            const isCardEditing =
+              isEditing && activeEditingSectionId === sectionId;
+
             if (sectionId === "abilities") {
               return (
                 <div
@@ -1049,6 +1060,11 @@ export function DndCharacterSheet({
                   <ExpandableCardModal
                     showDragHandle={layoutConfig.isDragEnabled}
                     showToggleButton={isEditing}
+                    onExpandedChange={(expanded) =>
+                      setActiveEditingSectionId((current) =>
+                        expanded ? sectionId : current === sectionId ? null : current,
+                      )
+                    }
                     title="Ability Scores"
                     cardClassName="h-full"
                     headerClassName={getHeaderHandleClasses()}
@@ -1076,14 +1092,14 @@ export function DndCharacterSheet({
                             {sheet.ap[ability.key].base +
                               sheet.ap[ability.key].modifier}
                           </p>
-                          {isEditing && (
+                          {isCardEditing && (
                             <div className="flex items-center justify-center gap-2">
                               <div className="flex flex-col items-center justify-center gap-2">
                                 <SheetInput
-                                  isEditing={isEditing}
+                                  isEditing={isCardEditing}
                                   value={sheet.ap[ability.key].base}
                                   type="number"
-                                  readOnly={!isEditing}
+                                  readOnly={!isCardEditing}
                                   className="text-lg w-full p-0"
                                   onChange={(event) =>
                                     updateAbilityBase(
@@ -1099,10 +1115,10 @@ export function DndCharacterSheet({
                               <p>+</p>
                               <div className="flex flex-col items-center justify-center gap-2">
                                 <SheetInput
-                                  isEditing={isEditing}
+                                  isEditing={isCardEditing}
                                   value={sheet.ap[ability.key].modifier}
                                   type="number"
-                                  readOnly={!isEditing}
+                                  readOnly={!isCardEditing}
                                   className="text-lg w-full p-0"
                                   onChange={(event) =>
                                     updateAbilityModifier(
@@ -1141,6 +1157,11 @@ export function DndCharacterSheet({
                   <ExpandableCardModal
                     showDragHandle={layoutConfig.isDragEnabled}
                     showToggleButton={isEditing}
+                    onExpandedChange={(expanded) =>
+                      setActiveEditingSectionId((current) =>
+                        expanded ? sectionId : current === sectionId ? null : current,
+                      )
+                    }
                     title="Combat"
                     cardClassName="h-full"
                     headerClassName={getHeaderHandleClasses()}
@@ -1159,10 +1180,10 @@ export function DndCharacterSheet({
                           <Heart size={24} color="pink" />
                           <div className="flex items-center">
                             <SheetInput
-                              isEditing={isEditing}
+                              isEditing={isCardEditing}
                               type="number"
                               value={sheet.combat.currentHp}
-                              readOnly={!isEditing}
+                              readOnly={!isCardEditing}
                               className="text-3xl p-0 w-auto"
                               onChange={(event) =>
                                 updateCombatField(
@@ -1173,16 +1194,16 @@ export function DndCharacterSheet({
                             />
                             <p className="text-4xl w-auto text-center">/</p>
                             <SheetInput
-                              isEditing={isEditing}
+                              isEditing={isCardEditing}
                               type="number"
                               value={sheet.combat.maxHp}
-                              readOnly={!isEditing}
+                              readOnly={!isCardEditing}
                               className="text-3xl p-0 w-auto"
                               onChange={(event) =>
                                 updateCombatField("maxHp", event.target.value)
                               }
                             />
-                            {(sheet.combat.tempHp > 0 || isEditing) && (
+                            {(sheet.combat.tempHp > 0 || isCardEditing) && (
                               <div className="grid">
                                 <div className="flex justify-center items-center gap-1">
                                   <p className="ml-1">{`(`}</p>
@@ -1190,10 +1211,10 @@ export function DndCharacterSheet({
                                     +
                                   </p>
                                   <SheetInput
-                                    isEditing={isEditing}
+                                    isEditing={isCardEditing}
                                     type="number"
                                     value={sheet.combat.tempHp}
-                                    readOnly={!isEditing}
+                                    readOnly={!isCardEditing}
                                     className="text-3xl w-auto pr-0 text-[#00A3A3] dark:text-[#00FFFF]"
                                     onChange={(event) =>
                                       updateCombatField(
@@ -1208,7 +1229,7 @@ export function DndCharacterSheet({
                                   />
                                   <p>{`)`}</p>
                                 </div>
-                                {isEditing && (
+                                {isCardEditing && (
                                   <Label className="text-muted-foreground text-xs">
                                     Temp HP
                                   </Label>
@@ -1229,10 +1250,10 @@ export function DndCharacterSheet({
                           <div className="flex justify-start items-center">
                             <p className="text-3xl p-0 w-auto">{`(`}</p>
                             <SheetInput
-                              isEditing={isEditing}
+                              isEditing={isCardEditing}
                               type="number"
                               value={sheet.combat.hitDice.amount}
-                              readOnly={!isEditing}
+                              readOnly={!isCardEditing}
                               className="text-3xl p-0 w-auto"
                               onChange={(event) =>
                                 updateCombatField(
@@ -1243,9 +1264,9 @@ export function DndCharacterSheet({
                               }
                             />
                             <SheetInput
-                              isEditing={isEditing}
+                              isEditing={isCardEditing}
                               value={sheet.combat.hitDice.diceType}
-                              readOnly={!isEditing}
+                              readOnly={!isCardEditing}
                               className="text-3xl p-0 w-auto"
                               onChange={(event) =>
                                 updateCombatField(
@@ -1272,10 +1293,10 @@ export function DndCharacterSheet({
                       <div className="flex justify-center items-center gap-2">
                         <Shield className="w-8 h-8 text-[#00FF80]" />
                         <SheetInput
-                          isEditing={isEditing}
+                          isEditing={isCardEditing}
                           value={sheet.combat.armorClass}
                           type="number"
-                          readOnly={!isEditing}
+                          readOnly={!isCardEditing}
                           className="text-3xl w-full"
                           onChange={(event) =>
                             updateCombatField("armorClass", event.target.value)
@@ -1295,10 +1316,10 @@ export function DndCharacterSheet({
                           )}
 
                           <SheetInput
-                            isEditing={isEditing}
+                            isEditing={isCardEditing}
                             type="number"
                             value={sheet.combat.initiative}
-                            readOnly={!isEditing}
+                            readOnly={!isCardEditing}
                             className="text-3xl w-full"
                             onChange={(event) =>
                               updateCombatField(
@@ -1317,9 +1338,9 @@ export function DndCharacterSheet({
                       <div className="flex justify-center items-center gap-2">
                         <Footprints className="w-8 h-8" color="grey" />
                         <SheetInput
-                          isEditing={isEditing}
+                          isEditing={isCardEditing}
                           value={sheet.combat.speed}
-                          readOnly={!isEditing}
+                          readOnly={!isCardEditing}
                           className="text-3xl w-full whitespace-nowrap"
                           onChange={(event) =>
                             updateCombatField("speed", event.target.value)
@@ -1336,9 +1357,9 @@ export function DndCharacterSheet({
                         <div className="flex justify-center items-center">
                           <p className="text-3xl">+</p>
                           <SheetInput
-                            isEditing={isEditing}
+                            isEditing={isCardEditing}
                             value={sheet.combat.proficiencyBonus}
-                            readOnly={!isEditing}
+                            readOnly={!isCardEditing}
                             type="number"
                             className="text-3xl w-full"
                             onChange={(event) =>
@@ -1358,9 +1379,9 @@ export function DndCharacterSheet({
                       <div className="flex justify-center items-center gap-2">
                         <Skull className="w-8 h-8" color="#ef4444" />
                         <SheetInput
-                          isEditing={isEditing}
+                          isEditing={isCardEditing}
                           value={`${sheet.combat.deathSavesSuccesses}/${sheet.combat.deathSavesFailures}`}
-                          readOnly={!isEditing}
+                          readOnly={!isCardEditing}
                           className="text-3xl w-full"
                           onChange={(event) => {
                             const [s = "", f = ""] = event.target.value
@@ -1393,6 +1414,11 @@ export function DndCharacterSheet({
                   <ExpandableCardModal
                     showDragHandle={layoutConfig.isDragEnabled}
                     showToggleButton={isEditing}
+                    onExpandedChange={(expanded) =>
+                      setActiveEditingSectionId((current) =>
+                        expanded ? sectionId : current === sectionId ? null : current,
+                      )
+                    }
                     title="Saving Throws"
                     cardClassName="h-full"
                     headerClassName={getHeaderHandleClasses()}
@@ -1406,7 +1432,7 @@ export function DndCharacterSheet({
                         <div
                           className={`flex gap-2 justify-start items-center border-muted border-solid py-1 ${i < abilities.length - 1 ? "[border-bottom-width:1px]" : ""}`}
                         >
-                          {isEditing && (
+                          {isCardEditing && (
                             <>
                               <div className="flex justify-center items-center gap-1">
                                 <p>{`(`}</p>
@@ -1433,10 +1459,10 @@ export function DndCharacterSheet({
                                 Additional Modifiers
                               </Label>
                               <SheetInput
-                                isEditing={isEditing}
+                                isEditing={isCardEditing}
                                 value={sheet.savingThrow[ability.key].modifier}
                                 type="number"
-                                readOnly={!isEditing}
+                                readOnly={!isCardEditing}
                                 className="w-auto"
                                 onChange={(event) =>
                                   updateSavingThrowModifier(
@@ -1500,6 +1526,11 @@ export function DndCharacterSheet({
                   <ExpandableCardModal
                     showDragHandle={layoutConfig.isDragEnabled}
                     showToggleButton={isEditing}
+                    onExpandedChange={(expanded) =>
+                      setActiveEditingSectionId((current) =>
+                        expanded ? sectionId : current === sectionId ? null : current,
+                      )
+                    }
                     title="Skills"
                     cardClassName="h-full"
                     headerClassName={getHeaderHandleClasses()}
@@ -1514,7 +1545,7 @@ export function DndCharacterSheet({
                           <div
                             className={`flex gap-2 justify-start items-center border-muted border-solid py-1 ${i < skills.length - 1 ? "[border-bottom-width:1px]" : ""}`}
                           >
-                            {isEditing && (
+                            {isCardEditing && (
                               <>
                                 <div className="flex justify-center items-center gap-1">
                                   <p>{`(`}</p>
@@ -1540,10 +1571,10 @@ export function DndCharacterSheet({
                                   Additional Modifiers
                                 </Label>
                                 <SheetInput
-                                  isEditing={isEditing}
+                                  isEditing={isCardEditing}
                                   value={sheet.skills[skill.key].modifier}
                                   type="number"
-                                  readOnly={!isEditing}
+                                  readOnly={!isCardEditing}
                                   className="w-auto"
                                   onChange={(event) =>
                                     updateSkillModifier(
@@ -1612,6 +1643,11 @@ export function DndCharacterSheet({
                   <ExpandableCardModal
                     showDragHandle={layoutConfig.isDragEnabled}
                     showToggleButton={isEditing}
+                    onExpandedChange={(expanded) =>
+                      setActiveEditingSectionId((current) =>
+                        expanded ? sectionId : current === sectionId ? null : current,
+                      )
+                    }
                     title="Equipment"
                     cardClassName="h-full"
                     headerClassName={getHeaderHandleClasses()}
@@ -1621,7 +1657,7 @@ export function DndCharacterSheet({
                   >
                     <EditableListField
                       value={sheet.equipment}
-                      isEditing={isEditing}
+                      isEditing={isCardEditing}
                       isGridView={cardSpans.equipment.colSpan > 1}
                       itemOnClick={({ category, itemName }) =>
                         handleQuickLookup(category, itemName)
@@ -1650,6 +1686,11 @@ export function DndCharacterSheet({
                   <ExpandableCardModal
                     showDragHandle={layoutConfig.isDragEnabled}
                     showToggleButton={isEditing}
+                    onExpandedChange={(expanded) =>
+                      setActiveEditingSectionId((current) =>
+                        expanded ? sectionId : current === sectionId ? null : current,
+                      )
+                    }
                     title="Features & Traits"
                     cardClassName="h-full"
                     headerClassName={getHeaderHandleClasses()}
@@ -1659,7 +1700,7 @@ export function DndCharacterSheet({
                   >
                     <EditableListField
                       value={sheet.featuresAndTraits}
-                      isEditing={isEditing}
+                      isEditing={isCardEditing}
                       isGridView={cardSpans.features.colSpan > 1}
                       itemOnClick={({ category, itemName }) =>
                         handleQuickLookup(category, itemName)
@@ -1688,6 +1729,11 @@ export function DndCharacterSheet({
                   <ExpandableCardModal
                     showDragHandle={layoutConfig.isDragEnabled}
                     showToggleButton={isEditing}
+                    onExpandedChange={(expanded) =>
+                      setActiveEditingSectionId((current) =>
+                        expanded ? sectionId : current === sectionId ? null : current,
+                      )
+                    }
                     title="Spells | Attacks"
                     cardClassName="h-full"
                     headerClassName={getHeaderHandleClasses()}
@@ -1700,7 +1746,7 @@ export function DndCharacterSheet({
                         {/* {sheet.spells.slots.length > 0 && (
                           <p className="text-sm font-medium">Spell Slots</p>
                         )} */}
-                        {isEditing && (
+                        {isCardEditing && (
                           <Button
                             type="button"
                             size="sm"
@@ -1722,9 +1768,9 @@ export function DndCharacterSheet({
                           >
                             <div className="leading-tight flex-1 pr-2">
                               <SheetInput
-                                isEditing={isEditing}
+                                isEditing={isCardEditing}
                                 value={slot.title}
-                                readOnly={!isEditing}
+                                readOnly={!isCardEditing}
                                 className="text-sm font-medium h-auto w-auto"
                                 onChange={(event) =>
                                   updateSpellSlotTitle(
@@ -1754,7 +1800,7 @@ export function DndCharacterSheet({
                                 <p className="text-xs tabular-nums text-muted-foreground">
                                   {slot.amount}/{slot.max}
                                 </p>
-                                {isEditing && (
+                                {isCardEditing && (
                                   <div className="flex items-center gap-1">
                                     <BaseInput
                                       type="number"
@@ -1792,7 +1838,7 @@ export function DndCharacterSheet({
                                     </Button>
                                   </div>
                                 )}
-                                {!isEditing && (
+                                {!isCardEditing && (
                                   <div className="flex flex-col h-10">
                                     {/* <Button
                                       type="button"
@@ -1830,7 +1876,7 @@ export function DndCharacterSheet({
                     </div>
                     <EditableListField
                       value={sheet.spells.list}
-                      isEditing={isEditing}
+                      isEditing={isCardEditing}
                       isGridView={cardSpans.spells.colSpan > 1}
                       itemOnClick={({ category, itemName }) =>
                         handleQuickLookup(category, itemName)
@@ -1857,6 +1903,11 @@ export function DndCharacterSheet({
                   <ExpandableCardModal
                     showDragHandle={layoutConfig.isDragEnabled}
                     showToggleButton={isEditing}
+                    onExpandedChange={(expanded) =>
+                      setActiveEditingSectionId((current) =>
+                        expanded ? sectionId : current === sectionId ? null : current,
+                      )
+                    }
                     title="Backstory"
                     cardClassName="h-full"
                     headerClassName={getHeaderHandleClasses()}
@@ -1865,9 +1916,9 @@ export function DndCharacterSheet({
                     }
                   >
                     <SheetTextarea
-                      isEditing={isEditing}
+                      isEditing={isCardEditing}
                       value={sheet.backstory}
-                      readOnly={!isEditing}
+                      readOnly={!isCardEditing}
                       className={cn("min-h-40", editableInputClass)}
                       onChange={(event) =>
                         updateListOrBackstoryField(
@@ -1894,6 +1945,11 @@ export function DndCharacterSheet({
                   <ExpandableCardModal
                     showDragHandle={layoutConfig.isDragEnabled}
                     showToggleButton={isEditing}
+                    onExpandedChange={(expanded) =>
+                      setActiveEditingSectionId((current) =>
+                        expanded ? sectionId : current === sectionId ? null : current,
+                      )
+                    }
                     title={
                       <div className="flex gap-4 items-center">
                         <Triangle size={36} color="#3888F2" />
@@ -1908,7 +1964,7 @@ export function DndCharacterSheet({
                   >
                     <EditableListField
                       value={sheet.otherProficiencies}
-                      isEditing={isEditing}
+                      isEditing={isCardEditing}
                       isGridView={cardSpans.otherProficiencies.colSpan > 1}
                       itemOnClick={({ category, itemName }) =>
                         handleQuickLookup(category, itemName)

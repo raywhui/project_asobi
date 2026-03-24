@@ -174,7 +174,7 @@ export function RecursiveList({
   return (
     <TooltipProvider>
       <div className={className}>
-        <ul className={`space-y-1 ${isGridView ? "grid grid-cols-2" : ""}`}>
+        <ul className={`space-y-0 ${isGridView ? "grid grid-cols-2" : ""}`}>
           {items.map((item, index) => (
             <RecursiveListNodeItem
               key={`0-${index}-${item.title}`}

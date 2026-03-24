@@ -1,6 +1,12 @@
 "use client";
 
-import { Expand, PanelRightClose, PencilLine, Search } from "lucide-react";
+import {
+  Expand,
+  NotebookPen,
+  PanelRightClose,
+  PencilLine,
+  Search,
+} from "lucide-react";
 import {
   ReactNode,
   useCallback,
@@ -180,7 +186,8 @@ export function SearchSidebar({ children }: { children?: ReactNode }) {
 
     layoutChrome.forEach((element) => {
       if (!element.dataset.originalDisplay) {
-        element.dataset.originalDisplay = window.getComputedStyle(element).display;
+        element.dataset.originalDisplay =
+          window.getComputedStyle(element).display;
       }
       element.style.display = isExpanded
         ? "none"
@@ -357,13 +364,17 @@ export function SearchSidebar({ children }: { children?: ReactNode }) {
           className="bg-background text-foreground mb-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-md border opacity-70 transition-opacity hover:opacity-100"
           aria-label="Open sidebar"
         >
-          <PencilLine className="h-4 w-4" />
+          <NotebookPen className="h-4 w-4" />
         </button>
         <button
           type="button"
           onClick={() => setIsExpanded((current) => !current)}
           className="bg-background text-foreground flex h-10 w-10 shrink-0 items-center justify-center rounded-md border opacity-70 transition-opacity hover:opacity-100"
-          aria-label={isExpanded ? "Show navigation and footer" : "Hide navigation and footer"}
+          aria-label={
+            isExpanded
+              ? "Show navigation and footer"
+              : "Hide navigation and footer"
+          }
         >
           <Expand className="h-4 w-4" />
         </button>

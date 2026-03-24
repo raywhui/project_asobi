@@ -1,4 +1,5 @@
 import { AuthButton } from "@/components/auth-button";
+import Logo from "@/components/logo";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
@@ -27,11 +28,18 @@ export default async function ProtectedLayout({
         <nav className="w-full flex justify-center h-16">
           <div className="w-full max-w-screen-2xl flex justify-between items-center p-3 px-5 text-sm">
             <div className="flex gap-5 items-center font-semibold">
-              <Link className="font-medium text-xl" href={"/home"}>
-                ProjectAsobi{" "}
-                <p className="text-xs inline">
-                  v{process.env.NEXT_PUBLIC_APP_VERSION}
-                </p>
+              <Link href={"/home"}>
+                <div className="flex justify-center items-center gap-2">
+                  <Logo size={32} />
+                  <div className="flex items-end gap-1">
+                    <p className="font-medium text-xl leading-none">
+                      ProjectAsobi
+                    </p>
+                    <p className="text-xs inline leading-none">
+                      v{process.env.NEXT_PUBLIC_APP_VERSION}
+                    </p>
+                  </div>
+                </div>
               </Link>
             </div>
             <div className="flex gap-5">

@@ -44,8 +44,8 @@ export default async function ProtectedPage() {
   }
 
   return (
-    <div className="w-full flex flex-row justify-center px-4 py-6 rounded-3xl bg-background">
-      <div className="w-full max-w-3xl space-y-6 min-h-[75vh]">
+    <div className="w-full flex flex-row justify-center px-4 py-6 rounded-3xl bg-background min-h-[80dvh] items-center">
+      <div className="w-full max-w-3xl space-y-6">
         <h1 className="text-2xl font-medium">Welcome to ProjectAsobi</h1>
         <p className="text-base">
           ProjectAsobi is a basic character sheet builder for Dungeons &

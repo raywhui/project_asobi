@@ -7,7 +7,7 @@ const config: CapacitorConfig = {
   appName: "ProjectAsobi",
   webDir: ".capacitor/web",
   ios: {
-    contentInset: "always",
+    contentInset: "never",
   },
   server: serverUrl
     ? {
@@ -15,6 +15,13 @@ const config: CapacitorConfig = {
         cleartext: serverUrl.startsWith("http://"),
       }
     : undefined,
+  plugins: {
+    StatusBar: {
+      overlaysWebView: false,
+      style: "DARK",
+      backgroundColor: "#18181b",
+    },
+  },
 };
 
 export default config;

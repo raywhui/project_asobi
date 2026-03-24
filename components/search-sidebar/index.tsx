@@ -1,6 +1,6 @@
 "use client";
 
-import { PanelRightClose, PencilLine, Search } from "lucide-react";
+import { Expand, PanelRightClose, PencilLine, Search } from "lucide-react";
 import {
   ReactNode,
   useCallback,
@@ -120,6 +120,7 @@ function extractBadges(result: Srd2014SearchResult) {
 export function SearchSidebar({ children }: { children?: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(true);
   const [query, setQuery] = useState("");
   const [categoryFilter, setCategoryFilter] =
@@ -173,6 +174,25 @@ export function SearchSidebar({ children }: { children?: ReactNode }) {
       clearCloseTimeout();
     };
   }, [clearCloseTimeout]);
+
+  useEffect(() => {
+    const layoutChrome = document.querySelectorAll<HTMLElement>("nav, footer");
+
+    layoutChrome.forEach((element) => {
+      if (!element.dataset.originalDisplay) {
+        element.dataset.originalDisplay = window.getComputedStyle(element).display;
+      }
+      element.style.display = isExpanded
+        ? "none"
+        : (element.dataset.originalDisplay ?? "block");
+    });
+
+    return () => {
+      layoutChrome.forEach((element) => {
+        element.style.display = element.dataset.originalDisplay ?? "";
+      });
+    };
+  }, [isExpanded]);
 
   useEffect(() => {
     const handleExternalLookup = (event: Event) => {
@@ -334,10 +354,18 @@ export function SearchSidebar({ children }: { children?: ReactNode }) {
         <button
           type="button"
           onClick={() => openSidebar("notes")}
-          className="bg-background text-foreground flex h-10 w-10 shrink-0 items-center justify-center rounded-md border opacity-70 transition-opacity hover:opacity-100"
+          className="bg-background text-foreground mb-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-md border opacity-70 transition-opacity hover:opacity-100"
           aria-label="Open sidebar"
         >
           <PencilLine className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsExpanded((current) => !current)}
+          className="bg-background text-foreground flex h-10 w-10 shrink-0 items-center justify-center rounded-md border opacity-70 transition-opacity hover:opacity-100"
+          aria-label={isExpanded ? "Show navigation and footer" : "Hide navigation and footer"}
+        >
+          <Expand className="h-4 w-4" />
         </button>
       </div>
     );

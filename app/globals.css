@@ -217,7 +217,7 @@
     padding-right: var(--safe-right);
     padding-bottom: var(--safe-bottom);
     padding-left: var(--safe-left); */
-    min-height: 100dvh;
+    /* min-height: 100dvh; */
   }
 }
 

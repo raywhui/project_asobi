@@ -219,6 +219,23 @@
     padding-left: var(--safe-left); */
     /* min-height: 100dvh; */
   }
+
+  .bg-dot-grid {
+    /* background-image: radial-gradient(
+      circle,
+      hsl(var(--border)) 1px,
+      transparent 1px
+    );
+    background-size: 24px 24px;
+    background-color: #0a0a0a; */
+    background-color: hsl(var(--background));
+    background-image: radial-gradient(
+      circle,
+      var(--accent) 1px,
+      transparent 1px
+    );
+    background-size: 24px 24px;
+  }
 }
 
 .theme-transition,

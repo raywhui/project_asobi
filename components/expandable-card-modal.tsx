@@ -160,7 +160,7 @@ export function ExpandableCardModal({
         ref={inlineCardRef}
         className={cn(
           "h-full bg-card",
-          "bg-gradient-to-t from-[#e5e5e5]/5 to-card shadow-xs dark:bg-card",
+          "bg-gradient-to-t from-background to-card shadow-xs dark:bg-card",
           // "bg-gradient-to-t from-[#000664] to-[#211fa7] shadow-xs dark:bg-card border-white/10", //final fantasy colors
           cardClassName,
         )}

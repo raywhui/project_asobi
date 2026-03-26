@@ -823,7 +823,7 @@ export function DndCharacterSheet({
         <div
           className={cn(
             "flex flex-col gap-4 rounded-xl border bg-card p-4 md:flex-row md:items-center md:justify-between",
-            "bg-gradient-to-t from-[#e5e5e5]/5 to-card shadow-xs dark:bg-card",
+            "bg-gradient-to-t from-background to-card shadow-xs dark:bg-card",
           )}
         >
           <div className="space-y-2">
@@ -890,7 +890,7 @@ export function DndCharacterSheet({
             )}
           </div>
           <div className="flex items-center gap-2">
-            {isEditing && <Badge variant="default">Curently Editing</Badge>}
+            {isEditing && <Badge variant="default">Currently Editing</Badge>}
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="ghost">
@@ -1062,7 +1062,11 @@ export function DndCharacterSheet({
                     showToggleButton={isEditing}
                     onExpandedChange={(expanded) =>
                       setActiveEditingSectionId((current) =>
-                        expanded ? sectionId : current === sectionId ? null : current,
+                        expanded
+                          ? sectionId
+                          : current === sectionId
+                            ? null
+                            : current,
                       )
                     }
                     title="Ability Scores"
@@ -1159,7 +1163,11 @@ export function DndCharacterSheet({
                     showToggleButton={isEditing}
                     onExpandedChange={(expanded) =>
                       setActiveEditingSectionId((current) =>
-                        expanded ? sectionId : current === sectionId ? null : current,
+                        expanded
+                          ? sectionId
+                          : current === sectionId
+                            ? null
+                            : current,
                       )
                     }
                     title="Combat"
@@ -1416,7 +1424,11 @@ export function DndCharacterSheet({
                     showToggleButton={isEditing}
                     onExpandedChange={(expanded) =>
                       setActiveEditingSectionId((current) =>
-                        expanded ? sectionId : current === sectionId ? null : current,
+                        expanded
+                          ? sectionId
+                          : current === sectionId
+                            ? null
+                            : current,
                       )
                     }
                     title="Saving Throws"
@@ -1528,7 +1540,11 @@ export function DndCharacterSheet({
                     showToggleButton={isEditing}
                     onExpandedChange={(expanded) =>
                       setActiveEditingSectionId((current) =>
-                        expanded ? sectionId : current === sectionId ? null : current,
+                        expanded
+                          ? sectionId
+                          : current === sectionId
+                            ? null
+                            : current,
                       )
                     }
                     title="Skills"
@@ -1645,7 +1661,11 @@ export function DndCharacterSheet({
                     showToggleButton={isEditing}
                     onExpandedChange={(expanded) =>
                       setActiveEditingSectionId((current) =>
-                        expanded ? sectionId : current === sectionId ? null : current,
+                        expanded
+                          ? sectionId
+                          : current === sectionId
+                            ? null
+                            : current,
                       )
                     }
                     title="Equipment"
@@ -1688,7 +1708,11 @@ export function DndCharacterSheet({
                     showToggleButton={isEditing}
                     onExpandedChange={(expanded) =>
                       setActiveEditingSectionId((current) =>
-                        expanded ? sectionId : current === sectionId ? null : current,
+                        expanded
+                          ? sectionId
+                          : current === sectionId
+                            ? null
+                            : current,
                       )
                     }
                     title="Features & Traits"
@@ -1731,7 +1755,11 @@ export function DndCharacterSheet({
                     showToggleButton={isEditing}
                     onExpandedChange={(expanded) =>
                       setActiveEditingSectionId((current) =>
-                        expanded ? sectionId : current === sectionId ? null : current,
+                        expanded
+                          ? sectionId
+                          : current === sectionId
+                            ? null
+                            : current,
                       )
                     }
                     title="Spells | Attacks"
@@ -1840,7 +1868,7 @@ export function DndCharacterSheet({
                                 )}
                                 {!isCardEditing && (
                                   <div className="flex flex-col h-10">
-                                    {/* <Button
+                                    <Button
                                       type="button"
                                       size="icon"
                                       variant="ghost"
@@ -1865,7 +1893,7 @@ export function DndCharacterSheet({
                                       aria-label={`Decrease ${slot.title} slots`}
                                     >
                                       <ChevronDown className="h-3 w-3" />
-                                    </Button> */}
+                                    </Button>
                                   </div>
                                 )}
                               </div>
@@ -1905,7 +1933,11 @@ export function DndCharacterSheet({
                     showToggleButton={isEditing}
                     onExpandedChange={(expanded) =>
                       setActiveEditingSectionId((current) =>
-                        expanded ? sectionId : current === sectionId ? null : current,
+                        expanded
+                          ? sectionId
+                          : current === sectionId
+                            ? null
+                            : current,
                       )
                     }
                     title="Backstory"
@@ -1947,7 +1979,11 @@ export function DndCharacterSheet({
                     showToggleButton={isEditing}
                     onExpandedChange={(expanded) =>
                       setActiveEditingSectionId((current) =>
-                        expanded ? sectionId : current === sectionId ? null : current,
+                        expanded
+                          ? sectionId
+                          : current === sectionId
+                            ? null
+                            : current,
                       )
                     }
                     title={

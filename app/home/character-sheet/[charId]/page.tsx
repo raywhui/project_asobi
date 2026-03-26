@@ -29,7 +29,7 @@ export default async function CharSheetPage({
 
   return (
     <div className="flex flex-row">
-      <div className="bg-background rounded-3xl w-full">
+      <div className="bg-background rounded-3xl w-full bg-dot-grid">
         <DndCharacterSheet
           userCharacterData={character.data}
           charId={charId}

@@ -62,6 +62,7 @@ export function createRecursiveListItem({
 
 type RecursiveListProps = {
   items: RecursiveListItem[];
+  isGridView: boolean;
   className?: string;
   onClick: (lookup: {
     category: Srd2014CollectionKey | string;
@@ -166,13 +167,14 @@ function RecursiveListNodeItem({
 
 export function RecursiveList({
   items,
+  isGridView = false,
   className,
   onClick,
 }: RecursiveListProps) {
   return (
     <TooltipProvider>
       <div className={className}>
-        <ul className="space-y-1">
+        <ul className={`space-y-0 ${isGridView ? "grid grid-cols-2" : ""}`}>
           {items.map((item, index) => (
             <RecursiveListNodeItem
               key={`0-${index}-${item.title}`}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { readClientJson, writeClientJson } from "@/lib/client-storage";
 
 type CardSpan = { colSpan: number; rowSpan: number };
 
@@ -21,41 +22,40 @@ export function useLayoutPersistence<TSectionId extends string>(params: {
     createInitialSpans(),
   );
 
-  // Load order from localStorage on mount
+  // Load order from client storage on mount
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    let isActive = true;
 
-    const raw = window.localStorage.getItem(storageKeyOrder);
-    if (!raw) {
-      setOrder(initialOrder);
-      return;
-    }
+    const loadOrder = async () => {
+      const parsed = await readClientJson<TSectionId[]>(storageKeyOrder);
+      if (!isActive || !parsed) {
+        setOrder(initialOrder);
+        return;
+      }
 
-    try {
-      const parsed = JSON.parse(raw) as TSectionId[];
       const parsedSet = new Set(parsed);
       const valid =
         parsed.length === initialOrder.length &&
         initialOrder.every((id) => parsedSet.has(id));
 
       setOrder(valid ? parsed : initialOrder);
-    } catch {
-      setOrder(initialOrder);
-    }
+    };
+
+    void loadOrder();
+    return () => {
+      isActive = false;
+    };
   }, [initialOrder, storageKeyOrder]);
 
-  // Load card spans from localStorage on mount
+  // Load card spans from client storage on mount
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    let isActive = true;
 
-    const raw = window.localStorage.getItem(storageKeySpans);
-    if (!raw) return;
-
-    try {
-      const parsed = JSON.parse(raw) as Partial<
-        Record<TSectionId, CardSpan>
-      > | null;
-      if (!parsed) return;
+    const loadSpans = async () => {
+      const parsed = await readClientJson<Partial<Record<TSectionId, CardSpan>> | null>(
+        storageKeySpans,
+      );
+      if (!isActive || !parsed) return;
 
       const next = createInitialSpans();
 
@@ -75,9 +75,12 @@ export function useLayoutPersistence<TSectionId extends string>(params: {
 
       setCardSpans(next);
       cardSpansRef.current = next;
-    } catch {
-      // Ignore invalid localStorage data and use defaults.
-    }
+    };
+
+    void loadSpans();
+    return () => {
+      isActive = false;
+    };
   }, [createInitialSpans, initialOrder, storageKeySpans]);
 
   // Keep ref in sync with state
@@ -87,16 +90,12 @@ export function useLayoutPersistence<TSectionId extends string>(params: {
 
   // Persist order when it changes
   useEffect(() => {
-    if (!order || typeof window === "undefined") return;
-    window.localStorage.setItem(storageKeyOrder, JSON.stringify(order));
+    if (!order) return;
+    void writeClientJson(storageKeyOrder, order);
   }, [order, storageKeyOrder]);
 
   const persistSpans = useCallback(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem(
-      storageKeySpans,
-      JSON.stringify(cardSpansRef.current),
-    );
+    void writeClientJson(storageKeySpans, cardSpansRef.current);
   }, [storageKeySpans]);
 
   return {
@@ -108,4 +107,3 @@ export function useLayoutPersistence<TSectionId extends string>(params: {
     persistSpans,
   } as const;
 }
-

@@ -44,78 +44,82 @@ export default async function ProtectedPage() {
   }
 
   return (
-    <div className="w-full flex flex-row justify-center px-4 py-6 rounded-3xl bg-background">
-      <div className="w-full max-w-3xl space-y-6 min-h-[75vh]">
-        <h1 className="text-2xl font-medium">Welcome to ProjectAsobi</h1>
-        <p className="text-base">
-          ProjectAsobi is a basic character sheet builder for Dungeons &
-          Dragons. Built because other services either required payment or were
-          not very intuitive. This application aims to create a character sheet
-          that can be customized and organized to the player's specification.
-          May or not maintain this.
-        </p>
-        <h2 className="text-xl font-medium">Let's get started:</h2>
-        <div className="grid grid-cols-2 justify-center items-stretch gap-4">
-          {characters.length > 0 && (
-            <Card className="w-full col-span-2 justify-between">
+    <div className="w-full flex flex-row justify-center px-4 py-6 rounded-3xl bg-background min-h-[85dvh] items-center bg-dot-grid">
+      <div className="w-full max-w-3xl">
+        <div className="flex flex-col gap-2 mb-4">
+          <h1 className="text-2xl font-medium">Welcome to ProjectAsobi</h1>
+          <p className="text-base">
+            ProjectAsobi is a basic character sheet builder for Dungeons &
+            Dragons. Built because other services either required payment or
+            were not very intuitive. This application aims to create a character
+            sheet that can be customized and organized to the player's
+            specification.
+          </p>
+        </div>
+        <div className="flex flex-col gap-2">
+          <h2 className="text-xl font-medium">Let's get started:</h2>
+          <div className="grid grid-cols-2 justify-center items-stretch gap-4">
+            {characters.length > 0 && (
+              <Card className="w-full col-span-2 justify-between">
+                <CardHeader>
+                  <CardTitle>Player Characters</CardTitle>
+                  <CardDescription>
+                    Select an existing character you made.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc pl-5 space-y-1">
+                    {characters.map(({ charId, name }) => (
+                      <li key={charId}>
+                        <Link
+                          className="inline"
+                          href={`/home/character-sheet/${charId}`}
+                        >
+                          <p className="inline hover:bg-stone-500 rounded">
+                            {name}
+                          </p>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
+            <Card className="w-full flex justify-between">
               <CardHeader>
-                <CardTitle>Player Characters</CardTitle>
+                <CardTitle>Create New Character</CardTitle>
                 <CardDescription>
-                  Select an existing character you made.
+                  Make a new character from scratch. Currently only able to fill
+                  in fields on a blank sheet. Dynamic character creation and
+                  homebrews coming soon.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ul className="list-disc pl-5 space-y-1">
-                  {characters.map(({ charId, name }) => (
-                    <li key={charId}>
-                      <Link
-                        className="inline"
-                        href={`/home/character-sheet/${charId}`}
-                      >
-                        <p className="inline hover:bg-stone-500 rounded">
-                          {name}
-                        </p>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                <form action={createCharacterAction}>
+                  <Button type="submit" className="w-full">
+                    <Plus className="w-4 h-4" />
+                    Create
+                  </Button>
+                </form>
               </CardContent>
             </Card>
-          )}
-          <Card className="w-full flex justify-between">
-            <CardHeader>
-              <CardTitle>Create New Character</CardTitle>
-              <CardDescription>
-                Make a new character from scratch. Currently only able to fill
-                in fields on a blank sheet. Dynamic character creation and
-                homebrews coming soon.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form action={createCharacterAction}>
-                <Button type="submit" className="w-full">
-                  <Plus className="w-4 h-4" />
-                  Create
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-          <Card className="w-full flex justify-between">
-            <CardHeader>
-              <CardTitle>Campaign Planner</CardTitle>
-              <CardDescription>
-                Node based planning feature because why not. Try it out!
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="">
-              <Link href={"/home/session"}>
-                <Button type="submit" className="w-full">
-                  <BookOpen className="w-4 h-4" />
-                  Get Started
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+            <Card className="w-full flex justify-between">
+              <CardHeader>
+                <CardTitle>Campaign Planner</CardTitle>
+                <CardDescription>
+                  Node based planning feature because why not. Try it out!
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="">
+                <Link href={"/home/session"}>
+                  <Button type="submit" className="w-full">
+                    <BookOpen className="w-4 h-4" />
+                    Get Started
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

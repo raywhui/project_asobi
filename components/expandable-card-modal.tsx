@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
-import { Expand, GripVertical, Minimize2 } from "lucide-react";
+import { Expand, GripVertical, Minimize2, Pencil } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -26,6 +26,7 @@ type ExpandableCardModalProps = {
   titleClassName?: string;
   showDragHandle?: boolean;
   showToggleButton?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
   onHeaderPointerDown?: (event: ReactPointerEvent<HTMLDivElement>) => void;
 };
 
@@ -38,6 +39,7 @@ export function ExpandableCardModal({
   titleClassName,
   showDragHandle = true,
   showToggleButton = true,
+  onExpandedChange,
   onHeaderPointerDown,
 }: ExpandableCardModalProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -87,13 +89,15 @@ export function ExpandableCardModal({
 
   const closeModal = useCallback(() => {
     if (isClosing) return;
+    onExpandedChange?.(false);
     setIsClosing(true);
-  }, [isClosing]);
+  }, [isClosing, onExpandedChange]);
 
   const openModal = useCallback(() => {
     if (isOpen) return;
+    onExpandedChange?.(true);
     setIsOpen(true);
-  }, [isOpen]);
+  }, [isOpen, onExpandedChange]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -145,7 +149,7 @@ export function ExpandableCardModal({
       {expanded ? (
         <Minimize2 className="h-4 w-4" />
       ) : (
-        <Expand className="h-4 w-4" />
+        <Pencil className="h-4 w-4" />
       )}
     </button>
   );
@@ -156,7 +160,7 @@ export function ExpandableCardModal({
         ref={inlineCardRef}
         className={cn(
           "h-full bg-card",
-          "bg-gradient-to-t from-[#e5e5e5]/5 to-card shadow-xs dark:bg-card",
+          "bg-gradient-to-t from-background to-card shadow-xs dark:bg-card",
           // "bg-gradient-to-t from-[#000664] to-[#211fa7] shadow-xs dark:bg-card border-white/10", //final fantasy colors
           cardClassName,
         )}

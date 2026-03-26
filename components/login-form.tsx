@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Logo from "./logo";
 
 export function LoginForm({
   className,
@@ -51,7 +52,11 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">ProjectAsobi Login</CardTitle>
+          <div className="flex justify-center items-center gap-2">
+            <Logo size={48} />
+            <p className="text-3xl leading-none">ProjectAsobi</p>
+          </div>
+          <CardTitle className="text-xl"> Login</CardTitle>
           <CardDescription>
             Enter your email below to login to your account
           </CardDescription>

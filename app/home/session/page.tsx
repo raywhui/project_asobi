@@ -25,8 +25,8 @@ export default async function DMModePage() {
   const sessions = await listSessionsAction(userId);
 
   return (
-    <div className="w-full flex flex-row justify-center px-4 py-6 rounded-3xl bg-background">
-      <div className="w-full max-w-3xl space-y-6 min-h-[75vh]">
+    <div className="w-full flex flex-row justify-center px-4 py-6 rounded-3xl bg-background min-h-[80dvh] items-center">
+      <div className="w-full max-w-3xl space-y-6">
         <h1 className="text-2xl font-medium">Campaign Planner</h1>
         <p className="text-base">Node based campaign planning tool.</p>
         <h2 className="text-xl font-medium">Let's get started:</h2>

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Textarea } from "../ui/textarea";
+import { LoaderCircle } from "lucide-react";
 
 type SaveStatus = "saved" | "saving" | "unsaved";
 
@@ -57,11 +58,15 @@ export default function PlayerNotes({
         onChange={handleChange}
       />
       <span className="text-muted-foreground text-xs">
-        {saveStatus === "saving"
-          ? "Saving..."
-          : saveStatus === "saved"
-            ? "Saved"
-            : "Unsaved changes"}
+        {saveStatus === "saving" ? (
+          <div className="flex gap-1 text-xs mt-1 items-center">
+            <LoaderCircle size={12} className="animate-spin" /> Saving...
+          </div>
+        ) : saveStatus === "saved" ? (
+          "Saved"
+        ) : (
+          "Unsaved changes"
+        )}
       </span>
     </div>
   );

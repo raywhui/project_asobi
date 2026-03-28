@@ -291,7 +291,8 @@ export function DndCharacterSheet({
     }));
   };
 
-  const updateSpellSlotAmount = (slotIndex: number, delta: number) => {
+  const updateSpellSlotAmount = async (slotIndex: number, delta: number) => {
+    let nextSheet: CharacterSheetState | null = null;
     setSheet((current) => {
       const slot = current.spells.slots[slotIndex];
       if (!slot) return current;
@@ -299,7 +300,7 @@ export function DndCharacterSheet({
       const nextAmount = Math.min(slot.max, Math.max(0, slot.amount + delta));
       if (nextAmount === slot.amount) return current;
 
-      return {
+      nextSheet = {
         ...current,
         spells: {
           ...current.spells,
@@ -308,7 +309,18 @@ export function DndCharacterSheet({
           ),
         },
       };
+      return nextSheet;
     });
+
+    if (!nextSheet || !charId || !onSave) return;
+
+    setIsSaving(true);
+    try {
+      await onSave(charId, nextSheet);
+      setPrevSheet(nextSheet);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const updateSpellSlotTitle = (slotIndex: number, title: string) => {
@@ -1083,11 +1095,11 @@ export function DndCharacterSheet({
                         key={ability.key}
                         className={`flex items-center gap-2 ${cardSpans.abilities.colSpan <= 1 ? "flex-row" : "flex-col"}`}
                       >
-                        <p className="text-3xl w-8">
+                        <p className="text-3xl w-auto">
                           {`(${formatSavingThrow(sheet.ap[ability.key].base + sheet.ap[ability.key].modifier)})`}
                         </p>
                         {cardSpans.abilities.colSpan <= 1 && (
-                          <div className="flex items-center justify-center pl-6 pr-2">
+                          <div className="flex items-center justify-center pr-2">
                             <Dot className="w-4 h-4" />
                           </div>
                         )}
@@ -1176,10 +1188,10 @@ export function DndCharacterSheet({
                     onHeaderPointerDown={(event) =>
                       armDragHandle(sectionId, event)
                     }
-                    contentClassName={`grid gap-6 ${cardSpans.combat.colSpan <= 1 ? "grid-cols-2" : "grid-cols-3"}`}
+                    contentClassName={`flex flex-wrap flex-col gap-6 ${cardSpans.combat.colSpan <= 1 ? "grid-cols-2" : "grid-cols-3"}`}
                   >
                     <div
-                      className={`grid gap-6 ${cardSpans.combat.colSpan <= 1 ? "grid-cols-1 col-span-2" : "grid-cols-2 col-span-3"}`}
+                      className={`grid gap-6 ${cardSpans.combat.colSpan <= 1 ? "grid-cols-1 col-span-2 flex-col" : "grid-cols-3 col-span-3"}`}
                     >
                       <div
                         className={`grid gap-2 ${cardSpans.combat.colSpan <= 1 ? "col-span-1" : "col-span-1"}`}
@@ -1296,113 +1308,120 @@ export function DndCharacterSheet({
                           Hit Dice
                         </Label>
                       </div>
-                    </div>
-                    <div className="grid gap-2">
-                      <div className="flex justify-center items-center gap-2">
-                        <Shield className="w-8 h-8 text-[#00FF80]" />
-                        <SheetInput
-                          isEditing={isCardEditing}
-                          value={sheet.combat.armorClass}
-                          type="number"
-                          readOnly={!isCardEditing}
-                          className="text-3xl w-full"
-                          onChange={(event) =>
-                            updateCombatField("armorClass", event.target.value)
-                          }
-                        />
+                      <div className="grid gap-2">
+                        <div className="flex justify-center items-center gap-2">
+                          <Skull className="w-8 h-8" color="#ef4444" />
+                          <SheetInput
+                            isEditing={isCardEditing}
+                            value={`${sheet.combat.deathSavesSuccesses}/${sheet.combat.deathSavesFailures}`}
+                            readOnly={!isCardEditing}
+                            className="text-3xl w-full"
+                            onChange={(event) => {
+                              const [s = "", f = ""] = event.target.value
+                                .split("/")
+                                .map((part) => part.trim());
+                              updateCombatField("deathSavesSuccesses", s);
+                              updateCombatField("deathSavesFailures", f);
+                            }}
+                          />
+                        </div>
+                        <Label className="text-muted-foreground">
+                          Death Saves (S/F)
+                        </Label>
                       </div>
-                      <Label className="text-muted-foreground">
-                        Armor Class
-                      </Label>
                     </div>
-                    <div className="grid gap-2">
-                      <div className="flex justify-start items-center gap-2">
-                        <Swords className="w-8 h-8 text-[yellow]" />
-                        <div className="flex justify-center items-center">
-                          {sheet.combat.initiative >= 0 && (
-                            <p className="text-3xl">+</p>
-                          )}
+                    <div
+                      className={`grid gap-6 ${cardSpans.combat.colSpan <= 1 ? "grid-cols-2" : "grid-cols-3"}`}
+                    >
+                      <div className="grid gap-2">
+                        <div className="flex justify-center items-center gap-2">
+                          <Shield className="w-8 h-8 text-[#00FF80]" />
+                          <SheetInput
+                            isEditing={isCardEditing}
+                            value={sheet.combat.armorClass}
+                            type="number"
+                            readOnly={!isCardEditing}
+                            className="text-3xl w-full"
+                            onChange={(event) =>
+                              updateCombatField(
+                                "armorClass",
+                                event.target.value,
+                              )
+                            }
+                          />
+                        </div>
+                        <Label className="text-muted-foreground">
+                          Armor Class
+                        </Label>
+                      </div>
+                      <div className="grid gap-2">
+                        <div className="flex justify-start items-center gap-2">
+                          <Swords className="w-8 h-8 text-[yellow]" />
+                          <div className="flex justify-center items-center">
+                            {sheet.combat.initiative >= 0 && (
+                              <p className="text-3xl">+</p>
+                            )}
 
+                            <SheetInput
+                              isEditing={isCardEditing}
+                              type="number"
+                              value={sheet.combat.initiative}
+                              readOnly={!isCardEditing}
+                              className="text-3xl w-full"
+                              onChange={(event) =>
+                                updateCombatField(
+                                  "initiative",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </div>
+                        </div>
+                        <Label className="text-muted-foreground">
+                          Initiative
+                        </Label>
+                      </div>
+                      <div className="grid gap-2">
+                        <div className="flex justify-center items-center gap-2">
+                          <Footprints className="w-8 h-8" color="grey" />
                           <SheetInput
                             isEditing={isCardEditing}
-                            type="number"
-                            value={sheet.combat.initiative}
+                            value={sheet.combat.speed}
                             readOnly={!isCardEditing}
-                            className="text-3xl w-full"
+                            className="text-3xl w-full whitespace-nowrap"
                             onChange={(event) =>
-                              updateCombatField(
-                                "initiative",
-                                event.target.value,
-                              )
+                              updateCombatField("speed", event.target.value)
                             }
                           />
                         </div>
+                        <Label className="text-muted-foreground">
+                          Speed (ft)
+                        </Label>
                       </div>
-                      <Label className="text-muted-foreground">
-                        Initiative
-                      </Label>
-                    </div>
-                    <div className="grid gap-2">
-                      <div className="flex justify-center items-center gap-2">
-                        <Footprints className="w-8 h-8" color="grey" />
-                        <SheetInput
-                          isEditing={isCardEditing}
-                          value={sheet.combat.speed}
-                          readOnly={!isCardEditing}
-                          className="text-3xl w-full whitespace-nowrap"
-                          onChange={(event) =>
-                            updateCombatField("speed", event.target.value)
-                          }
-                        />
-                      </div>
-                      <Label className="text-muted-foreground">
-                        Speed (ft)
-                      </Label>
-                    </div>
-                    <div className="grid gap-2">
-                      <div className="flex justify-start items-center gap-2">
-                        <Triangle className="w-8 h-8 text-[#3888F2]" />
-                        <div className="flex justify-center items-center">
-                          <p className="text-3xl">+</p>
-                          <SheetInput
-                            isEditing={isCardEditing}
-                            value={sheet.combat.proficiencyBonus}
-                            readOnly={!isCardEditing}
-                            type="number"
-                            className="text-3xl w-full"
-                            onChange={(event) =>
-                              updateCombatField(
-                                "proficiencyBonus",
-                                event.target.value,
-                              )
-                            }
-                          />
+                      <div className="grid gap-2">
+                        <div className="flex justify-start items-center gap-2">
+                          <Triangle className="w-8 h-8 text-[#3888F2]" />
+                          <div className="flex justify-center items-center">
+                            <p className="text-3xl">+</p>
+                            <SheetInput
+                              isEditing={isCardEditing}
+                              value={sheet.combat.proficiencyBonus}
+                              readOnly={!isCardEditing}
+                              type="number"
+                              className="text-3xl w-full"
+                              onChange={(event) =>
+                                updateCombatField(
+                                  "proficiencyBonus",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </div>
                         </div>
+                        <Label className="text-muted-foreground">
+                          Proficiency Bonus
+                        </Label>
                       </div>
-                      <Label className="text-muted-foreground">
-                        Proficiency Bonus
-                      </Label>
-                    </div>
-                    <div className="grid gap-2">
-                      <div className="flex justify-center items-center gap-2">
-                        <Skull className="w-8 h-8" color="#ef4444" />
-                        <SheetInput
-                          isEditing={isCardEditing}
-                          value={`${sheet.combat.deathSavesSuccesses}/${sheet.combat.deathSavesFailures}`}
-                          readOnly={!isCardEditing}
-                          className="text-3xl w-full"
-                          onChange={(event) => {
-                            const [s = "", f = ""] = event.target.value
-                              .split("/")
-                              .map((part) => part.trim());
-                            updateCombatField("deathSavesSuccesses", s);
-                            updateCombatField("deathSavesFailures", f);
-                          }}
-                        />
-                      </div>
-                      <Label className="text-muted-foreground">
-                        Death Saves (S/F)
-                      </Label>
                     </div>
                   </ExpandableCardModal>
                   {renderResizeHandle(sectionId)}
@@ -1873,10 +1892,12 @@ export function DndCharacterSheet({
                                       size="icon"
                                       variant="ghost"
                                       className="h-5 w-5"
-                                      onClick={() =>
-                                        updateSpellSlotAmount(index, 1)
+                                      onClick={() => {
+                                        void updateSpellSlotAmount(index, 1);
+                                      }}
+                                      disabled={
+                                        isSaving || slot.amount >= slot.max
                                       }
-                                      disabled={slot.amount >= slot.max}
                                       aria-label={`Increase ${slot.title} slots`}
                                     >
                                       <ChevronUp className="h-3 w-3" />
@@ -1886,10 +1907,10 @@ export function DndCharacterSheet({
                                       size="icon"
                                       variant="ghost"
                                       className="h-5 w-5"
-                                      onClick={() =>
-                                        updateSpellSlotAmount(index, -1)
-                                      }
-                                      disabled={slot.amount <= 0}
+                                      onClick={() => {
+                                        void updateSpellSlotAmount(index, -1);
+                                      }}
+                                      disabled={isSaving || slot.amount <= 0}
                                       aria-label={`Decrease ${slot.title} slots`}
                                     >
                                       <ChevronDown className="h-3 w-3" />
